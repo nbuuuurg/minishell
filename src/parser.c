@@ -63,6 +63,10 @@ void    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
         //lex subshell
     if (temp->previous && (temp->previous->type == REDIR_IN || temp->previous->type == REDIR_APPEND || temp->previous->type == REDIR_OUT || temp->previous->type == HEREDOC))
         return ;
+    if (temp->has_env_var != 0)
+        temp->s = parse_expand(line, temp);
+    if (temp->quoted != NO_QUOTE)
+        temp->s = parse_quoted_token(line, temp);
     new->pipeline[i].args[*j] = ft_strdup(temp->s);
     // printf("temp->s : %s | j = %d\n", temp->s, *j);
     if (!new->pipeline[i].args[*j])

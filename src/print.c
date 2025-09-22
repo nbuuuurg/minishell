@@ -6,27 +6,37 @@ void	print_token(t_line *line)
     {
         printf("token : %s", line->tokens->s);
         if (line->tokens->type == 0)
-            printf("$ - type : WORD$\n");
-        if (line->tokens->type == 1)
-            printf("$ - type : PIPE$\n");
-        if (line->tokens->type == 2)
-            printf("$ - type : OR$\n");
-        if (line->tokens->type == 3)
-            printf("$ - type : AND$\n");
-        if (line->tokens->type == 4)
-            printf("$ - type : REDIR_IN$\n");
-        if (line->tokens->type == 5)
-            printf("$ - type : REDIR_OUT$\n");
-        if (line->tokens->type == 6)
-            printf("$ - type : REDIR_APPEND$\n");
-        if (line->tokens->type == 7)
-            printf("$ - type : HEREDOC$\n");   
-        if (line->tokens->type == 8)
-            printf("$ - type : ASSIGNMENT\n");
+            printf("$ - type : WORD$");
+        else if (line->tokens->type == 1)
+            printf("$ - type : PIPE$");
+        else if (line->tokens->type == 2)
+            printf("$ - type : OR$");
+        else if (line->tokens->type == 3)
+            printf("$ - type : AND$");
+        else if (line->tokens->type == 4)
+            printf("$ - type : REDIR_IN$");
+        else if (line->tokens->type == 5)
+            printf("$ - type : REDIR_OUT$");
+        else if (line->tokens->type == 6)
+            printf("$ - type : REDIR_APPEND$");
+        else if (line->tokens->type == 7)
+            printf("$ - type : HEREDOC$");   
+        else if (line->tokens->type == 8)
+            printf("$ - type : ASSIGNMENT");
         if (line->tokens->in_subshell == 1)
-            printf("(in_subshell)\n");
-        if (line->tokens->has_env_var == 1)
-            printf("has env var\n");
+            printf(" - (in_subshell)");
+        if (line->tokens->has_env_var != 0)
+            printf(" - has %d env var", line->tokens->has_env_var);
+        if (line->tokens->quoted != NO_QUOTE)
+        {
+            if (line->tokens->quoted == SINGLE)
+                printf(" - SINGLE");
+            else if (line->tokens->quoted == DOUBLE)
+                printf(" - DOUBLE");
+            else
+                printf(" - MULTIPLE");
+        }
+        printf("\n");
         line->tokens = line->tokens->next;
     }
 }

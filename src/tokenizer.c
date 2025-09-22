@@ -44,7 +44,7 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 {
 	t_token	*token;
 	int	i;
-	int	j;
+	int	multiple_quote;
 
 	(void)line;
 	(void)s;
@@ -56,22 +56,28 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 	token->s = ft_calloc(len + 1, 1); // peut etre faire len - 1 vu quon enleve les deux quotes
 	if (!token->s)
 		return (NULL); //clean exit - malloc fail
-	i = 0;
-	j = 0;
-	while (i < len)
+	i = -1;
+	multiple_quote = 0;
+	while (++i < len)
 	{
-		if (s[i] == quote)
-			i++;
-		token->s[j++] = s[i++];
+		token->s[i] = s[i];
+		if (is_quote(token->s[i]))
+			multiple_quote++;
 	}
-	token->s[j - 1] = 0;
-	if (quote == 39)
-		token->quoted = SINGLE;
+	token->s[i] = 0;
+	if (multiple_quote == 2)
+	{
+		if (quote == 39)
+			token->quoted = SINGLE;
+		else
+			token->quoted = DOUBLE;
+	}
 	else
-		token->quoted = DOUBLE;
+		token->quoted = MULTIPLE;
 	token->previous = NULL;
 	token->next = NULL;
 	token = token_type(token);
+	token = has_env_var(token);
 	return (token);
 }
 

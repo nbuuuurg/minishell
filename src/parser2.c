@@ -58,3 +58,83 @@ void  find_pipe_position(t_expr *new, t_token *temp, int i)
             new->pipeline[i].position = LAST;
     }
 }
+
+char    *parse_quoted_token(t_line *line, t_token *token)
+{
+    (void)line;
+    return (token->s);
+}
+
+char	*parse_expand(t_line *line, t_token *token)
+{
+    int     i;
+    int     j;
+    int     len;
+    int     single_quote;
+    char    **var;
+
+    i = 0;
+    j = 0;
+    single_quote = 0;
+    while (token->s[i])
+    {
+        if (token->s[i] == '$')
+            j++;
+        i++;
+    }
+    var = ft_calloc(j, 8);
+    if (!var)
+        exit(1); // clean exit - malloc fail
+    j = 0;
+    i = 0;
+    while (token->s[i])
+    {
+        len = 0;
+        if (token->s[i] == 39)
+        {
+            if (single_quote == 0)
+                single_quote = 1;
+            else
+                single_quote = 0;
+        }
+        if (token->s[i] == '$' && single_quote == 0)
+        {
+            if (token->s[i - 1] && token->s[i - 1] == 92) // '\'
+                i++;
+            else if (token->s[i + 1])
+            {
+                if (token->s[i + 1] == '?')
+                {
+                    var[j] = ft_strdup("$?");
+                    if (!var[j])
+                        exit(1); // clean exit - malloc fail
+                }
+                else
+                {
+                    i++;
+                    while (token->s[i] && ft_isalnum(token->s[i]))
+                    {
+                        len++;
+                        i++;
+                    }
+                    printf("len = %d\n", len);
+                    var[j] = ft_calloc(len + 1, 1);
+                    if (!var[j])
+                        exit(1); // clean exit - malloc fail
+                    ft_strlcpy(var[j], &token->s[i - len], len + 1);
+                }
+                j++;
+            }
+        }
+        i++;
+    }
+    printf("j = %d\n", j);
+    int k = -1;
+    while (++k < j)
+        printf("var = %s\n", var[k]);
+    (void)line;
+    // essayer d'acceder a la var avec getenv, si ca ne marche pas remplacer par \n
+    // si $? -> line->last_exit
+    //remplacer ce qui doit etre remplacer dans token par var avec un realloc de memoire
+	return (token->s);
+}

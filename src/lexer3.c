@@ -38,13 +38,14 @@ t_token *has_env_var(t_token *token)
     int i;
 
     i = 0;
-    if (token->quoted == SINGLE || token->type == AND) 
-        return (token->has_env_var = 0, token);
+    token->has_env_var = 0;
+    if (token->type != WORD) 
+        return (token);
     while (token->s[i])
     {
         if (token->s[i] == '$')
-            return (token->has_env_var = 1, token);
+            token->has_env_var++;
         i++;
     }
-    return (token->has_env_var = 0, token);
+    return (token);
 }

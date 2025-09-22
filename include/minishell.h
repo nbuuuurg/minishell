@@ -51,7 +51,8 @@ typedef enum	e_quoted
 {
 	NO_QUOTE = 0,
 	SINGLE,
-	DOUBLE
+	DOUBLE,
+	MULTIPLE
 }		t_quoted;
 
 typedef enum e_exit
@@ -185,6 +186,8 @@ void    parse_assignment(t_line *line, t_expr *new, t_token *temp, int i, int *j
 
 void    count_token(t_token *temp, int (*len)[3], t_token_type op_ctrl);
 void  find_pipe_position(t_expr *new, t_token *temp, int i);
+char    *parse_quoted_token(t_line *line, t_token *token);
+char	*parse_expand(t_line *line, t_token *token);
 
 /* print.c */
 
