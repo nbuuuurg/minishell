@@ -125,10 +125,8 @@ typedef struct	s_expr
 typedef struct	s_line
 {
 	char	*input;
-	char	*clean;
 	t_token	*tokens;
 	char	**envp;
-	char	**path;
 	int		last_exit; //$?
 	int		num_expr;
 	t_expr	*exprs;
@@ -140,8 +138,6 @@ typedef struct	s_line
 
 /* env.c */
 
-char	**get_path(void);
-
 /* error.c */
 
 /* exit.c */
@@ -151,9 +147,9 @@ void    clean_exit(t_line *line);
 /* free.c */
 
 void	free_split(char **s);
-// void    free_tokens(t_token *token);
-// void    free_exprs(t_expr *expr);
-// void    free_pipeline(t_pipeline *pipe);
+void    free_tokens(t_token *token);
+void    free_exprs(t_expr *expr);
+void    free_pipeline(t_pipeline *pipe);
 
 /* init.c */
 
