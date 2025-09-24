@@ -34,7 +34,7 @@ void    count_token(t_token *temp, int (*len)[3], t_token_type op_ctrl)
     }
 }
 
-void  find_pipe_position(t_expr *new, t_token *temp, int i)
+void    find_pipe_position(t_expr *new, t_token *temp, int i)
 {
     if (temp)
     {
@@ -59,82 +59,269 @@ void  find_pipe_position(t_expr *new, t_token *temp, int i)
     }
 }
 
-char    *parse_quoted_token(t_line *line, t_token *token)
+char    *expanded_var(t_line *line, char *var)
+{
+    char    *expanded_var;
+    char    *the_env;
+
+    if (ft_strncmp(var, "$$", 2) == 0)
+    {
+        expanded_var = ft_itoa(getpid());
+        if (!expanded_var)
+            exit(1); // clean exit - malloc fail - free var
+    }
+    else if (ft_strncmp(var, "$?", 2) == 0)
+    {
+        expanded_var = ft_itoa(line->last_exit);
+        if (!expanded_var)
+            exit(1); // clean exit - malloc fail - free var
+    }
+    else if (ft_strncmp(var,"$", 1) == 0)
+    {
+        expanded_var = ft_strdup("");
+        if (!expanded_var)
+            exit(1); // clean exit - malloc fail - free var
+    }
+    else
+    {
+        the_env = getenv(var);
+        if (!the_env)
+        {
+            expanded_var = ft_strdup("\0");
+            if (!expanded_var)
+                exit (1); // clean exit - malloc fail - free var
+        }
+        else
+        {
+            expanded_var = ft_strdup(the_env);
+            if (!expanded_var)
+                exit(1); // clean exit - malloc fail - free var
+        }
+    }
+    free(var);
+    return (expanded_var);
+
+}
+
+int    expanded_token(t_line *line, t_token *token, char *var, size_t start, size_t end)
 {
     (void)line;
+    (void)token;
+    (void)var;
+    (void)start;
+    (void)end;
+
+    char    *s;
+    size_t  len_var;
+    size_t  len_old_var;
+    size_t  len_s;
+    size_t  i;
+    size_t  j;
+    size_t  k;
+
+    len_var = ft_strlen(var);
+    len_old_var = end - start + 1;
+    len_s = ft_strlen(token->s) - len_old_var + len_var;
+    s = ft_calloc(len_s + 1, 1);
+    // printf("s_len = %zu\n", len_s);
+    // printf("start = %zu | end = %zu\n", start, end);
+    if (!s)
+        exit(1); // clean exit - malloc fail
+    i = 0;
+    k = 0;
+    while(i < len_s)
+    {
+        if (i == start)
+        {
+            j = 0;
+            k += len_old_var;
+            if (len_var != 0)
+            {
+                while (j < len_var)
+                    s[i++] = var[j++];
+            }
+            else
+                s[i++] = token->s[k++];
+        }
+        else
+                s[i++] = token->s[k++];
+    }
+    s[i] = 0;
+    // printf("start = %zu | end = %zu | lenvar = %zu | len_old_var = %zu | len_s = %zu\n",start, end, len_var, len_old_var, len_s);
+    free(token->s);
+    token->s = ft_strdup(s);
+    if (!token->s)
+        exit(1); // clean exit - malloc fail
+    free(s);
+    return (start + len_var - 1);
+}
+
+char    *parse_quoted_token(t_line *line, t_token *token)
+{
+    char    *s;
+    int     d_quote;
+    int     s_quote;
+    int     i;
+    int     j;
+    int     len;
+
+    i = 0;
+    j = 0;
+    d_quote = 0;
+    s_quote = 0;
+    if (token->type == SINGLE || token->type == DOUBLE)
+    {
+        s = ft_calloc(ft_strlen(token->s) - 1, 1);
+        if (!s)
+            exit(1); // clean exit - malloc fail
+        while (token->s[i])
+        {
+            if (is_quote(token->s[i]))
+                i++;
+            s[j++] = token->s[i++];
+        }
+    }
+    else
+    {
+        len = 0;
+        while (token->s[i])
+        {
+            if (token->s[i] == 39 && d_quote == 0)
+            {
+                len++;
+                s_quote++;
+                if (s_quote == 2)
+                    s_quote = 0;
+            }
+            else if (token->s[i] == 34 && s_quote == 0)
+            {
+                len++;
+                d_quote++;
+                if (d_quote == 2)
+                    d_quote = 0;     
+            }
+            i++;
+        }
+        // printf("len = %d\n", len);
+        s = ft_calloc(ft_strlen(token->s) - len + 1, 1);
+        if (!s)
+            exit(1); // clean exit - free propre
+        i = 0;
+        j = 0;
+        d_quote = 0;
+        s_quote = 0;
+        while (token->s[i])
+        {
+            // printf("s[i] = %c | s_quote = %d | d_quote = %d\n", token->s[i], s_quote, d_quote);
+            if (token->s[i] == 34 && s_quote == 0)
+            {
+                d_quote++;
+                if (d_quote == 2)
+                    d_quote = 0;
+            }
+            else if (token->s[i] == 39 && d_quote == 0)
+            {
+                s_quote++;
+                if (s_quote == 2)
+                    s_quote = 0;
+            }
+            else
+                s[j++] = token->s[i];
+            i++;
+        }
+    }
+    (void)line;
+    free(token->s);
+    token->s = ft_strdup(s);
+    if (!token->s)
+        exit(1); // clean exit - malloc fail
     return (token->s);
 }
 
 char	*parse_expand(t_line *line, t_token *token)
 {
     int     i;
-    int     j;
+    int     start;
+    int     end;
     int     len;
-    int     single_quote;
-    char    **var;
+    int     s_quote;
+    int     d_quote;
+    char    *var;
 
     i = 0;
-    j = 0;
-    single_quote = 0;
+    start = 0;
+    end = 0;
+    s_quote = 0;
+    d_quote = 0;
     while (token->s[i])
     {
-        if (token->s[i] == '$')
-            j++;
-        i++;
-    }
-    var = ft_calloc(j, 8);
-    if (!var)
-        exit(1); // clean exit - malloc fail
-    j = 0;
-    i = 0;
-    while (token->s[i])
-    {
+        start = i;
+        end = i;
         len = 0;
+        var = NULL;
+        if (token->s[i] == 34)
+        {
+            if (d_quote == 0 && s_quote == 0)
+                d_quote = 1;
+            else if (d_quote == 1)
+                d_quote = 0;
+        }
         if (token->s[i] == 39)
         {
-            if (single_quote == 0)
-                single_quote = 1;
-            else
-                single_quote = 0;
+            if (s_quote == 0 && d_quote == 0)
+                s_quote = 1;
+            else if (s_quote == 1)
+                s_quote = 0;
         }
-        if (token->s[i] == '$' && single_quote == 0)
+        if (token->s[i] == '$' && s_quote == 0)
         {
-            if (token->s[i - 1] && token->s[i - 1] == 92) // '\'
-                i++;
-            else if (token->s[i + 1])
+            if (token->s[i + 1])
             {
                 if (token->s[i + 1] == '?')
                 {
-                    var[j] = ft_strdup("$?");
-                    if (!var[j])
+                    var = ft_strdup("$?");
+                    if (!var)
                         exit(1); // clean exit - malloc fail
+                    end++;
+                }
+                else if (token->s[i + 1] == '$')
+                {
+                    var = ft_strdup("$$");
+                    if (!var)
+                        exit(1); // clean exit - malloc fail
+                    i++;
+                    end++;
                 }
                 else
                 {
-                    i++;
-                    while (token->s[i] && ft_isalnum(token->s[i]))
+                    while (token->s[i + 1] && ft_isalnum(token->s[i + 1]))
                     {
                         len++;
                         i++;
                     }
-                    printf("len = %d\n", len);
-                    var[j] = ft_calloc(len + 1, 1);
-                    if (!var[j])
-                        exit(1); // clean exit - malloc fail
-                    ft_strlcpy(var[j], &token->s[i - len], len + 1);
+                    if (len != 0)
+                    {
+                        var = ft_calloc(len + 1, 1);
+                        if (!var)
+                            exit(1); // clean exit - malloc fail
+                        ft_memcpy(var, &token->s[i + 1 - len], len);
+                        // printf("i - len : %c\n", token->s[i]);
+                    }
+                    end = i;
                 }
-                j++;
             }
+            else
+            {
+                var = ft_strdup("$");
+                if (!var)
+                    exit(1); // clean exit - malloc fail
+            }
+            var = expanded_var(line, var);
+            i = expanded_token(line, token, var, start, end);
+            free(var);
         }
         i++;
     }
-    printf("j = %d\n", j);
-    int k = -1;
-    while (++k < j)
-        printf("var = %s\n", var[k]);
     (void)line;
-    // essayer d'acceder a la var avec getenv, si ca ne marche pas remplacer par \n
-    // si $? -> line->last_exit
-    //remplacer ce qui doit etre remplacer dans token par var avec un realloc de memoire
 	return (token->s);
 }

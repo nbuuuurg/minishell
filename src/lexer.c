@@ -116,11 +116,11 @@ void    lexer_input(t_line *line)
                 s++;
                 while (*s && *s != quote)
                     s++;
-                // if (*s == 0)
-                // {
-                //     printf("error quote not ended");
-                //     exit(1); // free propre
-                // }
+                if (*s == 0)
+                {
+                    printf("error quote not ended");
+                    exit(1); // free propre
+                }
                 while (*s && !is_whitespace(*s) && !is_special(*s))
                     s++;
                 end = s;
@@ -201,7 +201,7 @@ void    lexer_token(t_line *line)
     }
     line->tokens = temp2;
     // free tokens - not needed anymore
-    // print_expr(line);
+    print_expr(line);
 }
 
 void    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)

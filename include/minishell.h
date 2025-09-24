@@ -146,9 +146,14 @@ char	**get_path(void);
 
 /* exit.c */
 
+void    clean_exit(t_line *line);
+
 /* free.c */
 
 void	free_split(char **s);
+// void    free_tokens(t_token *token);
+// void    free_exprs(t_expr *expr);
+// void    free_pipeline(t_pipeline *pipe);
 
 /* init.c */
 
