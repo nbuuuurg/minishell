@@ -18,12 +18,14 @@ void    init_minishell(t_line *line, char **envp)
     lexer_input(line);
 }
 
+
+
 void    init_line(t_line *line, char **envp)
 {
     line->clean = line->input;
     line->tokens = NULL;
     line->exprs = NULL;
-    line->path = get_path();
+    line->path = get_path(envp);
     line->last_exit = 0;
     line->num_expr = 0;
     if (envp)

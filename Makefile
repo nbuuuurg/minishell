@@ -22,7 +22,8 @@ SRC = $(SRC_DIR)env.c \
 	  $(SRC_DIR)signals.c \
 	  $(SRC_DIR)tokenizer.c \
 	  $(SRC_DIR)utils.c \
-	  $(SRC_DIR)utils2.c
+	  $(SRC_DIR)utils2.c \
+	  $(SRC_DIR)exec.c
 
 OBJ= $(SRC:$(SRC_DIR)%.c=$(SRC_OBJ)%.o)
 

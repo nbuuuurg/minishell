@@ -133,13 +133,25 @@ typedef struct	s_line
 	t_expr	*exprs;
 }		t_line;
 
+typedef struct	s_cmd
+{
+	char	**cmd;
+	char	*full_path;
+}	t_cmd;
+
+typedef struct s_child 
+{
+	pid_t	id;
+	int		status;
+}	t_child;
+
 /* ************************************************************************** */
 /*                               PROTOTYPES                                   */
 /* ************************************************************************** */
 
 /* env.c */
 
-char	**get_path(void);
+char	**get_path(char **env);
 
 /* error.c */
 
@@ -215,5 +227,11 @@ int	is_subshell(int c);
 int	is_assignment(char *s);
 char	*dup_assign_name(char *s);
 char	*dup_assign_value(char *s);
+
+
+/* exec.c */
+
+pid_t		ft_exec(t_cmd *cmd, char **env);
+t_cmd	*get_cmd(char *input, char **path);
 
 #endif
