@@ -11,6 +11,29 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+#include <sys/wait.h>
+
+
+void	exec_minishell(t_line line, char **env)
+{
+	t_cmd	*cmd;
+
+
+	// on isole chaque bloc de la ligne si il y a des || && ()
+	// pour chaque bloc :
+	// on regarde si il y a des redirection
+	// si oui on associe les bons fd - get_infile et get_outfile
+	// on regarde les pipes dans chaque bloc pour l exec multi pipes 
+	// on regarde s'il y a des buildins
+	// tab de t_cmd pour les sorties de execeve avec un child id pour chaque processus enfant
+	// waitpid de tous les childs
+	//
+	// et attention aux exit codes
+
+	cmd = get_cmd(line.input , line.path); // a modifier pour recuper les data ordonnes du parsing
+	cmd[0].id = ft_exec(cmd, env);
+	waitpid(cmd[0].id, &cmd[0].status, 0);
+	}
 
 t_cmd	*get_cmd(char *input, char** path)
 {
@@ -23,7 +46,6 @@ t_cmd	*get_cmd(char *input, char** path)
 	i = 0;
 	while (split_input[i])
 		i++;
-
 	cmd = malloc(sizeof(t_cmd));
 	if (!cmd)
 		return (NULL);
@@ -32,7 +54,7 @@ t_cmd	*get_cmd(char *input, char** path)
 		return (NULL);
 	i = 0;
 	while (split_input[i])
-	{
+{
 		cmd->cmd[i] = split_input[i];
 		i++;
 	}
@@ -71,7 +93,7 @@ pid_t	ft_exec(t_cmd *cmd, char **env)
 	// apres le fork tjr un waitpid etc mais dans le parent
 	
 
-	return (0);
+	return (id);
 }
 
 /* int	main(int ac, char **av, char **env) */

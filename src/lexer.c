@@ -201,7 +201,7 @@ void    lexer_token(t_line *line)
     }
     line->tokens = temp2;
     // free tokens - not needed anymore
-    /* print_expr(line); */
+    print_expr(line);
 }
 
 void    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)

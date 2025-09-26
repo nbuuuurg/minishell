@@ -137,13 +137,9 @@ typedef struct	s_cmd
 {
 	char	**cmd;
 	char	*full_path;
-}	t_cmd;
-
-typedef struct s_child 
-{
 	pid_t	id;
 	int		status;
-}	t_child;
+}	t_cmd;
 
 /* ************************************************************************** */
 /*                               PROTOTYPES                                   */
@@ -231,6 +227,8 @@ char	*dup_assign_value(char *s);
 
 /* exec.c */
 
+
+void	exec_minishell(t_line line, char **env);
 pid_t		ft_exec(t_cmd *cmd, char **env);
 t_cmd	*get_cmd(char *input, char **path);
 
