@@ -139,6 +139,7 @@ typedef struct	s_cmd
 	char	*full_path;
 	pid_t	id;
 	int		status;
+	int		fd[2];
 }	t_cmd;
 
 /* ************************************************************************** */
@@ -227,9 +228,17 @@ char	*dup_assign_value(char *s);
 
 /* exec.c */
 
+// void	exec_minishell(t_line line, char **env);
+// pid_t		ft_exec(t_cmd *cmd, char **env);
+// t_cmd	*get_cmd(char *input, char **path);
 
-void	exec_minishell(t_line line, char **env);
-pid_t		ft_exec(t_cmd *cmd, char **env);
-t_cmd	*get_cmd(char *input, char **path);
+/* exec2.c */
+
+void	exec_minishell2(t_line *line, char **env);
+void	exec_exprs(t_expr *exprs, char **path, char **env);
+void	single_cmd(t_expr *exprs, char **path, char **env);
+pid_t	exec_cmd(t_cmd cmd, char **env);
+t_cmd	get_cmd(char **args, char **path, char **env);
+
 
 #endif

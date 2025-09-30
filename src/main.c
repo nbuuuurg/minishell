@@ -12,7 +12,6 @@
 
 #include "../include/minishell.h"
 #include <stdio.h>
-#include <sys/wait.h>
 
 int	main(int ac, char **av, char **envp)
 {
@@ -29,14 +28,16 @@ int	main(int ac, char **av, char **envp)
 		line.input = readline("minishell>>>");
 		if (!line.input)
 			exit(EX_OK); // EOF
+		/* printf("%s\n", line.input); */
 		if (ft_strncmp(line.input, "exit", 4) == 0)
-			return (EX_OK); // exit
+			return(EX_OK); // exit
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, env);
 					/* ----- EXEC ---- */
 		if (line.exprs) // enlever print_expr(line) de lexer.c pour rentrer dans l exec
-			exec_minishell(line, env);
+			/* exec_minishell(line, env); */
+			exec_minishell2(&line, env);
 		free(line.input);
 		free_split(line.path);
 	}
