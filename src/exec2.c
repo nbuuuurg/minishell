@@ -13,7 +13,7 @@
 
 #include "../include/minishell.h"
 
-void	exec_minishell2(t_line *line, char **env)
+void	exec_minishell(t_line *line, char **env)
 {
 	/* int	i; */
 	/* int	j; */
@@ -39,33 +39,101 @@ void	exec_minishell2(t_line *line, char **env)
 
 void	exec_exprs(t_expr *exprs, char **path ,char **env)
 {
-	if (exprs->pipe_count == 0)
-		single_cmd(exprs, path, env);
+	int		i;
+	t_cmd	*cmd;
+	int		fd[2];
+	/* int		fd_next[2]; */
+
+	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1));
+	if (!cmd)
+		return ; // error malloc;
+	i = 0;
+	while (i <= exprs->pipe_count)
+	{
+		cmd[i] = get_cmd(exprs->pipeline[i].args, path, env);
+		i++;
+	}
+	if (exprs->pipe_count > 0)
+		if (pipe(fd) == -1)
+			return (perror("pipe"));
+	i = 0;
+	while (i <= exprs->pipe_count)
+	{
+		/* if (exprs->pipeline[i].position == 2) */
+		/* { */
+		/* 	if (pipe(fd_next) == -1) */
+		/* 		return (perror("pipe")); */
+		/* } */
+		exec_process(cmd[i], env, exprs->pipeline[i].position, fd);
+		if (exprs->pipe_count > 0 && exprs->pipeline[i].position != 1)
+		{
+			close(fd[0]);
+			close(fd[1]);
+		}
+		/* if (i < exprs->pipe_count) */
+		/* { */
+		/* 	fd[0] = fd_next[0]; */
+		/* 	fd[1] = fd_next[1]; */
+		/* } */
+		i++;
+	}
+	i = 0;
+	while (i <= exprs->pipe_count)
+	{
+		waitpid(cmd[i].id, &cmd[i].status, 0);
+		i++;
+	}
+	free(cmd);
 }
 
-void	single_cmd(t_expr *exprs, char **path, char **env)
+void	exec_process(t_cmd cmd, char **env, t_pipe position, int *fd)
 {
-	t_cmd	cmd;
-
-	// if is_buildin
-	// --> exec buildin
-	// else 
-	cmd = get_cmd(exprs->pipeline->args, path, env);
-	cmd.id = exec_cmd(cmd, env);
-
-	waitpid(cmd.id, &cmd.status, 0);
+	printf("%s : position du pipe : %d\n", cmd.cmd[0], position);
+	if (position == 0)
+		cmd.id = exec_cmd(cmd, env, position, fd);
+	else
+	{
+		cmd.id = exec_cmd(cmd, env, position, fd);
+	}
 }
 
-pid_t	exec_cmd(t_cmd cmd, char **env)
+pid_t	exec_cmd(t_cmd cmd, char **env, t_pipe position, int *fd)
 {
 	pid_t	id;
 
 	id = fork();
 	if (id == -1)
-		return (id);// error fork
+		return (perror("fork"),	id);// error fork
 	if (id == 0)
-		execve(cmd.full_path, cmd.cmd, env);
+	{
+		/* if (cmd.buildin) */
+		/* 	exec_buildin(cmd.cmd_buildin); avec un exit a la fin */
+		/* else */
+		if (position == 0)
+			execve(cmd.full_path, cmd.cmd, env);
+		else
+		{
+			get_fd(position, fd);
+			execve(cmd.full_path, cmd.cmd, env);
+		}
+	}
 	return (id);
+}
+
+void	get_fd(t_pipe position, int *fd) // on gerera les redir ici
+{
+	if (position == 1)
+	{
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[0]);
+		close(fd[1]);
+	}
+	if (position == 3)
+	{
+		dup2(fd[0], STDIN_FILENO);
+		close(fd[1]);
+		close(fd[0]);
+	}
 }
 
 t_cmd	get_cmd(char **args, char **path, char **env)
@@ -75,6 +143,11 @@ t_cmd	get_cmd(char **args, char **path, char **env)
 	char	*path_cmd;
 
 	(void)env;
+	ft_bzero(&cmd, sizeof(t_cmd));
+	// si c est un buildin --> on met buildin = 1
+	// else 
+	// buildin = 0 
+	// et on fait le reste
 	cmd.cmd = args;
 	i = 0;
 	while (path[i])
@@ -92,6 +165,6 @@ t_cmd	get_cmd(char **args, char **path, char **env)
 		}
 		free(path_cmd);
 		i++;
-	}	
+	}
 	return (cmd);
 }

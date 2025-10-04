@@ -36,8 +36,7 @@ int	main(int ac, char **av, char **envp)
 		init_minishell(&line, env);
 					/* ----- EXEC ---- */
 		if (line.exprs) // enlever print_expr(line) de lexer.c pour rentrer dans l exec
-			/* exec_minishell(line, env); */
-			exec_minishell2(&line, env);
+			exec_minishell(&line, env);
 		free(line.input);
 		free_split(line.path);
 	}
