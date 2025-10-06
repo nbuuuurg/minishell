@@ -35,14 +35,14 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env)
 	i = 0;
 	while (i <= exprs->pipe_count)
 	{
-		cmd[i] = get_cmd(exprs->pipeline[i].args, path, env);
+		cmd[i] = get_cmd(exprs->pipeline[i], path, env);
 		i++;
 	}
 	i = 0;
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->pipe_count == 0)
-			cmd[i].id = exec_cmd(cmd[i], env, NULL, NULL);
+			cmd[i].id = exec_cmd(cmd[i], NULL, NULL);
 		else
 		{
 			if (exprs->pipeline[i].position != 3)
@@ -51,11 +51,11 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env)
 					return (perror("pipe"));
 			}
 			if (exprs->pipeline[i].position == 1)
-				cmd[i].id = exec_cmd(cmd[i], env, NULL, fd_next);
+				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next);
 			else if (exprs->pipeline[i].position == 2)
-				cmd[i].id = exec_cmd(cmd[i], env, fd, fd_next);
+				cmd[i].id = exec_cmd(cmd[i], fd, fd_next);
 			else if (exprs->pipeline[i].position == 3)
-				cmd[i].id = exec_cmd(cmd[i], env, fd, NULL);
+				cmd[i].id = exec_cmd(cmd[i], fd, NULL);
 			if (i > 0)
 			{
 				close(fd[0]);
@@ -78,7 +78,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env)
 	free(cmd);
 }
 
-pid_t	exec_cmd(t_cmd cmd, char **env, int *fd_in, int *fd_out) // ajouter gestion buildin
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out) // ajouter gestion buildin
 {
 	pid_t	id;
 
@@ -88,7 +88,7 @@ pid_t	exec_cmd(t_cmd cmd, char **env, int *fd_in, int *fd_out) // ajouter gestio
 	if (id == 0)
 	{
 		get_fd(fd_in, fd_out);
-		execve(cmd.full_path, cmd.cmd, env);
+		execve(cmd.full_path, cmd.cmd, cmd.env);
 		perror("execve");
 		exit (1); // penser a free cmd
 	}
@@ -111,19 +111,20 @@ void	get_fd(int *fd_in, int *fd_out) // on gerera les redir ici
 	}
 }
 
-t_cmd	get_cmd(char **args, char **path, char **env)
+t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 {
 	int		i;
 	t_cmd	cmd;
 	char	*path_cmd;
 
-	(void)env;
 	ft_bzero(&cmd, sizeof(t_cmd));
+	cmd.redirect = pipeline.redirect;
 	// si c est un buildin --> on met buildin = 1
 	// else 
 	// buildin = 0 
 	// et on fait le reste
-	cmd.cmd = args;
+	cmd.cmd = pipeline.args;
+	cmd.env = env;
 	i = 0;
 	while (path[i])
 	{

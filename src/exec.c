@@ -12,3 +12,11 @@
 
 #include "../include/minishell.h"
 
+/* TODO :  */
+/**/
+/* - gerer les redirection  */
+/* - gerer les cas d'erreur --> comparer avec bash --posix */
+/* - exit codes -- potentiellemt passer les fcts void en int pour faire remonter le code */
+/* - && --> executer chaque exprs  */
+/* - 1 || 2 --> si exprs 1 marche ne pas exec exprs 2  */
+/* - heredoc --> fonction avec gnl plutot que readline cf pipex */

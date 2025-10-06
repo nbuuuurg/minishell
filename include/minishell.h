@@ -137,10 +137,12 @@ typedef struct	s_cmd
 {
 	int		buildin;
 	char	*cmd_buildin;
+	t_redir	*redirect;
 	char	**cmd;
 	char	*full_path;
 	pid_t	id;
 	int		status;
+	char	**env;
 }	t_cmd;
 
 /* ************************************************************************** */
@@ -234,8 +236,8 @@ char	*dup_assign_value(char *s);
 
 void	exec_minishell(t_line *line, char **env);
 void	exec_exprs(t_expr *exprs, char **path, char **env);
-pid_t	exec_cmd(t_cmd cmd, char **env, int *fd_in, int *fd_out);
-t_cmd	get_cmd(char **args, char **path, char **env);
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out);
+t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 void	get_fd(int *fd_in, int *fd_out);
 
 
