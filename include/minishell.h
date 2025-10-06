@@ -234,10 +234,9 @@ char	*dup_assign_value(char *s);
 
 void	exec_minishell(t_line *line, char **env);
 void	exec_exprs(t_expr *exprs, char **path, char **env);
-pid_t	exec_cmd(t_cmd cmd, char **env, t_pipe position, int *fd);
+pid_t	exec_cmd(t_cmd cmd, char **env, int *fd_in, int *fd_out);
 t_cmd	get_cmd(char **args, char **path, char **env);
-void	exec_process(t_cmd cmd, char **env, t_pipe position, int *fd);
-void	get_fd(t_pipe position, int *fd);
+void	get_fd(int *fd_in, int *fd_out);
 
 
 #endif
