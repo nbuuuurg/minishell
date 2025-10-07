@@ -84,7 +84,7 @@ typedef struct	s_token
 	t_quoted	quoted;
 	int			in_subshell;
 	int			in_heredoc;
-	int			has_env_var;
+	int			has_expand;
 	struct s_token	*next;
 	struct s_token	*previous;
 }		t_token;
@@ -142,13 +142,12 @@ typedef struct	s_line
 
 /* exit.c */
 
-void    clean_exit(t_line *line);
-
 /* free.c */
 
+void	free_line(t_line *line);
 void	free_split(char **s);
-void    free_tokens(t_token *token);
-void    free_exprs(t_expr *expr);
+void    free_tokens(t_token *tokens);
+void    free_exprs(t_expr *exprs);
 void    free_pipeline(t_pipeline *pipe);
 
 /* init.c */
@@ -156,14 +155,21 @@ void    free_pipeline(t_pipeline *pipe);
 void    init_minishell(t_line *line, char **envp);
 void    init_line(t_line *line, char **envp);
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
+char    **init_pipeline_args(t_line *line, int i);
+t_redir *init_pipeline_redir(t_line *line, int i);
+t_assign    *init_pipeline_assign(t_line *line, int i);
 t_pipeline  init_pipeline(t_line *line, int (*len)[3]);
 
 /* lexer.c */
 
-void	lexer_input(t_line *line);
-void	lexer_token(t_line *line);
-void    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
-void    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
+char    *lexer_ascii_char(t_line *line, char *s, char *start, char *end);
+char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end);
+char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end);
+char    *lexer_last_char(t_line *line, char *s, char *start, char *end);
+int		lexer_input(t_line *line);
+int		lexer_token(t_line *line);
+int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
+int    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
 
 /* lexer2.c */
 
@@ -172,7 +178,7 @@ void    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
 /* lexer3.c */
 
 t_token *token_type(t_token *token);
-t_token *has_env_var(t_token *token);
+t_token *has_expand(t_token *token);
 
 /* main.c */
 
@@ -180,9 +186,9 @@ t_token *has_env_var(t_token *token);
 
 t_expr  *parse_new_expr(t_line *line, t_token_type op_ctrl);
 t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3], int *i);
-void    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j);
-void    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j);
-void    parse_assignment(t_line *line, t_expr *new, t_token *temp, int i, int *j);
+int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j);
+int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j);
+int    parse_assignment(t_line *line, t_expr *new, t_token *temp, int i, int *j);
 /* parser2.c */
 
 void    count_token(t_token *temp, int (*len)[3], t_token_type op_ctrl);
@@ -194,6 +200,7 @@ char	*parse_expand(t_line *line, t_token *token);
 
 void	print_token(t_line *line);
 void    print_expr(t_line *line);
+void    print_error(char *s, t_exit code);
 
 /* signals.c */
 
@@ -203,7 +210,7 @@ t_token	*create_token(t_line *line, char *s, int len);
 t_token	*create_quoted_token(t_line *line, char *s, int len, int quote);
 t_token	*last_elem(t_line *line);
 void	add_back(t_line *line, t_token *new);
-t_token *has_env_var(t_token *token);
+t_token *has_expand(t_token *token);
 
 /* utils.c */
 

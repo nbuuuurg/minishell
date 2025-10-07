@@ -25,8 +25,8 @@ void	print_token(t_line *line)
             printf("$ - type : ASSIGNMENT");
         if (line->tokens->in_subshell == 1)
             printf(" - (in_subshell)");
-        if (line->tokens->has_env_var != 0)
-            printf(" - has %d env var", line->tokens->has_env_var);
+        if (line->tokens->has_expand != 0)
+            printf(" - has %d env var", line->tokens->has_expand);
         if (line->tokens->quoted != NO_QUOTE)
         {
             if (line->tokens->quoted == SINGLE)
@@ -100,4 +100,18 @@ void    print_expr(t_line *line)
         line->exprs = line->exprs->next;
     }
     line->exprs = NULL;
+}
+
+void    print_error(char *s, t_exit code)
+{
+    (void)s;
+    //ft_fprintf
+    if (code == EX_GEN)
+        ft_printf("minishell: fatal error: malloc failed\n");
+    else if (code == EX_USAGE)
+        ft_printf("minishell: syntax error: unexpected token\n");
+    else if (code == EX_NOEXEC)
+        ft_printf("minishell: %s: permission denied\n", s);
+    else if (code == EX_NOTFOUND)
+        ft_printf("minishell: %s: command not found\n", s);
 }

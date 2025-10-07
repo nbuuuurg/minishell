@@ -12,6 +12,15 @@
 
 #include "../include/minishell.h"
 
+void	free_line(t_line *line)
+{
+	if (line->tokens)
+		free_tokens(line->tokens);
+	if (line->exprs)
+		free_exprs(line->exprs);
+	free(line->input);
+}
+
 void	free_split(char **s)
 {
 	char	**temp;
@@ -24,41 +33,36 @@ void	free_split(char **s)
 	free(s);
 }
 
-void    free_tokens(t_token *token)
+void    free_tokens(t_token *tokens)
 {
     t_token *temp;
 
-    temp = token;
-    while(token)
+    temp = tokens;
+    while(tokens)
     {
-        if (token->s)
-            free(token->s);
-        token = token->next;
+        if (tokens->s)
+            free(tokens->s);
+        tokens = tokens->next;
         free(temp);
-        temp = token;
+        temp = tokens;
     }
+	free(tokens);
 }
 
-void    free_exprs(t_expr *expr)
+void    free_exprs(t_expr *exprs)
 {
     t_expr  *temp;
-	int		i;
 
-    temp = expr;
-    while (expr)
+    temp = exprs;
+    while (exprs)
     {
-		i = 0;
-		if (expr->pipeline && expr->pipe_count > 0)
-		{
-			while (i < expr->pipe_count)
-            	free_pipeline(&expr->pipeline[i++]);
-		}
-		if (expr->pipeline)
-			free(expr->pipeline);
-        expr = expr->next;
+		if (exprs->pipeline)
+            	free_pipeline(exprs->pipeline);
+        exprs = exprs->next;
         free(temp);
-        temp = expr;
+        temp = exprs;
     }
+	free(exprs);
 }
 
 void    free_pipeline(t_pipeline *pipe)
@@ -83,6 +87,7 @@ void    free_pipeline(t_pipeline *pipe)
     if (pipe->assign && pipe->assign_count > 0)
     {
 		i = 0;
+		printf("%d\n", pipe->assign_count);
 		while (i < pipe->assign_count)
 		{
         	if (pipe->assign[i].name)
@@ -93,4 +98,5 @@ void    free_pipeline(t_pipeline *pipe)
 		}
 		free(pipe->assign);
     }
+	free(pipe);
 }

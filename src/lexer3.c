@@ -33,18 +33,18 @@ t_token *token_type(t_token *token)
     return (token->type = WORD, token);
 }
 
-t_token *has_env_var(t_token *token)
+t_token *has_expand(t_token *token)
 {
     int i;
 
     i = 0;
-    token->has_env_var = 0;
+    token->has_expand = 0;
     if (token->type != WORD) 
         return (token);
     while (token->s[i])
     {
         if (token->s[i] == '$')
-            token->has_env_var++;
+            token->has_expand++;
         i++;
     }
     return (token);

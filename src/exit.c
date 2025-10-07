@@ -11,8 +11,3 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
-void    clean_exit(t_line *line)
-{
-    (void)line;
-}

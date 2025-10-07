@@ -22,10 +22,10 @@ t_token	*create_token(t_line *line, char *s, int len)
 		return (NULL); // c'est ok
 	token = ft_calloc(1, sizeof(t_token));
 	if (!token)
-		return (NULL); //clean exit - malloc fail
+		return (line->last_exit = EX_GEN, NULL);
 	token->s = ft_calloc(len + 1, 1);
 	if (!token->s)
-		return (NULL); //clean exit - malloc fail
+		return (free(token), line->last_exit = EX_GEN, NULL);
 	ft_memcpy(token->s, s, len);
 	token->s[len] = 0;
 	token->next = NULL;
@@ -36,7 +36,7 @@ t_token	*create_token(t_line *line, char *s, int len)
 		token->in_subshell = 0;
 	token->in_heredoc = 0;
 	token = token_type(token);
-	token = has_env_var(token);
+	token = has_expand(token);
 	return (token);
 }
 
@@ -52,10 +52,10 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 		return (NULL); // c'est ok
 	token = ft_calloc(1, sizeof(t_token));
 	if (!token)
-		return (NULL); //clean exit - malloc fail
-	token->s = ft_calloc(len + 1, 1); // peut etre faire len - 1 vu quon enleve les deux quotes
+		return (line->last_exit = EX_GEN, NULL);
+	token->s = ft_calloc(len + 1, 1);
 	if (!token->s)
-		return (NULL); //clean exit - malloc fail
+		return (free(token), line->last_exit = EX_GEN, NULL);
 	i = -1;
 	multiple_quote = 0;
 	while (++i < len)
@@ -77,7 +77,7 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 	token->previous = NULL;
 	token->next = NULL;
 	token = token_type(token);
-	token = has_env_var(token);
+	token = has_expand(token);
 	return (token);
 }
 
@@ -115,5 +115,6 @@ void	add_back(t_line *line, t_token *new)
 			new->next = NULL;
 		}
 	}
+	line->last_exit = EX_OK;
 	return ;
 }

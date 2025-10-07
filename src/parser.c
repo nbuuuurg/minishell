@@ -20,20 +20,27 @@ t_expr  *parse_new_expr(t_line *line, t_token_type op_ctrl)
     t_token *temp;
 
     new = init_new_expr(line, op_ctrl);
+    if (!new)
+        return (NULL);
     temp = line->tokens;
     i = 0;
     while (temp && temp->type != op_ctrl)
     {
         ft_bzero(len, sizeof(len));
         count_token(temp, &len, op_ctrl);
-        new->pipeline[i] = init_pipeline(line, &len);
+        new->pipeline[i] = init_pipeline(line,  &len);
+        if (line->last_exit != 0)
+            return (free_pipeline(&new->pipeline[i]), free_exprs(new), NULL);
         temp = parse_pipeline(line, temp, new, &len, &i);
+        if (line->last_exit != 0)
+            return (free_pipeline(&new->pipeline[i]), free_exprs(new), NULL);
         if (!temp)
             break ;
         if (temp->type == PIPE)
             temp = temp->next;
         else
             break ;
+
     }
     new->next = NULL;
     return (new);
@@ -44,11 +51,13 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
     while (temp && temp->type != PIPE && temp->type != new->op_after)
     {
         if (temp->type == WORD && temp->in_subshell == 0)
-            parse_word(line, new, temp, *i, &(*len)[0]);
+            line->last_exit = parse_word(line, new, temp, *i, &(*len)[0]);
         else if (temp->type == REDIR_IN || temp->type == REDIR_APPEND || temp->type == REDIR_OUT || temp->type == HEREDOC)
-            parse_redir(line, new, temp, *i, &(*len)[1]);
+            line->last_exit = parse_redir(line, new, temp, *i, &(*len)[1]);
         else if (temp->type == ASSIGNMENT)
-            parse_assignment(line, new, temp, *i, &(*len)[2]);
+            line->last_exit = parse_assignment(line, new, temp, *i, &(*len)[2]);
+        if (line->last_exit != 0)
+            return (NULL);
         temp = temp->next;
         find_pipe_position(new, temp, *i);
     }
@@ -56,26 +65,29 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
     return (temp);
 }
 
-void    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
+int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
     (void)line;
     // if (temp->in_subshell == 1)
         //lex subshell
     if (temp->previous && (temp->previous->type == REDIR_IN || temp->previous->type == REDIR_APPEND || temp->previous->type == REDIR_OUT || temp->previous->type == HEREDOC))
-        return ;
-    if (temp->has_env_var != 0)
+        return (0);
+    if (temp->has_expand != 0)
         temp->s = parse_expand(line, temp);
+    if (line->last_exit == EX_GEN)
+        return (EX_GEN);
     if (temp->quoted != NO_QUOTE)
         temp->s = parse_quoted_token(line, temp);
+    if (line->last_exit == EX_GEN)
+        return (EX_GEN);
     new->pipeline[i].args[*j] = ft_strdup(temp->s);
-    // printf("temp->s : %s | j = %d\n", temp->s, *j);
     if (!new->pipeline[i].args[*j])
-        exit(1); // clean exit - malloc fail
-    // printf("new->expr->pipeline[%d].args[%d] = %s\n",i, *j, new->pipeline[i].args[*j]);
+        return (EX_GEN);
     (*j)++;
+    return (0);
 }
 
-void    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
+int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
     (void)line;
     if (ft_isdigit(temp->s[0]))
@@ -84,6 +96,7 @@ void    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
         new->pipeline[i].redirect[*j].from_fd = 0;
     else
         new->pipeline[i].redirect[*j].from_fd = 1;
+
     if (temp->type == REDIR_IN)
         new->pipeline[i].redirect[*j].redir = ft_strdup("<");
     else if (temp->type == HEREDOC)
@@ -92,30 +105,28 @@ void    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
         new->pipeline[i].redirect[*j].redir = ft_strdup(">>");
     else
         new->pipeline[i].redirect[*j].redir = ft_strdup(">");
+
     if (!new->pipeline[i].redirect[*j].redir)
-        exit(1); // clean exit - malloc fail
+        return (EX_GEN);
     if (temp->next && temp->next->type == WORD)
         new->pipeline[i].redirect[*j].file = ft_strdup(temp->next->s);
-    else
-        exit(1); // clean exit - No word after redirection
+    if (!new->pipeline[i].redirect[*j].file)
+        return (free(new->pipeline[i].redirect[*j].redir), 1);
     new->pipeline[i].redirect[*j].order = *j;
-    // printf("new->pipeline[%d].redirect[%d].from_fd = %d\n", i, *j, new->pipeline[i].redirect[*j].from_fd);
-    // printf("new->pipeline[%d].redirect[%d].redir = %s\n", i, *j, new->pipeline[i].redirect[*j].redir);
-    // printf("new->pipeline[%d].redirect[%d].file = %s\n", i, *j, new->pipeline[i].redirect[*j].file);
     (*j)++;
     temp = temp->next;
+    return (0);
 }
 
-void    parse_assignment(t_line *line, t_expr *new, t_token *temp, int i, int *j)
+int    parse_assignment(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
     (void)line;
     new->pipeline[i].assign[*j].name = dup_assign_name(temp->s);
     if (!new->pipeline[i].assign[*j].name)
-        exit(1); //clean exit - malloc fail
+        return (EX_GEN);
     new->pipeline[i].assign[*j].value = dup_assign_value(temp->s);
-    if (!new->pipeline[i].assign[*j].value)
-        exit(1); //clean exit - malloc fail
-    // printf("new->pipeline[%d].assign[%d].name = %s\n", i, *j, new->pipeline[i].assign[*j].name);
-    // printf("new->pipeline[%d].assign[%d].value = %s\n", i, *j, new->pipeline[i].assign[*j].value);
-    (*j)++; 
+    if (!new->pipeline[i].assign[*j].value) 
+        return (free(new->pipeline[i].assign[*j].name), 1);
+    (*j)++;
+    return (0);
 }

@@ -12,6 +12,12 @@
 
 #include "../include/minishell.h"
 
+// sortir propre avec la fonction exit
+// subshell
+// wildcard
+// norme
+
+
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;
@@ -30,6 +36,6 @@ int	main(int ac, char **av, char **envp)
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, envp);
-		free(line.input);
+		free_line(&line);
 	}
 }

@@ -14,8 +14,9 @@
 
 void    init_minishell(t_line *line, char **envp)
 {
+
     init_line(line, envp);
-    lexer_input(line);
+    line->last_exit = lexer_input(line);
 }
 
 void    init_line(t_line *line, char **envp)
@@ -37,15 +38,13 @@ t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl)
 
     new = ft_calloc(1, sizeof(t_expr));
     if (!new)
-        exit(1); // clean exit - malloc fail
+        return (NULL);
     new->op_after = op_ctrl;
     temp = line->tokens;
     pipe = 0;
     i = 0;
     while(temp && temp->type != op_ctrl)
     {
-        if (i == 0 && (!temp->next && (temp->type != ASSIGNMENT && temp->type != WORD)))
-            exit(1); // Ne peut pas finir par un operateur, clean exit
         if (temp->type == PIPE)
             pipe++;
         i++;
@@ -54,39 +53,79 @@ t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl)
     new->pipe_count = pipe;
     new->pipeline = ft_calloc(new->pipe_count + 1, sizeof(t_pipeline));
     if (!new->pipeline)
-        exit(1); //clean exit - malloc fail
+        return (free(new), NULL);
     return (new);
+}
+
+char    **init_pipeline_args(t_line *line, int i)
+{
+    char    **args;
+
+    args = NULL;
+    if (i > 0)
+    {
+        args = ft_calloc(i + 1, sizeof(char *));
+        if (!args)
+            return (line->last_exit = 1, NULL);
+        args[i] = NULL;
+    }
+    return (args);
+}
+
+t_redir *init_pipeline_redir(t_line *line, int i)
+{
+    t_redir *redirect;
+
+    redirect = NULL;
+    if (i > 0)
+    {
+        redirect = ft_calloc(i + 1, sizeof(t_redir));
+        if (!redirect)
+            return (line->last_exit = 1, NULL);
+    }
+    return (redirect);
+}
+
+t_assign    *init_pipeline_assign(t_line *line, int i)
+{
+    t_assign    *assign;
+
+    assign = NULL;
+    if (i > 0)
+    {
+        assign = ft_calloc(i + 1, sizeof(t_assign));
+        if (!assign)
+            return (line->last_exit = 1, NULL);
+    }
+    return (assign);
 }
 
 t_pipeline  init_pipeline(t_line *line, int (*len)[3])
 {
-    t_pipeline  pipeline;
+    t_pipeline  pipeline = {0};
     
-    (void)line;
-    if ((*len)[0] > 0)
+    pipeline.args = init_pipeline_args(line, (*len)[0]);
+    if (line->last_exit != 0)
+        return (pipeline);
+    pipeline.redirect = init_pipeline_redir(line, (*len)[1]);
+    if (line->last_exit != 0)
     {
-        pipeline.args = ft_calloc((*len)[0] + 1, sizeof(char *));
-        if (!pipeline.args)
-            exit(1); //clean exit - malloc fail
+            if (pipeline.args)
+                free(pipeline.args);
+            return (pipeline);
     }
-    if ((*len)[1] > 0)
+    pipeline.assign = init_pipeline_assign(line, (*len)[2]);
+    if (line->last_exit != 0)
     {
-        pipeline.redirect = ft_calloc((*len)[1] + 1, sizeof(t_redir));
-        if (!pipeline.redirect)
-            exit(1); //clean exit - malloc fail
+        if(pipeline.args)
+            free(pipeline.args);
+        if(pipeline.redirect)
+            free(pipeline.redirect);
+        return (pipeline);
     }
-    if ((*len)[2] > 0)
-    {
-        pipeline.assign = ft_calloc((*len)[2] + 1, sizeof(t_assign));
-        if (!pipeline.assign)
-            exit(1); //clean exit - malloc fail
-    }
-    if ((*len)[0] > 0)
-        pipeline.args[(*len)[0]] = NULL;
     pipeline.word_count = (*len)[0];
     pipeline.redir_count = (*len)[1];
     pipeline.assign_count = (*len)[2];
     ft_bzero(*len, sizeof(*len));
-    // printf("len0 : %d | len1 : %d | len2 : %d\n", (*len)[0], (*len)[1], (*len)[2]);
     return (pipeline);
 }

@@ -68,19 +68,19 @@ char    *expanded_var(t_line *line, char *var)
     {
         expanded_var = ft_itoa(getpid());
         if (!expanded_var)
-            exit(1); // clean exit - malloc fail - free var
+            return (free(var), NULL);
     }
     else if (ft_strncmp(var, "$?", 2) == 0)
     {
         expanded_var = ft_itoa(line->last_exit);
         if (!expanded_var)
-            exit(1); // clean exit - malloc fail - free var
+            return (free(var), NULL);
     }
     else if (ft_strncmp(var,"$", 1) == 0)
     {
         expanded_var = ft_strdup("");
         if (!expanded_var)
-            exit(1); // clean exit - malloc fail - free var
+            return (free(var), NULL);
     }
     else
     {
@@ -89,13 +89,13 @@ char    *expanded_var(t_line *line, char *var)
         {
             expanded_var = ft_strdup("\0");
             if (!expanded_var)
-                exit (1); // clean exit - malloc fail - free var
+                return (free(var), NULL);
         }
         else
         {
             expanded_var = ft_strdup(the_env);
             if (!expanded_var)
-                exit(1); // clean exit - malloc fail - free var
+                return (free(var), NULL);
         }
     }
     free(var);
@@ -123,10 +123,8 @@ int    expanded_token(t_line *line, t_token *token, char *var, size_t start, siz
     len_old_var = end - start + 1;
     len_s = ft_strlen(token->s) - len_old_var + len_var;
     s = ft_calloc(len_s + 1, 1);
-    // printf("s_len = %zu\n", len_s);
-    // printf("start = %zu | end = %zu\n", start, end);
     if (!s)
-        exit(1); // clean exit - malloc fail
+        return (line->last_exit = EX_GEN, -1);
     i = 0;
     k = 0;
     while(i < len_s)
@@ -147,11 +145,10 @@ int    expanded_token(t_line *line, t_token *token, char *var, size_t start, siz
                 s[i++] = token->s[k++];
     }
     s[i] = 0;
-    // printf("start = %zu | end = %zu | lenvar = %zu | len_old_var = %zu | len_s = %zu\n",start, end, len_var, len_old_var, len_s);
     free(token->s);
     token->s = ft_strdup(s);
     if (!token->s)
-        exit(1); // clean exit - malloc fail
+        return (free(s), line->last_exit = EX_GEN, -1);
     free(s);
     return (start + len_var - 1);
 }
@@ -173,7 +170,7 @@ char    *parse_quoted_token(t_line *line, t_token *token)
     {
         s = ft_calloc(ft_strlen(token->s) - 1, 1);
         if (!s)
-            exit(1); // clean exit - malloc fail
+            return (line->last_exit = EX_GEN, NULL);
         while (token->s[i])
         {
             if (is_quote(token->s[i]))
@@ -202,17 +199,15 @@ char    *parse_quoted_token(t_line *line, t_token *token)
             }
             i++;
         }
-        // printf("len = %d\n", len);
         s = ft_calloc(ft_strlen(token->s) - len + 1, 1);
         if (!s)
-            exit(1); // clean exit - free propre
+            return (line->last_exit = EX_GEN, NULL);
         i = 0;
         j = 0;
         d_quote = 0;
         s_quote = 0;
         while (token->s[i])
         {
-            // printf("s[i] = %c | s_quote = %d | d_quote = %d\n", token->s[i], s_quote, d_quote);
             if (token->s[i] == 34 && s_quote == 0)
             {
                 d_quote++;
@@ -234,7 +229,7 @@ char    *parse_quoted_token(t_line *line, t_token *token)
     free(token->s);
     token->s = ft_strdup(s);
     if (!token->s)
-        exit(1); // clean exit - malloc fail
+        return (free(s), line->last_exit = EX_GEN, NULL);
     return (token->s);
 }
 
@@ -281,14 +276,14 @@ char	*parse_expand(t_line *line, t_token *token)
                 {
                     var = ft_strdup("$?");
                     if (!var)
-                        exit(1); // clean exit - malloc fail
+                        return (line->last_exit = EX_GEN, NULL);
                     end++;
                 }
                 else if (token->s[i + 1] == '$')
                 {
                     var = ft_strdup("$$");
                     if (!var)
-                        exit(1); // clean exit - malloc fail
+                        return (line->last_exit = EX_GEN, NULL);
                     i++;
                     end++;
                 }
@@ -303,9 +298,8 @@ char	*parse_expand(t_line *line, t_token *token)
                     {
                         var = ft_calloc(len + 1, 1);
                         if (!var)
-                            exit(1); // clean exit - malloc fail
+                            return (line->last_exit = EX_GEN, NULL);
                         ft_memcpy(var, &token->s[i + 1 - len], len);
-                        // printf("i - len : %c\n", token->s[i]);
                     }
                     end = i;
                 }
@@ -314,14 +308,18 @@ char	*parse_expand(t_line *line, t_token *token)
             {
                 var = ft_strdup("$");
                 if (!var)
-                    exit(1); // clean exit - malloc fail
+                    return (line->last_exit = EX_GEN, NULL);
             }
             var = expanded_var(line, var);
+            if (!var)
+                return (line->last_exit = EX_GEN, NULL);
             i = expanded_token(line, token, var, start, end);
+            if (i == -1 && line->last_exit != 0)
+                return (NULL);
             free(var);
         }
         i++;
     }
     (void)line;
-	return (token->s);
+	return (line->last_exit = 0, token->s);
 }
