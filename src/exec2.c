@@ -87,7 +87,7 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out) // ajouter gestion buildin
 		return (perror("fork"),	id);// error fork
 	if (id == 0)
 	{
-		get_fd(fd_in, fd_out);
+		get_fd(fd_in, fd_out, cmd.redirect);
 		execve(cmd.full_path, cmd.cmd, cmd.env);
 		perror("execve");
 		exit (1); // penser a free cmd
@@ -95,21 +95,67 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out) // ajouter gestion buildin
 	return (id);
 }
 
-void	get_fd(int *fd_in, int *fd_out) // on gerera les redir ici
+void	get_fd(int *fd_in, int *fd_out, t_redir *redirect) // on gerera les redir ici
 {
-	if (fd_in)
+	int	fd_redir_out = 0;
+
+	if (redirect)
 	{
-		dup2(fd_in[0], STDIN_FILENO);
-		close(fd_in[0]);
-		close(fd_in[1]);
+		ft_redir(redirect, fd_redir_out);
+		/* printf("y a une redir \n"); */
 	}
-	if (fd_out)
+	else
 	{
-		dup2(fd_out[1], STDOUT_FILENO);
-		close(fd_out[0]);
-		close(fd_out[1]);
+		if (fd_in)
+		{
+			
+			dup2(fd_in[0], STDIN_FILENO);
+			close(fd_in[0]);
+			close(fd_in[1]);
+		}
+		if (fd_out)
+		{
+			dup2(fd_out[1], STDOUT_FILENO);
+			close(fd_out[0]);
+			close(fd_out[1]);
+		}
 	}
 }
+
+void	ft_redir(t_redir *redirect, int fd)
+{
+
+	if (ft_strncmp(redirect->redir, ">", ft_strlen(redirect->redir)) == 0)
+	{
+		fd = open(redirect->file, O_WRONLY | O_TRUNC | O_CREAT, 0644); 
+		dup2(fd, STDOUT_FILENO);
+		
+		/* printf("y a une redir de type > \n"); */
+	}
+	else if (ft_strncmp(redirect->redir, ">>", ft_strlen(redirect->redir)) == 0)
+	{
+		fd = open(redirect->file, O_WRONLY | O_APPEND | O_CREAT, 0644); 
+		dup2(fd, STDIN_FILENO);
+		
+		/* printf("y a une redir de type >> \n"); */
+	}
+	else if (ft_strncmp(redirect->redir, "<", ft_strlen(redirect->redir)) == 0) // ok
+	{
+		fd = open(redirect->file, O_RDONLY, 0644); 
+		dup2(fd, STDIN_FILENO);
+		
+		/* printf("y a une redir de type < \n"); */
+	}
+	else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0)
+	{
+		fd = open(redirect->file, O_RDONLY, 0644); 
+		dup2(fd, STDIN_FILENO);
+		
+		/* printf("y a une redir de type << \n"); */
+	}
+
+}
+
 
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 {
@@ -118,6 +164,7 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	char	*path_cmd;
 
 	ft_bzero(&cmd, sizeof(t_cmd));
+	/* printf("%p\n", pipeline.redirect); */
 	cmd.redirect = pipeline.redirect;
 	// si c est un buildin --> on met buildin = 1
 	// else 

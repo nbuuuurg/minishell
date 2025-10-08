@@ -67,6 +67,7 @@ t_pipeline  init_pipeline(t_line *line, int (*len)[3])
     t_pipeline  pipeline;
     
     (void)line;
+	ft_bzero(&pipeline, sizeof(t_pipeline));
     if ((*len)[0] > 0)
     {
         pipeline.args = ft_calloc((*len)[0] + 1, sizeof(char *));
