@@ -99,11 +99,9 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out) // ajouter gestion buildin
 
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect) // on gerera les redir ici
 {
-	int	fd_redir_out = 0;
-
 	if (redirect)
 	{
-		return (ft_redir(redirect, fd_redir_out));
+		return (ft_redir(redirect, fd_in, fd_out));
 	}
 	else
 	{
@@ -124,36 +122,44 @@ int		get_fd(int *fd_in, int *fd_out, t_redir *redirect) // on gerera les redir i
 	return (0);
 }
 
-int	ft_redir(t_redir *redirect, int fd)
+// Attention : prb redir et pipes et ajouter des close apres les dup2 et gerer qd plusieurs redirections pour une seule commande 
+
+int	ft_redir(t_redir *redirect, int *fd_in, int *fd_out)
 {
+	int	fd;
 
 	if (ft_strncmp(redirect->redir, ">", ft_strlen(redirect->redir)) == 0)
 	{
 		fd = open(redirect->file, O_WRONLY | O_TRUNC | O_CREAT, 0644); 
 		dup2(fd, STDOUT_FILENO);
+		close(fd_out[0]);
+		close(fd_out[1]);
 		return (0);
 	}
 	else if (ft_strncmp(redirect->redir, ">>", ft_strlen(redirect->redir)) == 0)
 	{
 		fd = open(redirect->file, O_WRONLY | O_APPEND | O_CREAT, 0644); 
 		dup2(fd, STDOUT_FILENO);
+		close(fd_out[0]);
+		close(fd_out[1]);
 		return (0);
 	}
 	else if (ft_strncmp(redirect->redir, "<", ft_strlen(redirect->redir)) == 0) // ok
 	{
 		fd = open(redirect->file, O_RDONLY, 0644); // a voir au parsing si ya rien 
 		if (fd == -1)
-			return (perror("mini"), 1);
+			return (perror("mini"), 1); // la cmd au lieu de mini
 		dup2(fd, STDIN_FILENO);
+		close(fd_in[0]);
+		close(fd_in[1]);
 		return (0);
 	}
-	else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0) // here_doc
-	{
-		fd = open(redirect->file, O_RDONLY, 0644); 
-		dup2(fd, STDIN_FILENO);
-		
-		/* printf("y a une redir de type << \n"); */
-	}
+	/* else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0) // here_doc */
+	/* { */
+	/* 	fd = open(redirect->file, O_RDONLY, 0644);  */
+	/* 	dup2(fd, STDIN_FILENO); */
+	/* 	return (0); */
+	/* } */
 	return (-1);
 
 }
