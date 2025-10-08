@@ -14,6 +14,17 @@
 
 char    *lexer_special_char(t_line *line, char *s, char *start, char *end)
 {
+    if (s == line->input)
+    {
+        start = s;
+        end = start;
+        while (*end && *end == is_special(*s) && end != s + 1)
+            end++;
+        add_back(line, create_token(line, start, (end - start) + 1));
+        if (*(end + 1) == 0)
+            return (line->last_exit = -7, NULL);
+        return (line->last_exit = 0, s = end);
+    }
     if (*(s - 1) && !is_whitespace(*(s - 1)) && !ft_isdigit(*(s - 1)))
     {
         end = s - 1;
@@ -48,7 +59,7 @@ char    *lexer_special_char(t_line *line, char *s, char *start, char *end)
             if (line->last_exit != 0)
                 return (NULL);
             if (*(s + 2) == 0)
-                return (line->last_exit = -5, NULL); // fini par simple special
+                return (line->last_exit = -5, NULL); // fini par double special
             s++;
         }
         else
@@ -78,13 +89,13 @@ char    *lexer_special_char(t_line *line, char *s, char *start, char *end)
         }
     }
     else
-        return (line->last_exit = -6, NULL); // fini par double specia
+        return (line->last_exit = -6, NULL); // fini par simple specia
     return (line->last_exit = 0, s);
 }
 
 char    *lexer_ascii_char(t_line *line, char *s, char *start, char *end)
 {
-    if (*(s - 1) && !is_special(*(s - 1)))
+    if (line->len != 1 && *(s - 1) && !is_special(*(s - 1)))
     {
         end = s - 1;
         add_back(line, create_token(line, start, (end - start) + 1));
@@ -128,7 +139,7 @@ char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end)
 {
     int     quote;
 
-    if (*(s - 1) && !is_whitespace(*(s - 1)))
+    if (line->len != 1 && *(s - 1) && !is_whitespace(*(s - 1)))
     {
         end = s - 1;
         add_back(line, create_token(line, start, (end - start) + 1));
@@ -176,7 +187,7 @@ int    lexer_input(t_line *line)
             s++;
         start = s;
         while (*s)
-        {        
+        {
             if (is_special(*s))
             {
                 s = lexer_special_char(line, s, start, end);
@@ -221,7 +232,6 @@ int    lexer_input(t_line *line)
         if (line->last_exit != 0)
             return (line->last_exit);
     }
-    // print_token(line);
     return (lexer_token(line));
 }
 
@@ -253,7 +263,6 @@ int    lexer_token(t_line *line)
             return (line->last_exit);
     }
     line->tokens = temp2;
-    print_expr(line);
     return (0);
 }
 

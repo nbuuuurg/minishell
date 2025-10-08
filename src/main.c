@@ -6,7 +6,7 @@
 /*   By: nburgevi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 15:07:17 by nburgevi          #+#    #+#             */
-/*   Updated: 2025/08/24 18:33:26 by nburgevi         ###   ########.fr       */
+/*   Updated: 2025/10/08 22:06:21 by nburgevi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 // subshell
 // wildcard
 // norme
+// enlever les printf
+//
 
 
 int	main(int ac, char **av, char **envp)
@@ -36,6 +38,6 @@ int	main(int ac, char **av, char **envp)
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, envp);
-		free_line(&line);
+		// free_line(&line);
 	}
 }

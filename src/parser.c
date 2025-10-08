@@ -108,8 +108,10 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 
     if (!new->pipeline[i].redirect[*j].redir)
         return (EX_GEN);
-    if (temp->next && temp->next->type == WORD)
+    if (temp->next)
         new->pipeline[i].redirect[*j].file = ft_strdup(temp->next->s);
+    else
+        new->pipeline[i].redirect[*j].file = ft_strdup(temp->s);
     if (!new->pipeline[i].redirect[*j].file)
         return (free(new->pipeline[i].redirect[*j].redir), 1);
     new->pipeline[i].redirect[*j].order = *j;

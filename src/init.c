@@ -12,21 +12,70 @@
 
 #include "../include/minishell.h"
 
+int    init_clean_input(t_line *line)
+{
+    size_t     i;
+    size_t     j;
+
+    i = 0;
+    j = 0;
+    if (line->len == 0 || line->len == 1)
+    {
+        line->clean = ft_strdup(line->input);
+        if (!line->clean)
+            return (1);
+        free(line->input);
+        line->input = line->clean;
+        return (0);
+    }
+    while (line->input[i] && is_whitespace(line->input[i]))
+    {
+        i++;
+        j++;
+    }
+    while (line->input[i])
+        i++;
+    i--;
+    while(i > 0 && is_whitespace(line->input[i]))
+    {
+        i--;
+        j++;
+    }
+    line->clean = ft_calloc(line->len - j + 1, 1);
+    if (!line->clean)
+        return (1);
+    i = 0;
+    while (line->input[i] && is_whitespace(line->input[i]))
+        i++;
+    ft_memcpy(line->clean, &line->input[i], line->len - j);
+    printf("line->clean : $%s$\n", line->clean);
+    free(line->input);
+    line->input = line->clean;
+    return (0);
+}
+
 void    init_minishell(t_line *line, char **envp)
 {
-
     init_line(line, envp);
+    if (line->last_exit != 0)
+        return ;
+    if (line->len == 0)
+        return ;
     line->last_exit = lexer_input(line);
+    printf("last->exit : %d\n", line->last_exit);
+    // print_token(line);
+    print_expr(line);
 }
 
 void    init_line(t_line *line, char **envp)
 {
     line->tokens = NULL;
     line->exprs = NULL;
-    line->last_exit = 0;
     line->num_expr = 0;
+    line->len = ft_strlen(line->input);
     if (envp)
         line->envp = envp;
+    line->last_exit = init_clean_input(line);
 }
 
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl)

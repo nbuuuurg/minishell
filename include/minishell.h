@@ -125,6 +125,8 @@ typedef struct	s_expr
 typedef struct	s_line
 {
 	char	*input;
+	char	*clean;
+	size_t	len;
 	t_token	*tokens;
 	char	**envp;
 	int		last_exit; //$?
@@ -162,7 +164,7 @@ t_pipeline  init_pipeline(t_line *line, int (*len)[3]);
 
 /* lexer.c */
 
-char    *lexer_ascii_char(t_line *line, char *s, char *start, char *end);
+char    *lexer_simple_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_last_char(t_line *line, char *s, char *start, char *end);
