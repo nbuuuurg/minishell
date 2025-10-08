@@ -238,8 +238,8 @@ void	exec_minishell(t_line *line, char **env);
 void	exec_exprs(t_expr *exprs, char **path, char **env);
 pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
-void	get_fd(int *fd_in, int *fd_out, t_redir *redirect);
-void	ft_redir(t_redir *redirect, int fd);
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
+int		ft_redir(t_redir *redirect, int fd);
 
 
 
