@@ -103,6 +103,7 @@ typedef struct	s_redir
 	int			order;
 }				t_redir;
 
+
 typedef struct	s_pipeline
 {
 	char		**args;
@@ -114,8 +115,17 @@ typedef struct	s_pipeline
 	int			assign_count;
 }		t_pipeline;
 
+typedef struct s_subshell
+{
+	t_pipeline	*pipeline;
+	int			pipe_count;
+	t_token_type	op_after;
+}		t_subshell;
+
+
 typedef struct	s_expr
 {
+	t_subshell	*subshell;
 	t_pipeline	*pipeline;
 	t_token_type		op_after;
 	int			pipe_count;
@@ -155,27 +165,33 @@ void    free_pipeline(t_pipeline *pipe);
 /* init.c */
 
 void    init_minishell(t_line *line, char **envp);
+int    init_clean_input(t_line *line);
 void    init_line(t_line *line, char **envp);
+void	init_token(t_token *token, int multiple_quote, int quote, int i);
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
-char    **init_pipeline_args(t_line *line, int i);
-t_redir *init_pipeline_redir(t_line *line, int i);
+
+/* init2.c */
+
 t_assign    *init_pipeline_assign(t_line *line, int i);
+t_redir *init_pipeline_redir(t_line *line, int i);
+char    **init_pipeline_args(t_line *line, int i);
 t_pipeline  init_pipeline(t_line *line, int (*len)[3]);
 
 /* lexer.c */
 
+int		lexer_input(t_line *line);
+int		lexer_token(t_line *line);
+int		lexer_subshell_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
+int		lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
+int		lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
+
+/* lexer2.c */
+
+char    *lexer_special_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_simple_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_last_char(t_line *line, char *s, char *start, char *end);
-int		lexer_input(t_line *line);
-int		lexer_token(t_line *line);
-int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
-int    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
-
-/* lexer2.c */
-
-
 
 /* lexer3.c */
 
@@ -228,5 +244,9 @@ int	is_subshell(int c);
 int	is_assignment(char *s);
 char	*dup_assign_name(char *s);
 char	*dup_assign_value(char *s);
+int     len_whitespace(t_line *line);
+
+/* utils3.c */
+int count_subshell(char *s);
 
 #endif

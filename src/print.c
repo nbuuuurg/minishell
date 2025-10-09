@@ -23,8 +23,8 @@ void	print_token(t_line *line)
             printf("$ - type : HEREDOC$");   
         else if (line->tokens->type == 8)
             printf("$ - type : ASSIGNMENT");
-        if (line->tokens->in_subshell == 1)
-            printf(" - (in_subshell)");
+        if (line->tokens->in_subshell != 0)
+            printf(" - (%d subshell)", line->tokens->in_subshell);
         if (line->tokens->has_expand != 0)
             printf(" - has %d env var", line->tokens->has_expand);
         if (line->tokens->quoted != NO_QUOTE)

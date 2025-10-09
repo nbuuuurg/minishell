@@ -16,9 +16,6 @@
 // subshell
 // wildcard
 // norme
-// enlever les printf
-//
-
 
 int	main(int ac, char **av, char **envp)
 {

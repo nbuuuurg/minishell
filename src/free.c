@@ -87,7 +87,6 @@ void    free_pipeline(t_pipeline *pipe)
     if (pipe->assign && pipe->assign_count > 0)
     {
 		i = 0;
-		printf("%d\n", pipe->assign_count);
 		while (i < pipe->assign_count)
 		{
         	if (pipe->assign[i].name)

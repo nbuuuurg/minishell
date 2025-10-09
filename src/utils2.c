@@ -86,3 +86,26 @@ char	*dup_assign_value(char *s)
 	value[j] = 0;
 	return (value);
 }
+
+int     len_whitespace(t_line *line)
+{
+    size_t i;
+    size_t j;
+
+    i = 0;
+    j = 0;
+    while (line->input[i] && is_whitespace(line->input[i]))
+    {
+        i++;
+        j++;
+    }
+    while (line->input[i])
+        i++;
+    i--;
+    while(i > 0 && is_whitespace(line->input[i]))
+    {
+        i--;
+        j++;
+    }
+    return (j);
+}

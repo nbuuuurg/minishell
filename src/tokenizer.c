@@ -31,7 +31,7 @@ t_token	*create_token(t_line *line, char *s, int len)
 	token->next = NULL;
 	token->quoted = NO_QUOTE;
 	if (token->s[len - 1] == ')')
-		token->in_subshell = 1;
+		token->in_subshell = count_subshell(token->s);
 	else
 		token->in_subshell = 0;
 	token->in_heredoc = 0;
@@ -39,6 +39,19 @@ t_token	*create_token(t_line *line, char *s, int len)
 	token = has_expand(token);
 	return (token);
 }
+
+t_quoted	def_quote(int	multiple_quote, int quote)
+{
+	if (multiple_quote == 2)
+	{
+		if (quote == 39)
+			return (SINGLE);
+		else
+			return (DOUBLE);
+	}
+	else	
+			return (MULTIPLE);
+}	
 
 t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 {
@@ -56,28 +69,15 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 	token->s = ft_calloc(len + 1, 1);
 	if (!token->s)
 		return (free(token), line->last_exit = EX_GEN, NULL);
-	i = -1;
 	multiple_quote = 0;
+	i = -1;
 	while (++i < len)
 	{
 		token->s[i] = s[i];
 		if (is_quote(token->s[i]))
 			multiple_quote++;
 	}
-	token->s[i] = 0;
-	if (multiple_quote == 2)
-	{
-		if (quote == 39)
-			token->quoted = SINGLE;
-		else
-			token->quoted = DOUBLE;
-	}
-	else
-		token->quoted = MULTIPLE;
-	token->previous = NULL;
-	token->next = NULL;
-	token = token_type(token);
-	token = has_expand(token);
+	init_token(token, multiple_quote, quote, i);
 	return (token);
 }
 

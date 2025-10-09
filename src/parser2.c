@@ -84,6 +84,7 @@ char    *expanded_var(t_line *line, char *var)
     }
     else
     {
+        //decouper
         the_env = getenv(var);
         if (!the_env)
         {
