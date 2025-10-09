@@ -239,7 +239,7 @@ void	exec_exprs(t_expr *exprs, char **path, char **env);
 pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
-int		ft_redir(t_redir *redirect, int *fd_in, int *fd_out);
+int		ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2]);
 
 
 
