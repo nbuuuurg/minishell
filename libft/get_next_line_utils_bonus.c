@@ -28,7 +28,7 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-void	*ft_calloc(size_t nmemb, size_t size)
+void	*ft_calloc2(size_t nmemb, size_t size)
 {
 	size_t	total;
 	size_t	i;
@@ -58,10 +58,10 @@ char	*ft_strjoin_gnl(char *save, char *buff)
 	char	*str;
 
 	if (!save)
-		save = ft_calloc(1, 1);
+		save = ft_calloc2(1, 1);
 	if (!save)
 		return (ft_free_static(save), save = NULL);
-	str = ft_calloc(ft_strlen(save) + ft_strlen(buff) + 1, 1);
+	str = ft_calloc2(ft_strlen(save) + ft_strlen(buff) + 1, 1);
 	if (str == NULL)
 		return (ft_free_static(save), save = NULL);
 	i = 0;
@@ -90,7 +90,7 @@ char	*ft_save(char *save)
 		i++;
 	if (save[i] == 0)
 		return (save[0] = 0, save);
-	str = ft_calloc(ft_strlen(save) - i + 1, 1);
+	str = ft_calloc2(ft_strlen(save) - i + 1, 1);
 	if (!str)
 		return (ft_free_static(save), save = NULL);
 	i++;

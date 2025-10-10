@@ -235,12 +235,11 @@ char	*dup_assign_value(char *s);
 /* exec2.c */
 
 void	exec_minishell(t_line *line, char **env);
-void	exec_exprs(t_expr *exprs, char **path, char **env);
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out);
+void	exec_exprs(t_expr *exprs, char **path, char **env, int *here_doc_fds);
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
-int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
-int		ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2]);
-
-
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds);
+int		ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds);
+int		here_doc_content(char *limiter);
 
 #endif
