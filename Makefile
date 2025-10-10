@@ -24,7 +24,8 @@ SRC = $(SRC_DIR)env.c \
 	  $(SRC_DIR)utils.c \
 	  $(SRC_DIR)utils2.c \
 	  $(SRC_DIR)exec.c \
-	  $(SRC_DIR)exec2.c
+	  $(SRC_DIR)exec2.c \
+	  $(SRC_DIR)buildin.c
 
 OBJ= $(SRC:$(SRC_DIR)%.c=$(SRC_OBJ)%.o)
 

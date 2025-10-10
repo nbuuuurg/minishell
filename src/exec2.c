@@ -124,7 +124,6 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds) // ajouter
 					exit (127);
 				}
 			}
-		
 		}
 		exit (1); // penser a free cmd
 	}
@@ -165,6 +164,8 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 		if (ft_strncmp(redirect[i].redir, ">", ft_strlen(redirect[i].redir)) == 0)
 		{
 			fd = open(redirect[i].file, O_WRONLY | O_TRUNC | O_CREAT, 0644); 
+			if (fd == -1)
+				return (perror("mini"), 1); // la cmd au lieu de mini
 			dup2(fd, STDOUT_FILENO);
 			close(fd);
 			if (fd_out)
@@ -184,6 +185,8 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 		else if (ft_strncmp(redirect[i].redir, ">>", ft_strlen(redirect[i].redir)) == 0)
 		{
 			fd = open(redirect[i].file, O_WRONLY | O_APPEND | O_CREAT, 0644); 
+			if (fd == -1)
+				return (perror("mini"), 1); // la cmd au lieu de mini
 			dup2(fd, STDOUT_FILENO);
 			close(fd);
 			if (fd_out)

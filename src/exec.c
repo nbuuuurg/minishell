@@ -17,7 +17,13 @@
 
 
 /* - gerer les cas d'erreur --> comparer avec bash --posix */
-/* - exit codes -- potentiellemt passer les fcts void en int pour faire remonter le code */
+
+// si mauvais chmode sur un fichier de redirection
+// si cmd introuvable
+// si pas de path
+
+
+/* - exit codes -- passer les fcts void en int pour faire remonter le code */
 
 
 /* - gerer les builtins  */
