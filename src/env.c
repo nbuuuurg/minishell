@@ -20,7 +20,7 @@ char	**get_path(char **env)
 	int		i;
 
 	if (!env)
-		return (NULL); // error pas d env
+		return (NULL); // error pas d'env
 	i = -1;
 	while (env[++i])
 	{

@@ -22,8 +22,8 @@ int	main(int ac, char **av, char **envp)
 	t_line	line;
 	char	**env;
 
-	(void)av;
 	(void)env;
+	(void)av;
 	env = envp;
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));

@@ -140,7 +140,7 @@ typedef struct	s_line
 	t_token	*tokens;
 	char	**envp;
 	char	**path;
-	int		last_exit; //$?
+	int		last_exit; //$? $$
 	int		lexer_err;
 	int		num_expr;
 	t_expr	*exprs;

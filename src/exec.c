@@ -17,7 +17,7 @@ void	exec_minishell(t_line *line, char **env)
 {
 	// les heredoc se font au moment du parsing de fait a ce que si il y a une syntax error les 
 	// herdeoc avant cette syntax error seront fait qd meme, mais pas les autres
-	// si il y a des erreurs d exec on doit ainsi tous les faire ad meme 
+	// si il y a des erreurs d exec on doit ainsi tous les faire ad meme
 	//
 	// en attendant on les gere ici pour tester
 

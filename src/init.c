@@ -20,8 +20,8 @@ void    init_minishell(t_line *line, char **envp)
     if (line->len == 0)
         return ;
     line->last_exit = lexer_input(line);
-    printf("last_exit : %d\n", line->last_exit);
-    printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
+    // printf("last_exit : %d\n", line->last_exit);
+    // printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
     print_token(line);
     // print_expr(line);
 }

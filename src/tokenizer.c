@@ -19,7 +19,7 @@ t_token	*create_token(t_line *line, char *s, int len)
 	(void)line;
 	(void)s;
 	if (len <= 0)
-		return (NULL); // c'est ok
+		return (NULL); // ok
 	token = ft_calloc(1, sizeof(t_token));
 	if (!token)
 		return (line->last_exit = EX_GEN, NULL);

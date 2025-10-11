@@ -52,14 +52,11 @@ int    lexer_input(t_line *line)
             if (*s && is_subshell(*s))
             {
                 if (is_subshell(*s) == ')')
-                    return (-2); // commence par "("
-                else
-                {
-                    s = lexer_subchell_char(line, s, start, end);
-                    if (line->last_exit != 0)
-                        return (line->last_exit);
-                    start = s + 1;
-                }
+                    line->lexer_err = -2; // commence par "("
+                s = lexer_subchell_char(line, s, start, end);
+                if (line->last_exit != 0)
+                    return (line->last_exit);
+                start = s + 1;
             }
             s++;
             end = s;

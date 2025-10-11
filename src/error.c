@@ -12,4 +12,4 @@
 
 #include "../include/minishell.h"
 
-// -10 = com
+

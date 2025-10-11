@@ -18,6 +18,7 @@ int count_subshell(char *s)
 
 t_quoted	def_quote(int	multiple_quote, int quote)
 {
+    
 	if (multiple_quote == 2)
 	{
 		if (quote == 39)

@@ -24,8 +24,8 @@ char    *lexer_special_char(t_line *line, char *s, char *start, char *end)
         if (line->last_exit != 0)
             return (NULL);
         line->lexer_err = -7;
+        // printf("s : %c     end : %c     start : %c\n", *s ,*end, *start);
         return (s = end);
-        printf("s : %c     end : %c     start : %c\n", *s ,*end, *start);
     }
     if (*(s - 1) && !is_whitespace(*(s - 1)) && !ft_isdigit(*(s - 1)) && line->lexer_err != 7)
     {
