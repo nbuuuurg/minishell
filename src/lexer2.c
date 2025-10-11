@@ -12,86 +12,18 @@
 
 #include "../include/minishell.h"
 
-char    *lexer_special_char(t_line *line, char *s, char *start, char *end)
+char    *lexer_input_something(t_line *line, char *s, char *start, char *end)
 {
-    if (s == line->input)
-    {
-        start = s;
-        end = start;
-        while (*end && *end == is_special(*s) && end != s + 1)
-            end++;
-        add_back(line, create_token(line, start, (end - start) + 1));
-        if (line->last_exit != 0)
-            return (NULL);
-        line->lexer_err = -7;
-        // printf("s : %c     end : %c     start : %c\n", *s ,*end, *start);
-        return (s = end);
-    }
-    if (*(s - 1) && !is_whitespace(*(s - 1)) && !ft_isdigit(*(s - 1)) && line->lexer_err != 7)
-    {
-        end = s - 1;
-        add_back(line, create_token(line, start, (end - start) + 1));
-        if (line->last_exit != 0)
-            return (NULL);
-    }
-    if (*(s + 1))
-    {
-        if (*(s + 1) == is_special(*s))
-        {
-            start = s;
-            if (*(start - 1) && ft_isdigit(*(start - 1)) && (is_special(*s) == '>' ||is_special(*s) == '<'))
-            {
-                start--;
-                while (*(start - 1) && ft_isdigit(*(start - 1)))
-                    start--;
-                if ((*(start - 1) && !is_whitespace(*(start - 1))) && !is_special(*(start - 1)))
-                {
-                    if (*(start - 1) && !is_quote(*(start - 1)) && !is_special(*(start - 1)))
-                    {
-                        end = s - 1;
-                        add_back(line, create_token(line, start, (end - start) + 1));
-                        if (line->last_exit != 0)
-                            return (NULL);
-                    }
-                    start = s;
-                }
-            }
-            end = s + 1;
-            add_back(line, create_token(line, start, (end - start) + 1));
-            if (line->last_exit != 0)
-                return (NULL);
-            if (*(s + 2) == 0)
-                return (line->lexer_err = -5, s + 2); // fini par double special
-            s++;
-        }
-        else
-        {
-            start = s;
-            if (*(start - 1) && ft_isdigit(*(start - 1)) && (is_special(*s) == '>' ||is_special(*s) == '<'))
-            {
-                start--;
-                while (*(start - 1) && ft_isdigit(*(start - 1)))
-                    start--;
-                if ((*(start - 1) && !is_whitespace(*(start - 1))) &&!is_special(*(start - 1)))
-                {
-                    if (*(start - 1) && !is_quote(*(start - 1)) && !is_special(*(start - 1)))
-                    {
-                        end = s - 1;
-                        add_back(line, create_token(line, start, (end - start) + 1));
-                        if (line->last_exit != 0)
-                            return (NULL);
-                    }
-                    start = s;
-                }
-            }
-            end = s;
-            add_back(line, create_token(line, start, (end - start) + 1));
-            if (line->last_exit != 0)
-                return (NULL);
-        }
-    }
-    else
-        return (line->lexer_err = -6, s); // fini par simple specia
+    if (*s && is_special(*s))
+        s = lexer_special_char(line, s, start, end);
+    else if (*s && is_whitespace(*s))
+        s = lexer_simple_char(line, s, start, end);
+    else if (*s && is_quote(*s))
+        s = lexer_quoted_char(line, s, start, end);
+    else if (*s && is_subshell(*s))
+        s = lexer_subchell_char(line, s, start, end);
+    if (line->last_exit != 0)
+        return (NULL);
     return (s);
 }
 
@@ -116,7 +48,7 @@ char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end)
     while (*s && *s != quote)
         s++;
     if (*s == 0)
-        return (line->lexer_err = -1, s); // quote non terminee
+        line->lexer_err = -1; // quote non terminee
     while (*s && !is_whitespace(*s) && !is_special(*s))
     {
         s++;
@@ -127,13 +59,14 @@ char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end)
             while (*s && *s != quote)
                 s++;
             if (*s == 0)
-                return (line->lexer_err = -1, s); // quote non terminee 
+                line->lexer_err = -1; // quote non terminee 
         }
     }
-    end = s;
+    end = s - 1;
     add_back(line, create_quoted_token(line, start, (end - start) + 1 , quote));
     if (line->last_exit != 0)
         return (NULL);
+    s--;
     return (s);
 }
 
@@ -155,25 +88,10 @@ char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end)
             close++;
     }
     if (*s == 0 && open != close)
-        temp_last_exit = -3; // paranthese non fermee
+        temp_last_exit = -2; // paranthese non fermee
     end = s;
     add_back(line, create_token(line, start, (end - start) + 1));
     if (line->last_exit != 0)
         return (NULL);
-    return (line->last_exit = temp_last_exit, s);
-}
-
-char    *lexer_last_char(t_line *line, char *s, char *start, char *end)
-{
-    if (*(s - 1))
-    {
-        if (!is_whitespace(*(s - 1)) && !is_quote(*(s - 1)) && !is_subshell(*(s - 1)))
-        {
-            end = s;
-            add_back(line, create_token(line, start, (end - start) + 1));
-            if (line->last_exit != 0)
-                return (NULL);
-        }
-    }
-    return (s);
+    return (line->lexer_err = temp_last_exit, s);
 }

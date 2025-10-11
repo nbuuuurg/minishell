@@ -12,10 +12,18 @@
 
 #include "../include/minishell.h"
 
+void    len_pipeline(t_pipeline *pipeline, int (*len)[3])
+{
+    pipeline->word_count = (*len)[0];
+    pipeline->redir_count = (*len)[1];
+    pipeline->assign_count = (*len)[2];
+}
+
 t_pipeline  init_pipeline(t_line *line, int (*len)[3])
 {
-    t_pipeline  pipeline = {0};
+    t_pipeline  pipeline;
     
+    ft_bzero(&pipeline, sizeof(pipeline));
     pipeline.args = init_pipeline_args(line, (*len)[0]);
     if (line->last_exit != 0)
         return (pipeline);
@@ -35,11 +43,8 @@ t_pipeline  init_pipeline(t_line *line, int (*len)[3])
             free(pipeline.redirect);
         return (pipeline);
     }
-    pipeline.word_count = (*len)[0];
-    pipeline.redir_count = (*len)[1];
-    pipeline.assign_count = (*len)[2];
-    ft_bzero(*len, sizeof(*len));
-    return (pipeline);
+    len_pipeline(&pipeline, &len[0]);
+    return (ft_bzero(*len, sizeof(*len)), pipeline);
 }
 
 char    **init_pipeline_args(t_line *line, int i)

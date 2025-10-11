@@ -29,3 +29,10 @@ t_quoted	def_quote(int	multiple_quote, int quote)
 	else	
 			return (MULTIPLE);
 }	
+
+int     is_something(char c)
+{
+    if (is_special(c) || is_whitespace(c) || is_quote(c) || is_subshell(c))
+        return (1);
+    return (0);
+}

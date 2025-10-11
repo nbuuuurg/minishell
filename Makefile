@@ -9,6 +9,7 @@ SRC_DIR = src/
 SRC_OBJ = obj/
 SRC = $(SRC_DIR)env.c \
       $(SRC_DIR)error.c \
+	  $(SRC_DIR)exec.c \
 	  $(SRC_DIR)exit.c \
       $(SRC_DIR)free.c \
 	  $(SRC_DIR)init.c \
@@ -16,6 +17,7 @@ SRC = $(SRC_DIR)env.c \
       $(SRC_DIR)lexer.c \
 	  $(SRC_DIR)lexer2.c \
 	  $(SRC_DIR)lexer3.c \
+	  $(SRC_DIR)lexer4.c \
 	  $(SRC_DIR)main.c \
       $(SRC_DIR)parser.c \
 	  $(SRC_DIR)parser2.c \

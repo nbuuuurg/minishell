@@ -15,54 +15,25 @@
 int    lexer_input(t_line *line)
 {
     char    *s;
-    char    *start = NULL;
-    char    *end = NULL;
+    char    *start;
+    char    *end;
 
     s = line->input;
     start = s;
+    end = NULL;
     while (*s)
     {
-        while(*s && is_whitespace(*s))
-            s++;
-        start = s;
-        while (*s)
+        if (*s && is_something(*s))
         {
-            if (*s && is_special(*s))
-            {
-                s = lexer_special_char(line, s, start, end);
-                if (line->last_exit != 0)
-                    return (line->last_exit);
-                start = s + 1;
-            }
-            if (*s && is_whitespace(*s))
-            {
-                s = lexer_simple_char(line, s, start, end);
-                if (line->last_exit != 0)
-                    return (line->last_exit);
-                start = s + 1;
-            }
-            if (*s && is_quote(*s))
-            {
-                s = lexer_quoted_char(line, s, start, end);
-                if (line->last_exit != 0)
-                    return (line->last_exit);
-                start = s + 1;
-                s--;
-            }
-            if (*s && is_subshell(*s))
-            {
-                if (is_subshell(*s) == ')')
-                    line->lexer_err = -2; // commence par "("
-                s = lexer_subchell_char(line, s, start, end);
-                if (line->last_exit != 0)
-                    return (line->last_exit);
-                start = s + 1;
-            }
-            s++;
-            end = s;
+            s = lexer_input_something(line, s, start, end);
+            if (line->last_exit != 0)
+                return (line->last_exit);
+            start = s + 1;
         }
+        s++;
+        end = s;
     }
-    if (*s == 0)
+    if (*s == 0 && *start != 0)
     {
         s = lexer_last_char(line, s, start, end);
         if (line->last_exit != 0)

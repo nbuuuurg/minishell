@@ -213,16 +213,23 @@ int		lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
 
 /* lexer2.c */
 
-char    *lexer_special_char(t_line *line, char *s, char *start, char *end);
+char    *lexer_input_something(t_line *line, char *s, char *start, char *end);
 char    *lexer_simple_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end);
-char    *lexer_last_char(t_line *line, char *s, char *start, char *end);
+
 
 /* lexer3.c */
 
+char    *lexer_last_char(t_line *line, char *s, char *start, char *end);
 t_token *token_type(t_token *token);
 t_token *has_expand(t_token *token);
+
+/* lexer4.c */
+char    *lexer_special_char(t_line *line, char *s, char *start, char *end);
+char    *lexer_special_char2(t_line *line, char **s, char **start, char **end);
+char    *lexer_special_char3(t_line *line, char **s, char **start, char **end);
+
 
 /* main.c */
 
@@ -275,5 +282,6 @@ int     len_whitespace(t_line *line);
 /* utils3.c */
 int count_subshell(char *s);
 t_quoted	def_quote(int	multiple_quote, int quote);
+int     is_something(char c);
 
 #endif

@@ -64,6 +64,8 @@ char    *expanded_var(t_line *line, char *var)
     char    *expanded_var;
     char    *the_env;
 
+    if (!var)
+        return (NULL);
     if (ft_strncmp(var, "$$", 2) == 0)
     {
         expanded_var = ft_itoa(getpid());
@@ -88,7 +90,7 @@ char    *expanded_var(t_line *line, char *var)
         the_env = getenv(var);
         if (!the_env)
         {
-            expanded_var = ft_strdup("\0");
+            expanded_var = ft_strdup(var);
             if (!expanded_var)
                 return (free(var), NULL);
         }
@@ -290,7 +292,7 @@ char	*parse_expand(t_line *line, t_token *token)
                 }
                 else
                 {
-                    while (token->s[i + 1] && ft_isalnum(token->s[i + 1]))
+                    while (token->s[i + 1]) //&& ft_isalnum(token->s[i + 1]))
                     {
                         len++;
                         i++;

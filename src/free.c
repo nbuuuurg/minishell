@@ -19,6 +19,7 @@ void	free_line(t_line *line)
 	if (line->exprs)
 		free_exprs(line->exprs);
 	free(line->input);
+	free_split(line->path);
 }
 
 void	free_split(char **s)
@@ -69,6 +70,7 @@ void    free_pipeline(t_pipeline *pipe)
 {
     int     i;
 
+	// printf("r %d as %d a %d\n", pipe->redir_count, pipe->assign_count, pipe->word_count);
     if (pipe->args)
 		free_split(pipe->args);
     if (pipe->redirect && pipe->redir_count > 0)
