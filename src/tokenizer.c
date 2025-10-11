@@ -40,19 +40,6 @@ t_token	*create_token(t_line *line, char *s, int len)
 	return (token);
 }
 
-t_quoted	def_quote(int	multiple_quote, int quote)
-{
-	if (multiple_quote == 2)
-	{
-		if (quote == 39)
-			return (SINGLE);
-		else
-			return (DOUBLE);
-	}
-	else	
-			return (MULTIPLE);
-}	
-
 t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 {
 	t_token	*token;

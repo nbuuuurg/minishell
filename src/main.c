@@ -20,8 +20,11 @@
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;
+	char	**env;
 
 	(void)av;
+	(void)env;
+	env = envp;
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
 	ft_bzero(&line, sizeof(t_line));
@@ -35,6 +38,9 @@ int	main(int ac, char **av, char **envp)
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, envp);
-		// free_line(&line);
+		// if (line.exprs)
+		// 	exec_minishell(&line, env);
+		free_line(&line);
+		free_split(line.path);
 	}
 }

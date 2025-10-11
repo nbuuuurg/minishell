@@ -15,3 +15,16 @@ int count_subshell(char *s)
     }
     return (open);
 }
+
+t_quoted	def_quote(int	multiple_quote, int quote)
+{
+	if (multiple_quote == 2)
+	{
+		if (quote == 39)
+			return (SINGLE);
+		else
+			return (DOUBLE);
+	}
+	else	
+			return (MULTIPLE);
+}	

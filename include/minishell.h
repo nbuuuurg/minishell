@@ -139,10 +139,24 @@ typedef struct	s_line
 	size_t	len;
 	t_token	*tokens;
 	char	**envp;
+	char	**path;
 	int		last_exit; //$?
+	int		lexer_err;
 	int		num_expr;
 	t_expr	*exprs;
 }		t_line;
+
+typedef struct	s_cmd
+{
+	int		buildin;
+	char	*cmd_buildin;
+	t_redir	*redirect;
+	char	**cmd;
+	char	*full_path;
+	pid_t	id;
+	int		status;
+	char	**env;
+}	t_cmd;
 
 /* ************************************************************************** */
 /*                               PROTOTYPES                                   */
@@ -150,7 +164,19 @@ typedef struct	s_line
 
 /* env.c */
 
+char	**get_path(char **env);
+
 /* error.c */
+
+/* exec.c */
+
+void	exec_minishell(t_line *line, char **env);
+void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds);
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds);
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds);
+int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds);
+int	here_doc_content(char *limiter);
+t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 
 /* exit.c */
 
@@ -248,5 +274,6 @@ int     len_whitespace(t_line *line);
 
 /* utils3.c */
 int count_subshell(char *s);
+t_quoted	def_quote(int	multiple_quote, int quote);
 
 #endif

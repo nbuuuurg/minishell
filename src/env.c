@@ -11,3 +11,43 @@
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+char	**get_path(char **env)
+{
+	char	**path;
+	char	*all_path = NULL;
+	char	**tmp;
+	int		i;
+
+	if (!env)
+		return (NULL); // error pas d env
+	i = -1;
+	while (env[++i])
+	{
+		if (ft_strncmp("PATH=", env[i], 5) == 0)
+			all_path = env[i] + 5 ;
+	}
+	if (!all_path)
+		return (NULL); // error pas de PATH
+
+	tmp = ft_split(all_path, ':');
+	if (!tmp)
+		return (perror("ft_split"), NULL);
+	i = 0;
+	while (tmp[i])
+		i++;
+	path = malloc(sizeof(char *) * (i + 1));
+	if (!path)
+		return (NULL); // error malloc
+	i = -1;
+	while (tmp[++i])
+	{
+		path[i] = ft_strjoin(tmp[i], "/");
+		if (!path[i])
+			return (free_split(tmp), NULL); // error malloc
+	}
+	path[i] = NULL;
+	return (free_split(tmp), path);
+
+	return (path);
+}

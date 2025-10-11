@@ -27,21 +27,21 @@ int    lexer_input(t_line *line)
         start = s;
         while (*s)
         {
-            if (is_special(*s))
+            if (*s && is_special(*s))
             {
                 s = lexer_special_char(line, s, start, end);
                 if (line->last_exit != 0)
                     return (line->last_exit);
                 start = s + 1;
             }
-            if (is_whitespace(*s))
+            if (*s && is_whitespace(*s))
             {
                 s = lexer_simple_char(line, s, start, end);
                 if (line->last_exit != 0)
                     return (line->last_exit);
                 start = s + 1;
             }
-            if (is_quote(*s))
+            if (*s && is_quote(*s))
             {
                 s = lexer_quoted_char(line, s, start, end);
                 if (line->last_exit != 0)
@@ -49,7 +49,7 @@ int    lexer_input(t_line *line)
                 start = s + 1;
                 s--;
             }
-            if (is_subshell(*s))
+            if (*s && is_subshell(*s))
             {
                 if (is_subshell(*s) == ')')
                     return (-2); // commence par "("
@@ -118,7 +118,7 @@ int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, 
     if (temp->type == AND || temp->type == OR)
     {
         if (i == 0 || !temp->next)
-            return (-4); // commence ou fini par || ou &&
+            return (line->lexer_err = -4, 0); // commence ou fini par || ou &&
         new = parse_new_expr(line, temp->type);
         if (!new)
             return (EX_GEN);

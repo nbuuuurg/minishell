@@ -167,7 +167,7 @@ char    *parse_quoted_token(t_line *line, t_token *token)
     j = 0;
     d_quote = 0;
     s_quote = 0;
-    if (token->type == SINGLE || token->type == DOUBLE)
+    if (token->quoted == SINGLE || token->quoted == DOUBLE)
     {
         s = ft_calloc(ft_strlen(token->s) - 1, 1);
         if (!s)

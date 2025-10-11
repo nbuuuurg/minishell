@@ -20,7 +20,8 @@ void    init_minishell(t_line *line, char **envp)
     if (line->len == 0)
         return ;
     line->last_exit = lexer_input(line);
-    printf("last->exit : %d\n", line->last_exit);
+    printf("last_exit : %d\n", line->last_exit);
+    printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
     print_token(line);
     // print_expr(line);
 }
@@ -58,6 +59,8 @@ void    init_line(t_line *line, char **envp)
     line->tokens = NULL;
     line->exprs = NULL;
     line->num_expr = 0;
+    line->lexer_err = 0;
+    line->path = get_path(envp);
     line->len = ft_strlen(line->input);
     if (envp)
         line->envp = envp;
