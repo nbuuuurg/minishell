@@ -57,11 +57,11 @@ int    lexer_token(t_line *line)
     new = NULL;
     i = 0;
     flag = 0;
+    temp = line->tokens;
     while (temp)
     {
     //     printf("last_exit : %d\n", line->last_exit);
     //     printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
-        
         expr = line->exprs;
         if (temp->in_subshell > 0)
         {
@@ -110,7 +110,6 @@ int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, 
         }
         line->tokens = temp->next;
     }
-    exec_minishell(line, line->envp);
     return (0);
 }
 

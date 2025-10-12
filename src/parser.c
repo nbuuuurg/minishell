@@ -50,7 +50,9 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
 {
     while (temp && temp->type != PIPE && temp->type != new->op_after)
     {
-        if (temp->type == WORD && temp->in_subshell == 0)
+        if (temp->in_subshell != 0)
+            line->last_exit = 0;
+        else if (temp->type == WORD && temp->in_subshell == 0)
             line->last_exit = parse_word(line, new, temp, *i, &(*len)[0]);
         else if (temp->type == REDIR_IN || temp->type == REDIR_APPEND || temp->type == REDIR_OUT || temp->type == HEREDOC)
             line->last_exit = parse_redir(line, new, temp, *i, &(*len)[1]);
@@ -68,8 +70,6 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
 int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
     (void)line;
-    // if (temp->in_subshell == 1)
-        //lex subshell
     if (temp->previous && (temp->previous->type == REDIR_IN || temp->previous->type == REDIR_APPEND || temp->previous->type == REDIR_OUT || temp->previous->type == HEREDOC))
         return (0);
     if (temp->has_expand != 0)
@@ -102,7 +102,15 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
     if (temp->type == REDIR_IN)
         new->pipeline[i].redirect[*j].redir = ft_strdup("<");
     else if (temp->type == HEREDOC)
+    {
         new->pipeline[i].redirect[*j].redir = ft_strdup("<<");
+        if (!new->pipeline[i].redirect[*j].redir)
+            return (EX_GEN);
+        if (temp->next)
+            new->pipeline[i].redirect[*j].heredoc_fd = here_doc_content(temp->next->s, line);
+        else
+            new->pipeline[i].redirect[*j].heredoc_fd = -1;
+    }
     else if (temp->type == REDIR_APPEND)
         new->pipeline[i].redirect[*j].redir = ft_strdup(">>");
     else
@@ -111,9 +119,16 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
     if (!new->pipeline[i].redirect[*j].redir)
         return (EX_GEN);
     if (temp->next)
+    {
         new->pipeline[i].redirect[*j].file = ft_strdup(temp->next->s);
+        if (temp->next->type != WORD || temp->next->in_subshell != 0)
+            line->lexer_err = -8; // delimiteur non valide
+    }
     else
-        new->pipeline[i].redirect[*j].file = ft_strdup(temp->s);
+    {
+        new->pipeline[i].redirect[*j].file = NULL;
+        line->lexer_err = -8; // fini par << sans delimiteur
+    }
     if (!new->pipeline[i].redirect[*j].file)
         return (free(new->pipeline[i].redirect[*j].redir), 1);
     new->pipeline[i].redirect[*j].order = *j;

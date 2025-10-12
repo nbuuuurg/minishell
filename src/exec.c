@@ -15,55 +15,18 @@
 
 void	exec_minishell(t_line *line, char **env)
 {
-	// les heredoc se font au moment du parsing de fait a ce que si il y a une syntax error les 
-	// herdeoc avant cette syntax error seront fait qd meme, mais pas les autres
-	// si il y a des erreurs d exec on doit ainsi tous les faire ad meme
-	//
-	// en attendant on les gere ici pour tester
-
-	int	i;
-	int	here_doc_fds[10]; // a changer plus tard en attendant on gere 10 heredoc max
-
-	i = 1;
-	here_doc_fds[0] = 1; // on utilise la premiere case comme compteur
-	// while (line->tokens != NULL)
-	// {
-	// 	print_token(line);
-	// 	if (line->tokens->type == HEREDOC)
-	// 	{
-	// 		here_doc_fds[i] = here_doc_content(line->tokens->next->s);
-	// 		i++;
-	// 	}
-	// 	line->tokens = line->tokens->next;
-	// }
-
-
-	while (line->exprs != NULL)
+	/*ici*/
+	t_expr	*temp;
+	temp = line->exprs;
+	while (temp != NULL)
 	{
-		// print_expr(line);
-		// print_token(line);
-		// line->exprs = NULL;
-		// (void)here_doc_fds;
-		// (void)i;
-		// (void)env;
-		if (line->exprs->pipeline)
-		{
-			if (line->exprs->pipeline->redir_count > 0)
-			{
-				if (ft_strncmp(line->exprs->pipeline->redirect->redir, "<<", 2) == 0)
-				{
-					here_doc_fds[i] = here_doc_content(line->exprs->pipeline->redirect->file);
- 					i++;
-				}
-			}
-		}
-		if (line->exprs)
-			exec_exprs(line->exprs, line->path, env, here_doc_fds);
-		line->exprs = line->exprs->next;
+		if (temp)
+			exec_exprs(temp, line->path, env);
+		temp = temp->next;
 	}
 }
 
-void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
+void	exec_exprs(t_expr *exprs, char **path ,char **env)
 {
 	int		i;
 	t_cmd	*cmd;
@@ -83,7 +46,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->pipe_count == 0)
-			cmd[i].id = exec_cmd(cmd[i], NULL, NULL, here_doc_fds);
+			cmd[i].id = exec_cmd(cmd[i], NULL, NULL);
 		else
 		{
 			if (exprs->pipeline[i].position != 3)
@@ -92,11 +55,11 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
 					return (perror("pipe"));
 			}
 			if (exprs->pipeline[i].position == 1)
-				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, here_doc_fds);
+				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next);
 			else if (exprs->pipeline[i].position == 2)
-				cmd[i].id = exec_cmd(cmd[i], fd, fd_next, here_doc_fds);
+				cmd[i].id = exec_cmd(cmd[i], fd, fd_next);
 			else if (exprs->pipeline[i].position == 3)
-				cmd[i].id = exec_cmd(cmd[i], fd, NULL, here_doc_fds);
+				cmd[i].id = exec_cmd(cmd[i], fd, NULL);
 			if (i > 0)
 			{
 				close(fd[0]);
@@ -119,7 +82,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
 	free(cmd);
 }
 
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds) // ajouter gestion buildin
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out) // ajouter gestion buildin
 {
 	pid_t	id;
 
@@ -128,7 +91,7 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds) // ajouter
 		return (perror("fork"),	id);// error fork
 	if (id == 0)
 	{
-		if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
+		if (get_fd(fd_in, fd_out, cmd.redirect) == 0)
 		{
 			if (cmd.cmd[0])
 			{
@@ -149,7 +112,7 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds) // ajouter
 	return (id);
 }
 
-int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds)
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect)
 {
 	if (fd_in)
 	{
@@ -166,13 +129,13 @@ int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds)
 	}
 	if (redirect)
 	{
-		return (ft_redir(redirect, fd_in, fd_out, here_doc_fds));
+		return (ft_redir(redirect, fd_in, fd_out));
 	}
 	return (0);
 }
 
 
-int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
+int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2])
 {
 	int	i;
 	int	fd;
@@ -245,8 +208,8 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 		}
 		else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0)
 		{
-			fd = here_doc_fds[here_doc_fds[0]];
-			here_doc_fds[0]++;
+			/*ici*/
+			fd = redirect->heredoc_fd;
 			if (fd == -1)
 				return (1); // errror here_doc_content
 			dup2(fd, STDIN_FILENO);
@@ -270,7 +233,7 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 	return (0);
 }
 
-int	here_doc_content(char *limiter)
+int	here_doc_content(char *limiter, t_line *line)
 {
 	int		here_tube[2];
 	char	*content;
@@ -293,6 +256,15 @@ int	here_doc_content(char *limiter)
 		{
 			free(content);
 			break ;
+		}
+		(void)line;
+		/*ici*/
+		if (need_expand(content))
+		{
+			content = expanded_content(content, line);
+			if (!content)
+				return (free(res), perror("malloc"), -1);
+
 		}
 		tmp = res;
 		if (!tmp)

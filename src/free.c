@@ -19,7 +19,7 @@ void	free_line(t_line *line)
 	if (line->exprs)
 		free_exprs(line->exprs);
 	free(line->input);
-	free_split(line->path);
+	// free_split(line->path);
 }
 
 void	free_split(char **s)

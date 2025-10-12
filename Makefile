@@ -1,5 +1,4 @@
 NAME= minishell
-
 CC= cc
 FLAGS= -Wall -Wextra -Werror
 INCLUDE= include/minishell.h
@@ -22,6 +21,7 @@ SRC = $(SRC_DIR)env.c \
 	  $(SRC_DIR)main.c \
       $(SRC_DIR)parser.c \
 	  $(SRC_DIR)parser2.c \
+	  $(SRC_DIR)parser3.c \
 	  $(SRC_DIR)print.c \
 	  $(SRC_DIR)signals.c \
 	  $(SRC_DIR)subshell.c \

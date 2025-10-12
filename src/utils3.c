@@ -36,3 +36,19 @@ int     is_something(char c)
         return (1);
     return (0);
 }
+
+int		need_expand(char *s)
+{
+	int		i;
+
+	if (!s)
+		return (0);
+	i = 0;
+	while (s[i])
+	{
+		if (is_dollar(s[i]))
+			return (1);
+		i++;
+	}
+	return (0);
+}

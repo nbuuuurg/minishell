@@ -58,6 +58,7 @@ void    init_line(t_line *line, char **envp)
     line->exprs = NULL;
     line->num_expr = 0;
     line->lexer_err = 0;
+    line->heredoc_flag = 0;
     line->path = get_path(envp);
     line->len = ft_strlen(line->input);
     if (envp)
