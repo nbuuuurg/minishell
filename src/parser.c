@@ -73,9 +73,11 @@ int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
     if (temp->previous && (temp->previous->type == REDIR_IN || temp->previous->type == REDIR_APPEND || temp->previous->type == REDIR_OUT || temp->previous->type == HEREDOC))
         return (0);
     if (temp->has_expand != 0)
+    {
         temp->s = parse_expand(line, temp);
-    if (line->last_exit == EX_GEN)
-        return (EX_GEN);
+        if (line->last_exit == EX_GEN)
+            return (EX_GEN);
+    }
     if (temp->quoted != NO_QUOTE)
         temp->s = parse_quoted_token(line, temp);
     if (line->last_exit == EX_GEN)

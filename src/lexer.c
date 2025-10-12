@@ -61,6 +61,7 @@ int    lexer_token(t_line *line)
     {
     //     printf("last_exit : %d\n", line->last_exit);
     //     printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
+        
         expr = line->exprs;
         if (temp->in_subshell > 0)
         {
@@ -126,6 +127,7 @@ int    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr)
             expr = expr->next;
         expr->next = new;
     }
+    // print_expr(line);
     exec_minishell(line, line->envp);
     return (0);
 }

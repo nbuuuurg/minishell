@@ -90,7 +90,7 @@ char    *expanded_var(t_line *line, char *var)
         the_env = getenv(var);
         if (!the_env)
         {
-            expanded_var = ft_strdup(var);
+            expanded_var = ft_strdup("\0");
             if (!expanded_var)
                 return (free(var), NULL);
         }
@@ -122,15 +122,23 @@ int    expanded_token(t_line *line, t_token *token, char *var, size_t start, siz
     size_t  j;
     size_t  k;
 
-    len_var = ft_strlen(var);
+    // print_token(line);
+    if (*var == 0)
+        len_var = 0;
+    else
+        len_var = ft_strlen(var);
     len_old_var = end - start + 1;
     len_s = ft_strlen(token->s) - len_old_var + len_var;
+    if (len_s == 0)
+    {
+
+    }
     s = ft_calloc(len_s + 1, 1);
     if (!s)
         return (line->last_exit = EX_GEN, -1);
     i = 0;
     k = 0;
-    while(i < len_s)
+    while(i < len_s && len_s != 0)
     {
         if (i == start)
         {
@@ -251,6 +259,8 @@ char	*parse_expand(t_line *line, t_token *token)
     end = 0;
     s_quote = 0;
     d_quote = 0;
+    // printf("token->s : %s\n", token->s);
+    // print_token(line);
     while (token->s[i])
     {
         start = i;
@@ -292,7 +302,7 @@ char	*parse_expand(t_line *line, t_token *token)
                 }
                 else
                 {
-                    while (token->s[i + 1]) //&& ft_isalnum(token->s[i + 1]))
+                    while (token->s[i + 1] && ft_isalnum(token->s[i + 1]))
                     {
                         len++;
                         i++;
