@@ -38,8 +38,8 @@ int	main(int ac, char **av, char **envp)
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, envp);
-		if (line.exprs)
-		 	exec_minishell(&line, env);
+		// if (line.exprs)
+		//  	exec_minishell(&line, env);
 		free_line(&line);
 		// free_readline(...);
 	}

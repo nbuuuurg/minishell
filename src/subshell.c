@@ -44,7 +44,7 @@ t_line  *dup_line(t_line *line, t_token *subinput)
     if (!subline)
         return(line->last_exit = EX_GEN, NULL);
     subline->input = new_subinput(line, subinput);
-    if (!subline->clean)
+    if (!subline->input)
         return (line->last_exit = EX_GEN, NULL);
     subline->envp = line->envp;
     subline->tokens = NULL;

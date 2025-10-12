@@ -26,20 +26,39 @@ void	exec_minishell(t_line *line, char **env)
 
 	i = 1;
 	here_doc_fds[0] = 1; // on utilise la premiere case comme compteur
-	while (line->tokens != NULL)
-	{
-		if (line->tokens->type == HEREDOC)
-		{
-			here_doc_fds[i] = here_doc_content(line->tokens->next->s);
-			i++;
-		}
-		line->tokens = line->tokens->next;
-	}
+	// while (line->tokens != NULL)
+	// {
+	// 	print_token(line);
+	// 	if (line->tokens->type == HEREDOC)
+	// 	{
+	// 		here_doc_fds[i] = here_doc_content(line->tokens->next->s);
+	// 		i++;
+	// 	}
+	// 	line->tokens = line->tokens->next;
+	// }
 
 
 	while (line->exprs != NULL)
 	{
-		exec_exprs(line->exprs, line->path, env, here_doc_fds);
+		// print_expr(line);
+		// print_token(line);
+		// line->exprs = NULL;
+		// (void)here_doc_fds;
+		// (void)i;
+		// (void)env;
+		if (line->exprs->pipeline)
+		{
+			if (line->exprs->pipeline->redir_count > 0)
+			{
+				if (ft_strncmp(line->exprs->pipeline->redirect->redir, "<<", 2) == 0)
+				{
+					here_doc_fds[i] = here_doc_content(line->exprs->pipeline->redirect->file);
+ 					i++;
+				}
+			}
+		}
+		if (line->exprs)
+			exec_exprs(line->exprs, line->path, env, here_doc_fds);
 		line->exprs = line->exprs->next;
 	}
 }

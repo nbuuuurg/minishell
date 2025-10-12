@@ -36,9 +36,8 @@ t_token *token_type(t_token *token)
     else if (!ft_strncmp(token->s, "&&", 2))
         return (token->type = AND, token);
     else if (ft_strnstr(token->s, "<", ft_strlen(token->s)) 
-        && !ft_strnstr(token->s, "<<", ft_strlen(token->s)
-        && !ft_strnstr(token->s, "><", ft_strlen(token->s))
-        && token->quoted == NO_QUOTE))
+        && !ft_strnstr(token->s, "<<", ft_strlen(token->s))
+        && token->quoted == NO_QUOTE)
         return (token->type = REDIR_IN, token);
     else if (ft_strnstr(token->s, ">", ft_strlen(token->s)) && !ft_strnstr(token->s, ">>", ft_strlen(token->s)) && token->quoted == NO_QUOTE)
         return (token->type = REDIR_OUT, token);

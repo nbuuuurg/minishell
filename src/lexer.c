@@ -49,15 +49,18 @@ int    lexer_token(t_line *line)
     t_token *temp2;
     t_expr  *expr;
     t_expr  *new;
+    int     flag;
 
     temp = line->tokens;
     temp2 = line->tokens;
     expr = NULL;
     new = NULL;
     i = 0;
+    flag = 0;
     while (temp)
     {
-
+    //     printf("last_exit : %d\n", line->last_exit);
+    //     printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
         expr = line->exprs;
         if (temp->in_subshell > 0)
         {
@@ -66,31 +69,26 @@ int    lexer_token(t_line *line)
                 //pour l'instant mais on peut attendre ')'
                 return (line->last_exit);
             }
-            temp->in_subshell--;
             line->last_exit = init_subshell(line, temp);
             if (line->last_exit != 0)
                 return (line->last_exit);
+            flag++;
         }
         if (temp->type == AND || temp->type == OR)
             line->last_exit = lexer_split_expr(line, temp, new, expr, i);
         if (line->last_exit != 0)
             return (line->last_exit);
         temp = temp->next;
-        if (!temp)
+        if (!temp && flag == 0)
             line->last_exit = lexer_single_expr(line, new, expr);
         i++;
         if (line->last_exit != 0)
             return (line->last_exit);
+        flag = 0;
     }
     line->tokens = temp2;
     return (0);
 }
-
-// int    lexer_subshell_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)
-// {
-//     (void)line; (void)temp; (void)new; (void)expr; (void)i;
-//     return (0);
-// }
 
 int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)
 {
@@ -111,6 +109,7 @@ int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, 
         }
         line->tokens = temp->next;
     }
+    exec_minishell(line, line->envp);
     return (0);
 }
 
@@ -127,5 +126,6 @@ int    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr)
             expr = expr->next;
         expr->next = new;
     }
+    exec_minishell(line, line->envp);
     return (0);
 }

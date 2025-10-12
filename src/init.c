@@ -22,8 +22,6 @@ void    init_minishell(t_line *line, char **envp)
     line->last_exit = lexer_input(line);
     // printf("last_exit : %d\n", line->last_exit);
     // printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
-    // print_token(line);
-    // print_expr(line);
 }
 
 int    init_clean_input(t_line *line)
@@ -35,7 +33,7 @@ int    init_clean_input(t_line *line)
     {
         line->clean = ft_strdup(line->input);
         if (!line->clean)
-            return (1);
+            return (EX_GEN);
         free(line->input);
         line->input = line->clean;
         return (0);
@@ -43,7 +41,7 @@ int    init_clean_input(t_line *line)
     j = len_whitespace(line);
     line->clean = ft_calloc(line->len - j + 1, 1);
     if (!line->clean)
-        return (1);
+        return (EX_GEN);
     i = 0;
     while (line->input[i] && is_whitespace(line->input[i]))
         i++;
@@ -65,6 +63,8 @@ void    init_line(t_line *line, char **envp)
     if (envp)
         line->envp = envp;
     line->last_exit = init_clean_input(line);
+    if (line->last_exit != 0)
+        return ; // a free propre
 }
 
 void	init_token(t_token *token, int multiple_quote, int quote, int i)

@@ -115,17 +115,8 @@ typedef struct	s_pipeline
 	int			assign_count;
 }		t_pipeline;
 
-typedef struct s_subshell
-{
-	t_pipeline	*pipeline;
-	int			pipe_count;
-	t_token_type	op_after;
-}		t_subshell;
-
-
 typedef struct	s_expr
 {
-	t_subshell	*subshell;
 	t_pipeline	*pipeline;
 	t_token_type		op_after;
 	int			pipe_count;
