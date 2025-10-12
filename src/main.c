@@ -13,7 +13,7 @@
 #include "../include/minishell.h"
 
 // sortir propre avec la fonction exit
-// subshell
+// valgrind clean
 // wildcard
 // norme
 

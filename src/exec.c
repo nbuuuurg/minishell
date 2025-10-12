@@ -259,12 +259,12 @@ int	here_doc_content(char *limiter, t_line *line)
 		}
 		(void)line;
 		/*ici*/
-		if (need_expand(content))
+		while (need_expand(content) != 0)
 		{
+			// printf("content : %s\n", content);
 			content = expanded_content(content, line);
 			if (!content)
 				return (free(res), perror("malloc"), -1);
-
 		}
 		tmp = res;
 		if (!tmp)
