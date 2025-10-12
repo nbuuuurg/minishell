@@ -14,6 +14,7 @@ SRC = $(SRC_DIR)env.c \
       $(SRC_DIR)free.c \
 	  $(SRC_DIR)init.c \
 	  $(SRC_DIR)init2.c \
+	  $(SRC_DIR)init3.c  \
       $(SRC_DIR)lexer.c \
 	  $(SRC_DIR)lexer2.c \
 	  $(SRC_DIR)lexer3.c \
@@ -23,6 +24,7 @@ SRC = $(SRC_DIR)env.c \
 	  $(SRC_DIR)parser2.c \
 	  $(SRC_DIR)print.c \
 	  $(SRC_DIR)signals.c \
+	  $(SRC_DIR)subshell.c \
 	  $(SRC_DIR)tokenizer.c \
 	  $(SRC_DIR)utils.c \
 	  $(SRC_DIR)utils2.c \

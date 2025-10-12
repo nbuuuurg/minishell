@@ -56,7 +56,7 @@ char    **init_pipeline_args(t_line *line, int i)
     {
         args = ft_calloc(i + 1, sizeof(char *));
         if (!args)
-            return (line->last_exit = 1, NULL);
+            return (line->last_exit = EX_GEN, NULL);
         args[i] = NULL;
     }
     return (args);
@@ -71,7 +71,7 @@ t_redir *init_pipeline_redir(t_line *line, int i)
     {
         redirect = ft_calloc(i + 1, sizeof(t_redir));
         if (!redirect)
-            return (line->last_exit = 1, NULL);
+            return (line->last_exit = EX_GEN, NULL);
     }
     return (redirect);
 }
@@ -85,7 +85,7 @@ t_assign    *init_pipeline_assign(t_line *line, int i)
     {
         assign = ft_calloc(i + 1, sizeof(t_assign));
         if (!assign)
-            return (line->last_exit = 1, NULL);
+            return (line->last_exit = EX_GEN, NULL);
     }
     return (assign);
 }

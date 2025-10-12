@@ -203,6 +203,10 @@ t_redir *init_pipeline_redir(t_line *line, int i);
 char    **init_pipeline_args(t_line *line, int i);
 t_pipeline  init_pipeline(t_line *line, int (*len)[3]);
 
+/* init3.c */
+
+int     init_subshell(t_line *line, t_token *subinput);
+
 /* lexer.c */
 
 int		lexer_input(t_line *line);
@@ -254,6 +258,11 @@ void    print_expr(t_line *line);
 void    print_error(char *s, t_exit code);
 
 /* signals.c */
+
+/* subshell.c */
+
+char    *new_subinput(t_line *line, t_token *token);
+t_line  *dup_line(t_line *line, t_token *subinput);
 
 /* tokenizer.c */
 

@@ -78,7 +78,7 @@ char    *lexer_special_char2(t_line *line, char **s, char **start, char **end)
         return (NULL);
     if (*(*s + 2) == 0)
         return (line->lexer_err = -5, *s + 2); // fini par double special
-    return ((*s)++);
+    return (++(*s));
 }
 
 char    *lexer_special_char3(t_line *line, char **s, char **start, char **end)

@@ -57,9 +57,20 @@ int    lexer_token(t_line *line)
     i = 0;
     while (temp)
     {
+
         expr = line->exprs;
-        // if (temp->in_subshell != 0)
-        //     line->last_exit = lexer_subshell_expr(line, temp, new, expr, i);
+        if (temp->in_subshell > 0)
+        {
+            if (line->last_exit == -2)
+            {
+                //pour l'instant mais on peut attendre ')'
+                return (line->last_exit);
+            }
+            temp->in_subshell--;
+            line->last_exit = init_subshell(line, temp);
+            if (line->last_exit != 0)
+                return (line->last_exit);
+        }
         if (temp->type == AND || temp->type == OR)
             line->last_exit = lexer_split_expr(line, temp, new, expr, i);
         if (line->last_exit != 0)
@@ -75,11 +86,11 @@ int    lexer_token(t_line *line)
     return (0);
 }
 
-int    lexer_subshell_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)
-{
-    (void)line; (void)temp; (void)new; (void)expr; (void)i;
-    return (0);
-}
+// int    lexer_subshell_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)
+// {
+//     (void)line; (void)temp; (void)new; (void)expr; (void)i;
+//     return (0);
+// }
 
 int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)
 {
