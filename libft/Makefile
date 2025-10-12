@@ -1,3 +1,4 @@
+MAKEFLAGS += --no-print-directory
 CC = cc
 
 CFLAGS = -Wall -Wextra -Werror
@@ -62,19 +63,20 @@ OBJS = $(SRCS:.c=.o)
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	ar rcs $(NAME) $(OBJS)
+	@ar rcs $(NAME) $(OBJS)
 
 $(PROG): $(NAME)
-	$(CC) $(CFLAGS) -o $(NAME)
+	@$(CC) $(CFLAGS) -o $(NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	@printf "\033[0;36mCompiling libft:\033[0m %-29s" "$<"
+	@$(CC) $(CFLAGS) -c $< -o $@ 2>/dev/null && printf "\033[1;32m[ OK ]\033[0m\n" || printf "\033[1;31m[ FAIL ]\033[0m\n"
 
 clean:
-	rm -f $(OBJS)
+	@rm -f $(OBJS)
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
 
 re: fclean all
 
