@@ -7,8 +7,9 @@ INCLUDE_READLINE= -lreadline
 LIBFT= libft
 SRC_DIR = src/
 SRC_OBJ = obj/
-SRC = $(SRC_DIR)env.c \
-      $(SRC_DIR)error.c \
+SRC = $(SRC_DIR)builtin.c \
+	  $(SRC_DIR)env.c \
+	  $(SRC_DIR)error.c \
 	  $(SRC_DIR)exec.c \
 	  $(SRC_DIR)exit.c \
       $(SRC_DIR)free.c \
@@ -57,6 +58,14 @@ fclean: clean
 	@rm -f $(NAME)
 	@make -C $(LIBFT) fclean
 	@printf "\033[1;36mArchive cleaned.\033[0m\n"
+
+valgrind:
+	@printf "\n"
+	@$(MAKE) -C $(LIBFT) --no-print-directory --silent
+	@printf "\033[1;32m\033[0m\n"
+	@$(CC) $(FLAGS) -o $(NAME) $(OBJ) $(INCLUDE_READLINE) $(LIBFT)/libft.a -g3
+	@printf "\033[1;32m[ OK ] Build complete: %s\033[0m\n\n" "$(NAME) 🥳"
+	@valgrind -q --leak-check=full --show-leak-kinds=all --track-fds=yes --track-origins=yes --trace-children=yes --suppressions=./ignore_leak_readline ./$(NAME)
 
 re: fclean all
 
