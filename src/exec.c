@@ -1,15 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   exec2.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/29 16:44:26 by adeflers          #+#    #+#             */
-/*   Updated: 2025/10/10 04:29:55 by adeflers         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
+#include "../include/minishell.h"
 
 #include "../include/minishell.h"
 
@@ -21,12 +10,12 @@ void	exec_minishell(t_line *line, char **env)
 	while (temp != NULL)
 	{
 		if (temp)
-			exec_exprs(temp, line->path, env);
+			exec_exprs(temp, line->path, env, line);
 		temp = temp->next;
 	}
 }
 
-void	exec_exprs(t_expr *exprs, char **path ,char **env)
+void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 {
 	int		i;
 	t_cmd	*cmd;
@@ -46,7 +35,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env)
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->pipe_count == 0)
-			cmd[i].id = exec_cmd(cmd[i], NULL, NULL);
+			cmd[i].id = exec_cmd(cmd[i], NULL, NULL, line);
 		else
 		{
 			if (exprs->pipeline[i].position != 3)
@@ -55,11 +44,11 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env)
 					return (perror("pipe"));
 			}
 			if (exprs->pipeline[i].position == 1)
-				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next);
+				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, line);
 			else if (exprs->pipeline[i].position == 2)
-				cmd[i].id = exec_cmd(cmd[i], fd, fd_next);
+				cmd[i].id = exec_cmd(cmd[i], fd, fd_next, line);
 			else if (exprs->pipeline[i].position == 3)
-				cmd[i].id = exec_cmd(cmd[i], fd, NULL);
+				cmd[i].id = exec_cmd(cmd[i], fd, NULL, line);
 			if (i > 0)
 			{
 				close(fd[0]);
@@ -82,10 +71,11 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env)
 	free(cmd);
 }
 
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out) // ajouter gestion buildin
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line) // ajouter gestion buildin
 {
 	pid_t	id;
 
+	(void)line;
 	id = fork();
 	if (id == -1)
 		return (perror("fork"),	id);// error fork

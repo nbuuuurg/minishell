@@ -28,29 +28,6 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-void	*ft_calloc(size_t nmemb, size_t size)
-{
-	size_t	total;
-	size_t	i;
-	char	*p;
-
-	total = nmemb * size;
-	if (size == 0 || nmemb == 0)
-		return (malloc(0));
-	if (total / nmemb != size)
-		return (NULL);
-	p = malloc(total);
-	if (p == NULL)
-		return (NULL);
-	i = 0;
-	while (i < total)
-	{
-		p[i] = '\0';
-		i++;
-	}
-	return ((void *)p);
-}
-
 char	*ft_strjoin_gnl(char *save, char *buff)
 {
 	size_t	i;

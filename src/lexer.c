@@ -60,12 +60,12 @@ int    lexer_token(t_line *line)
     temp = line->tokens;
     while (temp)
     {
-    //     printf("last_exit : %d\n", line->last_exit);
-    //     printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
+        printf("last_exit : %d\n", line->last_exit);
+        printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
         expr = line->exprs;
         if (temp->in_subshell > 0)
         {
-            if (line->last_exit == -2)
+            if (line->lexer_err == -2)
             {
                 //pour l'instant mais on peut attendre ')'
                 return (line->last_exit);

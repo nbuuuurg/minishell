@@ -155,6 +155,17 @@ typedef struct	s_cmd
 /*                               PROTOTYPES                                   */
 /* ************************************************************************** */
 
+/* builtin.c */
+
+// int	is_builtin(char *cmd);
+// int	exec_builtin(t_cmd cmd, t_line *line);
+// int	ft_echo(t_cmd cmd, t_line *line);
+// int	ft_env(t_cmd cmd, t_line *line);
+// int	ft_unset(t_cmd cmd, t_line *line);
+// int	ft_pwd(t_cmd cmd, t_line *line);
+// int	ft_cd(t_cmd cmd, t_line *line);
+// int	ft_exit(t_cmd cmd, t_line *line);
+
 /* env.c */
 
 char	**get_path(char **env);
@@ -164,8 +175,8 @@ char	**get_path(char **env);
 /* exec.c */
 
 void	exec_minishell(t_line *line, char **env);
-void	exec_exprs(t_expr *exprs, char **path ,char **env);
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out);
+void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line);
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line);
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
 int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2]);
 int	here_doc_content(char *limiter, t_line *line);
