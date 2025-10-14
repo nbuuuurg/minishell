@@ -235,11 +235,19 @@ char	*dup_assign_value(char *s);
 /* exec2.c */
 
 void	exec_minishell(t_line *line, char **env);
-void	exec_exprs(t_expr *exprs, char **path, char **env, int *here_doc_fds);
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds);
+void	exec_exprs(t_expr *exprs, char **path, char **env, int *here_doc_fds, t_line *line);
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *line);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds);
-int		ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds);
+int		ft_redir(t_redir *redirect, int *here_doc_fds);
 int		here_doc_content(char *limiter);
+
+// builtin.c
+
+int		is_builtin(char *cmd);
+int		exec_builtin(t_cmd cmd, t_line *line);
+int		ft_echo(t_cmd cmd, t_line *line);
+int		ft_env(t_cmd cmd, t_line *line);
+
 
 #endif

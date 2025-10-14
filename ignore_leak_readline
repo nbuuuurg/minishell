@@ -1,0 +1,36 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    ignore_leak_readline                               :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/10/14 14:54:35 by adeflers          #+#    #+#              #
+#    Updated: 2025/10/14 14:54:35 by adeflers         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+{
+    readline
+    Memcheck:Leak
+    ...
+    obj:*/libreadline.so.*
+}
+{
+    history
+    Memcheck:Leak
+    ...
+    fun:add_history
+}
+{
+    bin
+    Memcheck:Leak
+    obj:/bin/*
+}
+{
+    usr
+    Memcheck:Leak
+    ...
+    obj:/usr/bin/*
+}
+# valgrind -q --leak-check=full --show-leak-kinds=all --track-fds=yes --track-origins=yes --trace-children=yes --suppressions=./ignore_leak_readline ./minishell

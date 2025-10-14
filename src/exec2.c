@@ -39,12 +39,12 @@ void	exec_minishell(t_line *line, char **env)
 
 	while (line->exprs != NULL)
 	{
-		exec_exprs(line->exprs, line->path, env, here_doc_fds);
+		exec_exprs(line->exprs, line->path, env, here_doc_fds, line);
 		line->exprs = line->exprs->next;
 	}
 }
 
-void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
+void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds, t_line *line)
 {
 	int		i;
 	t_cmd	*cmd;
@@ -64,7 +64,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->pipe_count == 0)
-			cmd[i].id = exec_cmd(cmd[i], NULL, NULL, here_doc_fds);
+			cmd[i].id = exec_cmd(cmd[i], NULL, NULL, here_doc_fds, line);
 		else
 		{
 			if (exprs->pipeline[i].position != 3)
@@ -73,11 +73,11 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
 					return (perror("pipe"));
 			}
 			if (exprs->pipeline[i].position == 1)
-				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, here_doc_fds);
+				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, here_doc_fds, line);
 			else if (exprs->pipeline[i].position == 2)
-				cmd[i].id = exec_cmd(cmd[i], fd, fd_next, here_doc_fds);
+				cmd[i].id = exec_cmd(cmd[i], fd, fd_next, here_doc_fds, line);
 			else if (exprs->pipeline[i].position == 3)
-				cmd[i].id = exec_cmd(cmd[i], fd, NULL, here_doc_fds);
+				cmd[i].id = exec_cmd(cmd[i], fd, NULL, here_doc_fds, line);
 			if (i > 0)
 			{
 				close(fd[0]);
@@ -100,10 +100,15 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds)
 	free(cmd);
 }
 
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds) // ajouter gestion buildin
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *line) // ajouter gestion buildin
 {
 	pid_t	id;
 
+	// is buildin qui modifie l env
+	
+	if (is_builtin(cmd.cmd[0]) == 1) // que echo pour l instant
+		if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
+			exec_builtin(cmd, line);
 	id = fork();
 	if (id == -1)
 		return (perror("fork"),	id);// error fork
@@ -113,6 +118,13 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds) // ajouter
 		{
 			if (cmd.cmd[0])
 			{
+				/* buildin qui modifie pqs l env */
+				if (is_builtin(cmd.cmd[0]) == 1) // que echo pour l instant
+				{
+					/* exec_builtin(cmd, line); */
+					// free tt 
+					exit (0);
+				}
 				if (cmd.full_path)
 				{
 					execve(cmd.full_path, cmd.cmd, cmd.env);
@@ -147,13 +159,13 @@ int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds)
 	}
 	if (redirect)
 	{
-		return (ft_redir(redirect, fd_in, fd_out, here_doc_fds));
+		return (ft_redir(redirect, here_doc_fds));
 	}
 	return (0);
 }
 
 
-int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
+int	ft_redir(t_redir *redirect, int *here_doc_fds)
 {
 	int	i;
 	int	fd;
@@ -168,19 +180,6 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 				return (perror("mini"), 1); // la cmd au lieu de mini
 			dup2(fd, STDOUT_FILENO);
 			close(fd);
-			if (fd_out)
-			{
-				dup2(fd_out[1], STDIN_FILENO);
-				close(fd_out[0]);
-				close(fd_out[1]);
-				fd_out = NULL;
-			}
-			if (fd_in)
-			{
-				dup2(fd_in[0], STDIN_FILENO);
-				close(fd_in[0]);
-				close(fd_in[1]);
-			}
 		}
 		else if (ft_strncmp(redirect[i].redir, ">>", ft_strlen(redirect[i].redir)) == 0)
 		{
@@ -189,19 +188,6 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 				return (perror("mini"), 1); // la cmd au lieu de mini
 			dup2(fd, STDOUT_FILENO);
 			close(fd);
-			if (fd_out)
-			{
-				dup2(fd_out[1], STDIN_FILENO);
-				close(fd_out[0]);
-				close(fd_out[1]);
-				fd_out = NULL;
-			}
-			if (fd_in)
-			{
-				dup2(fd_in[0], STDIN_FILENO);
-				close(fd_in[0]);
-				close(fd_in[1]);
-			}
 		}
 		else if (ft_strncmp(redirect[i].redir, "<", ft_strlen(redirect[i].redir)) == 0)
 		{
@@ -210,19 +196,6 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 				return (perror("mini"), 1); // la cmd au lieu de mini
 			dup2(fd, STDIN_FILENO);
 			close(fd);
-			if (fd_out)
-			{
-				dup2(fd_out[1], STDOUT_FILENO);
-				close(fd_out[0]);
-				close(fd_out[1]);
-				fd_out = NULL;
-			}
-			if (fd_in)
-			{
-				dup2(fd_in[0], STDOUT_FILENO);
-				close(fd_in[0]);
-				close(fd_in[1]);
-			}
 		}
 		else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0)
 		{
@@ -232,19 +205,6 @@ int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2], int *here_doc_fds)
 				return (1); // errror here_doc_content
 			dup2(fd, STDIN_FILENO);
 			close(fd);
-				if (fd_out)
-			{
-				dup2(fd_out[1], STDIN_FILENO);
-				close(fd_out[0]);
-				close(fd_out[1]);
-				fd_out = NULL;
-			}
-			if (fd_in)
-			{
-				dup2(fd_in[0], STDIN_FILENO);
-				close(fd_in[0]);
-				close(fd_in[1]);
-			}
 		}
 		i++;
 	}
