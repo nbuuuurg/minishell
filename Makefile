@@ -42,7 +42,7 @@ $(NAME): $(OBJ)
 	@printf "\033[1;32m\033[0m\n"
 	@$(CC) $(FLAGS) -o $(NAME) $(OBJ) $(INCLUDE_READLINE) $(LIBFT)/libft.a -g3
 	@printf "\033[1;32m[ OK ] Build complete: %s\033[0m\n\n" "$(NAME) 🥳"
-	@./$(NAME)
+# 	@./$(NAME)
 
 $(SRC_OBJ)%.o: $(SRC_DIR)%.c
 	@mkdir -p $(SRC_OBJ)
@@ -70,3 +70,27 @@ valgrind:
 re: fclean all
 
 .PHONY: all clean fclean re
+
+# OBJ= $(SRC:$(SRC_DIR)%.c=$(SRC_OBJ)%.o)
+
+# all: $(NAME)
+
+# $(NAME): $(OBJ)
+# 	make -C $(LIBFT)
+# 	$(CC) $(FLAGS) -o $(NAME) $(OBJ) $(INCLUDE_READLINE) $(LIBFT)/libft.a -g3
+
+# $(SRC_OBJ)%.o: $(SRC_DIR)%.c
+# 	mkdir -p $(SRC_OBJ)
+# 	$(CC) $(FLAGS) -I$(LIBFT) -I$(INCLUDE) -c $< -o $@ -g3
+
+# clean:
+# 	rm -rf $(SRC_OBJ)
+# 	make -C $(LIBFT) clean
+
+# fclean: clean
+# 	rm -f $(NAME)
+# 	make -C $(LIBFT) fclean
+
+# re: fclean all
+
+# .PHONY: all clean fclean re

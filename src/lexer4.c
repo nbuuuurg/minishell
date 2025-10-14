@@ -2,7 +2,6 @@
 
 char    *lexer_special_char4(t_line *line, char **s, char **start, char **end)
 {
-
     *start = *s;
     *end = *start;
     line->lexer_err = -7;

@@ -60,16 +60,13 @@ int    lexer_token(t_line *line)
     temp = line->tokens;
     while (temp)
     {
-        printf("last_exit : %d\n", line->last_exit);
-        printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
+        // printf("last_exit : %d\n", line->last_exit);
+        // printf("lexer_err : %d || token->s : %s\n", line->lexer_err, line->tokens->s);
         expr = line->exprs;
         if (temp->in_subshell > 0)
         {
             if (line->lexer_err == -2)
-            {
-                //pour l'instant mais on peut attendre ')'
-                return (line->last_exit);
-            }
+                return (line->last_exit); // parenthese non ferme
             line->last_exit = init_subshell(line, temp);
             if (line->last_exit != 0)
                 return (line->last_exit);
@@ -110,6 +107,7 @@ int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, 
         }
         line->tokens = temp->next;
     }
+    exec_exprs(new, line->path, line->envp, line);
     return (0);
 }
 
@@ -126,7 +124,6 @@ int    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr)
             expr = expr->next;
         expr->next = new;
     }
-    // print_expr(line);
-    exec_minishell(line, line->envp);
+    exec_exprs(new, line->path, line->envp, line);
     return (0);
 }
