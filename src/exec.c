@@ -5,6 +5,7 @@
 void	exec_minishell(t_line *line, char **env)
 {
 	/*ici*/
+	(void)env;
 	t_expr	*temp;
 	temp = line->exprs;
 	while (temp != NULL)
@@ -28,36 +29,40 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	i = 0;
 	while (i <= exprs->pipe_count)
 	{
-		cmd[i] = get_cmd(exprs->pipeline[i], path, env);
+		if (exprs->has_subshell == 0)
+			cmd[i] = get_cmd(exprs->pipeline[i], path, env);
 		i++;
 	}
 	i = 0;
 	while (i <= exprs->pipe_count)
 	{
-		if (exprs->pipe_count == 0)
-			cmd[i].id = exec_cmd(cmd[i], NULL, NULL, line);
-		else
+		if (exprs->has_subshell == 0)
 		{
-			if (exprs->pipeline[i].position != 3)
+			if (exprs->pipe_count == 0)
+				cmd[i].id = exec_cmd(cmd[i], NULL, NULL, line);
+			else
 			{
-				if (pipe(fd_next) == -1)
-					return (perror("pipe"));
-			}
-			if (exprs->pipeline[i].position == 1)
-				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, line);
-			else if (exprs->pipeline[i].position == 2)
-				cmd[i].id = exec_cmd(cmd[i], fd, fd_next, line);
-			else if (exprs->pipeline[i].position == 3)
-				cmd[i].id = exec_cmd(cmd[i], fd, NULL, line);
-			if (i > 0)
-			{
-				close(fd[0]);
-				close(fd[1]);
-			}
-			if (exprs->pipeline[i].position != 3)
-			{
-				fd[0] = fd_next[0];
-				fd[1] = fd_next[1];
+				if (exprs->pipeline[i].position != 3)
+				{
+					if (pipe(fd_next) == -1)
+						return (perror("pipe"));
+				}
+				if (exprs->pipeline[i].position == 1)
+					cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, line);
+				else if (exprs->pipeline[i].position == 2)
+					cmd[i].id = exec_cmd(cmd[i], fd, fd_next, line);
+				else if (exprs->pipeline[i].position == 3)
+					cmd[i].id = exec_cmd(cmd[i], fd, NULL, line);
+				if (i > 0)
+				{
+					close(fd[0]);
+					close(fd[1]);
+				}
+				if (exprs->pipeline[i].position != 3)
+				{
+					fd[0] = fd_next[0];
+					fd[1] = fd_next[1];
+				}
 			}
 		}
 		i++;

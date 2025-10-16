@@ -1,0 +1,116 @@
+ls -la
+pwd
+cd ..
+cd /tmp && pwd
+cd && echo $HOME
+echo hello world
+echo "hello world"
+echo 'hello world'
+echo "mix'quotes'"
+echo 'mix"quotes"'
+echo $USER
+echo "$USER"
+echo '$USER'
+echo $?
+echo $$
+echo $PATH
+echo $NOTHING
+env
+export TEST=42
+echo $TEST
+unset TEST && echo $TEST
+export TEST="hello world" && echo "$TEST"
+export A=1 B=2 C=3 && echo "$A-$B-$C"
+unset A B C && env | grep TEST
+ls | grep src
+ls | grep ".c" | wc -l
+cat /etc/passwd | grep root | cut -d: -f1
+echo "abc" > file.txt && cat file.txt
+echo "123" >> file.txt && cat file.txt
+empty.txt && cat empty.txt
+cat nonexistentfile
+cat < nonexistentfile
+ls > /dev/null
+ls nonexistentfile 2> error.txt && cat error.txt
+echo "redir test" > out.txt 2> err.txt && cat out.txt err.txt
+echo "mix redir" >a 2>&1 && cat a
+cat << EOF
+hello
+world
+EOF
+cat << END | grep world
+foo
+world
+END
+sleep 0.1 | echo done
+echo " too many spaces "
+echo -n "no newline"
+ls ; pwd ; echo done
+echo "chained" && echo "commands" || echo "fallback"
+false && echo "should not show" || echo "should show"
+( echo subshell )
+( cd / && pwd )
+( export X=lol && echo $X )
+exit
+exit 42
+echo "'double inside single'"
+echo '"single inside double"'
+echo "nested 'quotes "inside" quotes'"
+echo 'nested "quotes '''inside''' quotes"'
+echo "$USER'$USER'"
+echo "$PATH$PATH$PATH"
+echo " $ "
+echo $USER
+echo "\$USER"
+echo "back\slash"
+export VAR="a b c" && echo $VAR
+export VAR='a "b" c' && echo "$VAR"
+unset VAR && echo ${VAR:-default}
+echo ${PATH//:/"\n"}
+echo ${HOME:0:3}
+echo "test" | cat -e | grep t | wc -l
+ls | | grep test
+cat |
+| ls
+ls | grep
+echo >
+echo test > a > b > c && cat a b c
+cat < file.txt > out.txt
+cat < in.txt >> out.txt
+cat <<EOF | grep foo
+foo
+bar
+EOF
+cat << "END" | tr a-z A-Z
+hello
+world
+END
+cat <<EOF | cat <<END
+first
+EOF
+second
+END
+echo "unterminated
+echo "escape test " " " end"
+echo 'escape test ' ' ' end'
+echo "whoami"
+echo $(pwd)
+echo "$(echo nested $(echo deeper))"
+echo "$(ls | grep minishell)"
+export PATH=/tmp:$PATH && which ls
+unset PATH && ls
+cd / && cd -
+cd -
+cd //////
+cd ""
+cd ''
+cd " "
+export ""=weird && env | grep weird
+echo ${NOTSET?error not set}
+false || true && echo logic ok
+true && false || echo fallback
+sleep 0.1 &
+jobs
+fg %1
+kill %1
+echo $RANDOM $RANDOM $RANDOM

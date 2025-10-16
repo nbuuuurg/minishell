@@ -36,15 +36,15 @@
 typedef enum 	s_token_type
 {
 	WORD = 0,		// cmd/argument/word générique
-	PIPE,			// |
-	OR,				// ||
-	AND,			// &&
-	REDIR_IN,		// <
-	REDIR_OUT,		// >
-	REDIR_APPEND,	// >>
-	HEREDOC,		// <<
-	ASSIGNMENT,	// name=value
-	NO_OPCTR
+	PIPE = 1,			// |
+	OR = 2,				// ||
+	AND = 3,			// &&
+	REDIR_IN = 4,		// <
+	REDIR_OUT = 5,		// >
+	REDIR_APPEND = 6,	// >>
+	HEREDOC = 7,		// <<
+	ASSIGNMENT = 8,	// name=value
+	NO_OPCTR = 9
 } 		t_token_type;
 
 typedef enum	e_quoted
@@ -121,6 +121,7 @@ typedef struct	s_expr
 	t_pipeline	*pipeline;
 	t_token_type		op_after;
 	int			pipe_count;
+	int			has_subshell;
 	struct s_expr	*next;
 }				t_expr;
 

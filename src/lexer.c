@@ -71,6 +71,19 @@ int    lexer_token(t_line *line)
             if (line->last_exit != 0)
                 return (line->last_exit);
             flag++;
+            new = ft_calloc(1, sizeof(t_expr));
+            if (!new)
+                return (line->last_exit = 1);
+            ft_bzero(new, sizeof(t_expr));
+            new->has_subshell = 1;
+            if (!line->exprs)
+                line->exprs = new;
+            else
+            {
+                while (expr->next)
+                    expr = expr->next;
+                expr->next = new;
+            }
         }
         if (temp->type == AND || temp->type == OR)
             line->last_exit = lexer_split_expr(line, temp, new, expr, i);
@@ -85,6 +98,7 @@ int    lexer_token(t_line *line)
         flag = 0;
     }
     line->tokens = temp2;
+    // print_expr(line);
     return (0);
 }
 
@@ -107,7 +121,7 @@ int    lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, 
         }
         line->tokens = temp->next;
     }
-    exec_exprs(new, line->path, line->envp, line);
+    // exec_exprs(new, line->path, line->envp, line);
     return (0);
 }
 
@@ -123,7 +137,8 @@ int    lexer_single_expr(t_line *line, t_expr *new, t_expr *expr)
         while (expr->next)
             expr = expr->next;
         expr->next = new;
+        new->next = NULL;
     }
-    exec_exprs(new, line->path, line->envp, line);
+    // exec_exprs(new, line->path, line->envp, line);
     return (0);
 }

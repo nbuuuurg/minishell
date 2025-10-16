@@ -14,6 +14,8 @@ int     init_subshell(t_line *line, t_token *subinput)
     if (!subline)
         return (EX_GEN);
     // print_expr(subline);
+    if (subline->exprs)
+        exec_minishell(subline, line->envp) ;
     free_line(subline);
     return (0);
 }

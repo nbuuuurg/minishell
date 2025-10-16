@@ -19,7 +19,7 @@ void    count_token(t_token *temp, int (*len)[3], t_token_type op_ctrl)
     temp2 = temp;
     while(temp2 && temp2->type != PIPE && temp2->type != op_ctrl)
     {
-        if (temp2->type == WORD && temp2->in_subshell == 0)
+        if (temp2->type == WORD)// && temp2->in_subshell == 0)
         {
             if (!temp2->next)
                 (*len)[0]++;

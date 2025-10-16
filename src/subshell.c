@@ -8,6 +8,8 @@ char    *new_subinput(t_line *line, t_token *token)
     size_t j;
     int     subshell;
     int     subshell2;
+    char    *temp;
+    t_token *ttemp;
 
     (void)line;
     len = ft_strlen(token->s);
@@ -18,6 +20,7 @@ char    *new_subinput(t_line *line, t_token *token)
     subshell2 = 0;
     i = 0;
     j = 0;
+    temp = NULL;
     while (token->s[i] && i < len - 1)
     {
         if ((subshell == 0 && token->s[i] == '(') || (subshell2 == 0 && token->s[len - i - 1] == ')'))
@@ -31,9 +34,41 @@ char    *new_subinput(t_line *line, t_token *token)
         if (token->s[i] && i < len - 1)
             subinput[j++] = token->s[i++];
     }
+    ttemp = token;
+    if (ttemp->previous)
+    {
+        if (ttemp->previous->type == PIPE)
+        {
+            while (ttemp->previous && ttemp->previous->type != AND && ttemp->previous->type != OR)
+            {
+                temp = ft_strjoin(ttemp->previous->s, " ");
+                ttemp->previous->s = temp;
+                temp = ft_strjoin(ttemp->previous->s, subinput);
+                free(subinput);
+                subinput = temp;
+                ttemp = ttemp->previous;
+            }
+        }
+    }
+    ttemp = token;
+    if (ttemp->next)
+    {
+        if (ttemp->next->type == PIPE)
+        {
+            while (ttemp->next && ttemp->next->type != AND && ttemp->next->type != OR)
+            {
+                temp = ft_strjoin(subinput, " ");
+                free(subinput);
+                subinput = temp;
+                temp = ft_strjoin(subinput, ttemp->next->s);
+                free(subinput);
+                subinput = temp;
+                ttemp = ttemp->next;
+            }
+        }
+    }
     // printf("subinput : %s\n", subinput);
     return(subinput);
-
 }
 
 t_line  *dup_line(t_line *line, t_token *subinput)
@@ -53,6 +88,7 @@ t_line  *dup_line(t_line *line, t_token *subinput)
     subline->len = line->len - 2;
     subline->lexer_err = 0;
     subline->num_expr = 0;
+    subline->heredoc_flag = line->heredoc_flag;
     subline->path = get_path(line->envp);
     return(subline);
 }

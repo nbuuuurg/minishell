@@ -51,7 +51,10 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
     while (temp && temp->type != PIPE && temp->type != new->op_after)
     {
         if (temp->in_subshell != 0)
+        {
+            new->has_subshell = temp->in_subshell;
             line->last_exit = 0;
+        }
         else if (temp->type == WORD && temp->in_subshell == 0)
             line->last_exit = parse_word(line, new, temp, *i, &(*len)[0]);
         else if (temp->type == REDIR_IN || temp->type == REDIR_APPEND || temp->type == REDIR_OUT || temp->type == HEREDOC)

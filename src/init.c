@@ -100,6 +100,7 @@ t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl)
         temp = temp->next;
     }
     new->pipe_count = pipe;
+    new->has_subshell = 0;
     new->pipeline = ft_calloc(new->pipe_count + 1, sizeof(t_pipeline));
     if (!new->pipeline)
         return (free(new), NULL);
