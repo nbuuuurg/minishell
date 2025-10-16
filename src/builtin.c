@@ -14,27 +14,35 @@
 
 int	is_builtin(char *cmd)
 {
-	if (ft_strncmp(cmd, "cd", 3) == 0)
+	// builtin qui n ont pas d effet sur l env 
+
+	if (ft_strncmp(cmd, "pwd", 4) == 0)
 		return (1);
 	if (ft_strncmp(cmd, "echo", 5) == 0)
 		return (1);
 	if (ft_strncmp(cmd, "env", 4) == 0)
 		return (1);
-	if (ft_strncmp(cmd, "exit", 5) == 0)
-		return (1);
-	if (ft_strncmp(cmd, "export", 7) == 0)
-		return (1);
-	if (ft_strncmp(cmd, "pwd", 4) == 0)
-		return (1);
-	if (ft_strncmp(cmd, "unset", 6) == 0)
-		return (1);
+
+	// builtin qui ont un effet sur l env
+
+	/* if (ft_strncmp(cmd, "export", 7) == 0) */
+	/* 	return (2); */
+	/* if (ft_strncmp(cmd, "unset", 6) == 0) */
+	/* 	return (2); */
+	/* if (ft_strncmp(cmd, "cd", 3) == 0) */
+	/* 	return (2); */
+
+	// exit 
+
+	/* if (ft_strncmp(cmd, "exit", 5) == 0) */
+	/* 	return (3); */
 	return (0);
 } 
 
 int	exec_builtin(t_cmd cmd, t_line *line)
 {
-	/* if (ft_strncmp(cmd.cmd[0], "cd", 3) == 0) */
-	/* 	return (ft_cd(cmd, line)); */
+	if (ft_strncmp(cmd.cmd[0], "pwd", 4) == 0)
+		return (ft_pwd());
 	if (ft_strncmp(cmd.cmd[0], "echo", 5) == 0)
 		return (ft_echo(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "env", 4) == 0)
@@ -43,30 +51,52 @@ int	exec_builtin(t_cmd cmd, t_line *line)
 	/* 	return (ft_exit(cmd, line)); */
 	/* if (ft_strncmp(cmd.cmd[0], "export", 7) == 0) */
 	/* 	return (ft_export(cmd, line)); */
-	/* if (ft_strncmp(cmd.cmd[0], "pwd", 4) == 0) */
-	/* 	return (ft_pwd(cmd, line)); */
 	/* if (ft_strncmp(cmd.cmd[0], "unset", 6) == 0) */
 	/* 	return (ft_unset(cmd, line)); */
+	/* if (ft_strncmp(cmd.cmd[0], "cd", 3) == 0) */
+	/* 	return (ft_cd(cmd, line)); */
+	return (1);
+}
+
+int	is_option_n(char *s)
+{
+	int	i;
+
+	if (s[0] != '-')
+		return (0);
+	i = 1;
+	while (s[i])
+	{
+		if (s[i] != 'n')
+			return (0);
+		i++;
+	}
 	return (1);
 }
 
 int	ft_echo(t_cmd cmd, t_line *line)
 {
 	char	*str;
+	int		i;
+	int		n_flag;
 
-	if(ft_strncmp(cmd.cmd[1], "-n", 3) == 0)
-		str = cmd.cmd[2];
-	else
-		str = cmd.cmd[1];
-	if (ft_strncmp(str, "$?", 3) == 0) // provisoire
+	n_flag = 0;
+	i = 1;
+	while (is_option_n(cmd.cmd[i]) == 1)
+	{
+		n_flag = 1;
+		i++;
+	}
+	str = cmd.cmd[i];
+	if (ft_strncmp(str, "$?", 3) == 0) // provisoire ?
 		str = ft_itoa(line->last_exit);
 	ft_putstr_fd(str, STDOUT_FILENO);
-	if (ft_strncmp(cmd.cmd[1], "-n", 3) != 0)
+	if (n_flag == 0)
+		write(STDOUT_FILENO, "\n", 1);
+	if (!cmd.cmd[i])
 		write(STDOUT_FILENO, "\n", 1);
 
 	// attention echo sans rien derriere fait un 2eme \n
-	// echo -n -n -n -n -n -n -n -n marche pas
-	// echo -nnnnnnnnnnnk attention ne doit pas marcher
 	return (0);
 }
 
@@ -136,10 +166,10 @@ int	ft_unset(t_cmd cmd, t_line *line)
 	return (0);
 }
 
-int	ft_pwd(t_cmd cmd, t_line *line)
+int	ft_pwd(void)
 {
-	(void)line;
-	(void)cmd;
+	ft_putstr_fd(getcwd(NULL, 0), STDOUT_FILENO);
+	write(STDOUT_FILENO, "\n", 1);
 	return (0);
 }
 

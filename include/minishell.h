@@ -248,6 +248,7 @@ int		is_builtin(char *cmd);
 int		exec_builtin(t_cmd cmd, t_line *line);
 int		ft_echo(t_cmd cmd, t_line *line);
 int		ft_env(t_cmd cmd, t_line *line);
+int		ft_pwd(void);
 
 
 #endif

@@ -48,8 +48,8 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds, t_lin
 {
 	int		i;
 	t_cmd	*cmd;
-	int		fd[2];
-	int		fd_next[2];
+	int		fd_in[2];
+	int		fd_out[2];
 
 	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL
 	if (!cmd)
@@ -69,24 +69,24 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds, t_lin
 		{
 			if (exprs->pipeline[i].position != 3)
 			{
-				if (pipe(fd_next) == -1)
+				if (pipe(fd_out) == -1)
 					return (perror("pipe"));
 			}
 			if (exprs->pipeline[i].position == 1)
-				cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, here_doc_fds, line);
+				cmd[i].id = exec_cmd(cmd[i], NULL, fd_out, here_doc_fds, line);
 			else if (exprs->pipeline[i].position == 2)
-				cmd[i].id = exec_cmd(cmd[i], fd, fd_next, here_doc_fds, line);
+				cmd[i].id = exec_cmd(cmd[i], fd_in, fd_out, here_doc_fds, line);
 			else if (exprs->pipeline[i].position == 3)
-				cmd[i].id = exec_cmd(cmd[i], fd, NULL, here_doc_fds, line);
+				cmd[i].id = exec_cmd(cmd[i], fd_in, NULL, here_doc_fds, line);
 			if (i > 0)
 			{
-				close(fd[0]);
-				close(fd[1]);
+				close(fd_in[0]);
+				close(fd_in[1]);
 			}
 			if (exprs->pipeline[i].position != 3)
 			{
-				fd[0] = fd_next[0];
-				fd[1] = fd_next[1];
+				fd_in[0] = fd_out[0];
+				fd_in[1] = fd_out[1];
 			}
 		}
 		i++;
@@ -106,25 +106,28 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *li
 
 	// is buildin qui modifie l env
 	
-	if (is_builtin(cmd.cmd[0]) == 1) // que echo pour l instant
+	if (is_builtin(cmd.cmd[0]) == 2)
+	{
 		if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
 			exec_builtin(cmd, line);
+	}
 	id = fork();
 	if (id == -1)
 		return (perror("fork"),	id);// error fork
 	if (id == 0)
 	{
+		if (is_builtin(cmd.cmd[0]) == 1)
+		{
+			if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
+				exec_builtin(cmd, line);
+
+			// free tt 
+			exit (0);
+		}
 		if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
 		{
 			if (cmd.cmd[0])
 			{
-				/* buildin qui modifie pqs l env */
-				if (is_builtin(cmd.cmd[0]) == 1) // que echo pour l instant
-				{
-					/* exec_builtin(cmd, line); */
-					// free tt 
-					exit (0);
-				}
 				if (cmd.full_path)
 				{
 					execve(cmd.full_path, cmd.cmd, cmd.env);
@@ -132,7 +135,8 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *li
 				}
 				else 
 				{
-					ft_putstr_fd("command not found\n", 2);
+					ft_putstr_fd(cmd.cmd[0], 2);
+					ft_putstr_fd(": command not found\n", 2);
 					exit (127);
 				}
 			}
@@ -146,7 +150,6 @@ int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds)
 {
 	if (fd_in)
 	{
-		
 		dup2(fd_in[0], STDIN_FILENO);
 		close(fd_in[0]);
 		close(fd_in[1]);
