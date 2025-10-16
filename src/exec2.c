@@ -269,18 +269,13 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	char	*path_cmd;
 
 	ft_bzero(&cmd, sizeof(t_cmd));
-	/* printf("%p\n", pipeline.redirect); */
 	cmd.redirect = pipeline.redirect;
-	// si c est un buildin --> on met buildin = 1
-	// else 
-	// buildin = 0 
-	// et on fait le reste
 	cmd.cmd = pipeline.args;
 	cmd.env = env;
 	if (!cmd.env)
 		cmd.full_path = ft_strdup(cmd.cmd[0]);
 	i = 0;
-	while (path[i])
+	while (path && path[i])
 	{
 		path_cmd = ft_strjoin(path[i], cmd.cmd[0]);
 		if (!path_cmd)

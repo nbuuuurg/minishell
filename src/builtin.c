@@ -108,7 +108,7 @@ int	ft_env(t_line *line)
 	int	i;
 
 	i = 0;
-	while (line->envp[i])
+	while (line->envp && line->envp[i])
 	{
 		ft_putstr_fd(line->envp[i], STDOUT_FILENO);
 		write(STDOUT_FILENO, "\n", 1);

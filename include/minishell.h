@@ -135,8 +135,6 @@ typedef struct	s_line
 
 typedef struct	s_cmd
 {
-	int		buildin;
-	char	*cmd_buildin;
 	t_redir	*redirect;
 	char	**cmd;
 	char	*full_path;
