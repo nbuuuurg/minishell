@@ -16,8 +16,12 @@ int	main(int ac, char **av, char **envp)
 {
 	t_line	line;
 	char	**env;
+	int		start_flag;
 
-	env = envp;
+	start_flag = 0;
+	env = ft_strdup2(envp);
+	if (!env)
+		exit (1);
 	(void)av;
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
@@ -32,15 +36,24 @@ int	main(int ac, char **av, char **envp)
 			return(EX_OK); // exit
 		if (line.input)
 			add_history(line.input);
-		init_minishell(&line, env);
+		init_minishell(&line, env, start_flag);
 					/* ----- EXEC ---- */
 		if (line.exprs) // enlever print_expr(line) de lexer.c pour rentrer dans l exec
-			exec_minishell(&line, env);
+			exec_minishell(&line);
 		free(line.input);
 		free_split(line.path);
+		start_flag = 1;
 	}
 	return (0);
 }
 
 
 // isatty pour pas que le ./minishell | ./minishell plante
+// 
+// qd on fait entrer dans stdin ca fait des trucs bizarres genre pas \n mais \r
+// et je sais pas a quel moment ca a casser
+
+// tcgetattr que on peut utiliser pour regler ce prb mais bizarre 
+//
+// en fait je sais : ca vient d un moment ou readline a crasher et il a pas pu reset le terminal ce qui fait qu on quitte le mode cononique ou un truc du genre et du coup tout le terminal est bloque la dedans, ca vient pas de mon code - mais justement tcgetattr peut aider a regler ca et sera utile pour gerer les signaux
+// bref un bordel

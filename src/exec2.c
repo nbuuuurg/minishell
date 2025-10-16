@@ -13,7 +13,7 @@
 
 #include "../include/minishell.h"
 
-void	exec_minishell(t_line *line, char **env)
+void	exec_minishell(t_line *line)
 {
 	// les heredoc se font au moment du parsing de fait a ce que si il y a une syntax error les 
 	// herdeoc avant cette syntax error seront fait qd meme, mais pas les autres
@@ -39,7 +39,7 @@ void	exec_minishell(t_line *line, char **env)
 
 	while (line->exprs != NULL)
 	{
-		exec_exprs(line->exprs, line->path, env, here_doc_fds, line);
+		exec_exprs(line->exprs, line->path, line->envp, here_doc_fds, line);
 		line->exprs = line->exprs->next;
 	}
 }
@@ -98,9 +98,15 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, int *here_doc_fds, t_lin
 		i++;
 	}
 	free(cmd);
+	if (WIFEXITED(cmd[i - 1].status))
+		line->last_exit = WEXITSTATUS(cmd[i - 1].status);
+
+	// qd y aura les signaux
+	/* else if (WIFEXITED(cmd[i - 1].status)) */
+	/* 	line->last_exit = 128 + WTERMSIG(cmd[i - 1].status); */
 }
 
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *line) // ajouter gestion buildin
+pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *line)
 {
 	pid_t	id;
 
@@ -108,8 +114,8 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *li
 	
 	if (is_builtin(cmd.cmd[0]) == 2)
 	{
-		if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
-			exec_builtin(cmd, line);
+		/* if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0) */
+		exec_builtin(cmd, line);
 	}
 	id = fork();
 	if (id == -1)
@@ -121,6 +127,11 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *li
 			if (is_builtin(cmd.cmd[0]) == 1)
 			{
 				exec_builtin(cmd, line);
+				// free tt
+				exit (0);
+			}
+			if (is_builtin(cmd.cmd[0]) == 2)
+			{
 				// free tt
 				exit (0);
 			}

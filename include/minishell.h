@@ -163,8 +163,8 @@ void	free_split(char **s);
 
 /* init.c */
 
-void    init_minishell(t_line *line, char **envp);
-void    init_line(t_line *line, char **envp);
+void    init_minishell(t_line *line, char **envp, int start_flag);
+void    init_line(t_line *line, char **envp, int start_flag);
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
 t_pipeline  init_pipeline(t_line *line, int (*len)[3]);
 
@@ -230,11 +230,11 @@ char	*dup_assign_value(char *s);
 
 
 /* exec.c */
-
+char	**ft_strdup2(char **env);
 
 /* exec2.c */
 
-void	exec_minishell(t_line *line, char **env);
+void	exec_minishell(t_line *line);
 void	exec_exprs(t_expr *exprs, char **path, char **env, int *here_doc_fds, t_line *line);
 pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *line);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
@@ -247,8 +247,9 @@ int		here_doc_content(char *limiter);
 int		is_builtin(char *cmd);
 int		exec_builtin(t_cmd cmd, t_line *line);
 int		ft_echo(t_cmd cmd, t_line *line);
-int		ft_env(t_cmd cmd, t_line *line);
+int		ft_env(t_line *line);
 int		ft_pwd(void);
+int		ft_unset(t_cmd cmd, t_line *line); // provisoire
 
 
 #endif

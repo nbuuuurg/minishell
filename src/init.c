@@ -12,24 +12,27 @@
 
 #include "../include/minishell.h"
 
-void    init_minishell(t_line *line, char **envp)
+void    init_minishell(t_line *line, char **envp, int start_flag)
 {
-    init_line(line, envp);
+    init_line(line, envp, start_flag);
     lexer_input(line);
 }
 
 
 
-void    init_line(t_line *line, char **envp)
+void    init_line(t_line *line, char **envp, int start_flag)
 {
     line->clean = line->input;
     line->tokens = NULL;
     line->exprs = NULL;
-    line->path = get_path(envp);
-    line->last_exit = 0;
+	if (start_flag == 0)
+	{
+		line->last_exit = 0;
+	}
+	line->path = get_path(envp);
     line->num_expr = 0;
-    if (envp)
-        line->envp = envp;
+    if (envp && start_flag == 0)
+		line->envp = envp;
 }
 
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl)

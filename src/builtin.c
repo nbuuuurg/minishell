@@ -27,8 +27,8 @@ int	is_builtin(char *cmd)
 
 	/* if (ft_strncmp(cmd, "export", 7) == 0) */
 	/* 	return (2); */
-	/* if (ft_strncmp(cmd, "unset", 6) == 0) */
-	/* 	return (2); */
+	if (ft_strncmp(cmd, "unset", 6) == 0)
+		return (2);
 	/* if (ft_strncmp(cmd, "cd", 3) == 0) */
 	/* 	return (2); */
 
@@ -46,13 +46,13 @@ int	exec_builtin(t_cmd cmd, t_line *line)
 	if (ft_strncmp(cmd.cmd[0], "echo", 5) == 0)
 		return (ft_echo(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "env", 4) == 0)
-		return (ft_env(cmd, line));
+		return (ft_env(line));
 	/* if (ft_strncmp(cmd.cmd[0], "exit", 5) == 0) */
 	/* 	return (ft_exit(cmd, line)); */
 	/* if (ft_strncmp(cmd.cmd[0], "export", 7) == 0) */
 	/* 	return (ft_export(cmd, line)); */
-	/* if (ft_strncmp(cmd.cmd[0], "unset", 6) == 0) */
-	/* 	return (ft_unset(cmd, line)); */
+	if (ft_strncmp(cmd.cmd[0], "unset", 6) == 0)
+		return (ft_unset(cmd, line));
 	/* if (ft_strncmp(cmd.cmd[0], "cd", 3) == 0) */
 	/* 	return (ft_cd(cmd, line)); */
 	return (1);
@@ -103,11 +103,10 @@ int	ft_echo(t_cmd cmd, t_line *line)
 	return (0);
 }
 
-int	ft_env(t_cmd cmd, t_line *line)
+int	ft_env(t_line *line)
 {
 	int	i;
 
-	(void)cmd;
 	i = 0;
 	while (line->envp[i])
 	{
@@ -115,6 +114,13 @@ int	ft_env(t_cmd cmd, t_line *line)
 		write(STDOUT_FILENO, "\n", 1);
 		i++;
 	}
+	return (0);
+}
+
+int	ft_pwd(void)
+{
+	ft_putstr_fd(getcwd(NULL, 0), STDOUT_FILENO);
+	write(STDOUT_FILENO, "\n", 1);
 	return (0);
 }
 
@@ -164,15 +170,9 @@ int	ft_env(t_cmd cmd, t_line *line)
 
 int	ft_unset(t_cmd cmd, t_line *line)
 {
-	(void)line;
 	(void)cmd;
-	return (0);
-}
 
-int	ft_pwd(void)
-{
-	ft_putstr_fd(getcwd(NULL, 0), STDOUT_FILENO);
-	write(STDOUT_FILENO, "\n", 1);
+	line->envp = NULL; // provisoire
 	return (0);
 }
 
