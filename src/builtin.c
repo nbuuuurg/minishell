@@ -62,6 +62,8 @@ int	is_option_n(char *s)
 {
 	int	i;
 
+	if (!s)
+		return (0);
 	if (s[0] != '-')
 		return (0);
 	i = 1;
@@ -80,6 +82,11 @@ int	ft_echo(t_cmd cmd, t_line *line)
 	int		i;
 	int		n_flag;
 
+	if (!cmd.cmd[1])
+	{
+		write(STDOUT_FILENO, "\n", 1);
+		return (0);
+	}
 	n_flag = 0;
 	i = 1;
 	while (is_option_n(cmd.cmd[i]) == 1)
@@ -93,10 +100,6 @@ int	ft_echo(t_cmd cmd, t_line *line)
 	ft_putstr_fd(str, STDOUT_FILENO);
 	if (n_flag == 0)
 		write(STDOUT_FILENO, "\n", 1);
-	if (!cmd.cmd[i])
-		write(STDOUT_FILENO, "\n", 1);
-
-	// attention echo sans rien derriere fait un 2eme \n
 	return (0);
 }
 

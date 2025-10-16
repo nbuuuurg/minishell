@@ -113,19 +113,17 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *li
 	}
 	id = fork();
 	if (id == -1)
-		return (perror("fork"),	id);// error fork
+		return (perror("fork"),	id); // error fork
 	if (id == 0)
 	{
-		if (is_builtin(cmd.cmd[0]) == 1)
-		{
-			if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
-				exec_builtin(cmd, line);
-
-			// free tt 
-			exit (0);
-		}
 		if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0)
 		{
+			if (is_builtin(cmd.cmd[0]) == 1)
+			{
+				exec_builtin(cmd, line);
+				// free tt
+				exit (0);
+			}
 			if (cmd.cmd[0])
 			{
 				if (cmd.full_path)
