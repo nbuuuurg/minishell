@@ -28,11 +28,16 @@ void    init_line(t_line *line, char **envp, int start_flag)
 	if (start_flag == 0)
 	{
 		line->last_exit = 0;
+		/* line->path = get_path(envp); */
 	}
-	line->path = get_path(envp);
+	/* else */
+	/* 	line->path = get_path(line->envp); */
     line->num_expr = 0;
     if (envp && start_flag == 0)
 		line->envp = envp;
+
+	// provisoire car pour l instant les modifs d env font segfault mais ca doit pas etre grand chose
+	line->path = get_path(envp);
 }
 
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl)
