@@ -85,7 +85,7 @@ int    lexer_token(t_line *line)
                 expr->next = new;
             }
         }
-        if (temp->type == AND || temp->type == OR)
+        if ((temp->type == AND || temp->type == OR) && flag == 0)
             line->last_exit = lexer_split_expr(line, temp, new, expr, i);
         if (line->last_exit != 0)
             return (line->last_exit);

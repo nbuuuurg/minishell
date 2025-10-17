@@ -65,7 +65,7 @@ void    init_line(t_line *line, char **envp)
         line->envp = envp;
     line->last_exit = init_clean_input(line);
     if (line->last_exit != 0)
-        return ; // a free propre
+        return ;
 }
 
 void	init_token(t_token *token, int multiple_quote, int quote, int i)

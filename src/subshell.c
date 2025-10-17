@@ -67,7 +67,6 @@ char    *new_subinput(t_line *line, t_token *token)
             }
         }
     }
-    // printf("subinput : %s\n", subinput);
     return(subinput);
 }
 
@@ -81,6 +80,7 @@ t_line  *dup_line(t_line *line, t_token *subinput)
     subline->input = new_subinput(line, subinput);
     if (!subline->input)
         return (line->last_exit = EX_GEN, NULL);
+    subline->clean = subline->input;
     subline->envp = line->envp;
     subline->tokens = NULL;
     subline->exprs = NULL;
@@ -90,5 +90,6 @@ t_line  *dup_line(t_line *line, t_token *subinput)
     subline->num_expr = 0;
     subline->heredoc_flag = line->heredoc_flag;
     subline->path = get_path(line->envp);
+    // printf("subinput : %s\n", subline->input);
     return(subline);
 }

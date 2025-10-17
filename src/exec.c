@@ -70,7 +70,8 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	i = 0;
 	while (i <= exprs->pipe_count)
 	{
-		waitpid(cmd[i].id, &cmd[i].status, 0);
+		if (exprs->has_subshell == 0)
+			waitpid(cmd[i].id, &cmd[i].status, 0);
 		i++;
 	}
 	free(cmd);
