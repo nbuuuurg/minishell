@@ -137,17 +137,19 @@ pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, int *here_doc_fds, t_line *li
 			}
 			if (cmd.cmd[0])
 			{
-				if (cmd.full_path)
-				{
+				/* if (cmd.full_path) */
+				/* { */
 					execve(cmd.full_path, cmd.cmd, cmd.env);
-					perror("execve");
-				}
-				else 
-				{
-					ft_putstr_fd(cmd.cmd[0], 2);
-					ft_putstr_fd(": command not found\n", 2);
+					/* printf("---%s---\n", cmd.full_path); */
+					/* perror("execve"); */
+				/* } */
+				/* else  */
+				/* { */
+					/* ft_putstr_fd(cmd.cmd[0], 2); */
+					/* ft_putstr_fd(": command not found\n", 2); */
+					perror(cmd.cmd[0]);
 					exit (127);
-				}
+				/* } */
 			}
 		}
 		exit (1); // penser a free cmd
@@ -170,12 +172,9 @@ int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, int *here_doc_fds)
 		close(fd_out[1]);
 	}
 	if (redirect)
-	{
 		return (ft_redir(redirect, here_doc_fds));
-	}
 	return (0);
 }
-
 
 int	ft_redir(t_redir *redirect, int *here_doc_fds)
 {
@@ -229,6 +228,13 @@ int	here_doc_content(char *limiter)
 	char	*content;
 	char	*res;
 	char	*tmp;
+	/* struct termios	saved_term; */
+	/* struct termios	tmp_term; */
+	/**/
+	/* tcgetattr(STDIN_FILENO, &saved_term); */
+	/* tmp_term = saved_term; */
+	/* tmp_term.c_lflag |= (ICANON | ECHO); */
+	/* tcsetattr(STDIN_FILENO, TCSANOW, &tmp_term); */
 
 	res = ft_strdup("");
 	if (!res)
@@ -259,6 +265,9 @@ int	here_doc_content(char *limiter)
 	write(here_tube[1], res, ft_strlen(res));
 	free(res);
 	close(here_tube[1]);
+
+	/* tcsetattr(STDIN_FILENO, TCSANOW, &saved_term); */
+
 	return (here_tube[0]);
 }
 
@@ -298,6 +307,5 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	return (cmd);
 }
 
-// attention si cmd.cmd[0] est un chemin relatif ou absolu
-// faut tester direct access dessus avant de passer par le path	
-// si c est le cas faut faire cmd.full_path = ft_strdup(cmd.cmd[0])
+// tester access si !cmd.full_path
+//

@@ -12,7 +12,7 @@
 
 #include "../include/minishell.h"
 
-static void	restore_terminal(void)
+void	restore_terminal(void)
 {
 	struct termios	term;
 
@@ -45,6 +45,7 @@ int	main(int ac, char **av, char **envp)
 	ft_bzero(&line, sizeof(t_line));
 	while(1)
 	{
+		restore_terminal();
 		line.input = readline("minishell>>>");
 		if (!line.input)
 			exit(EX_OK); // EOF
@@ -64,16 +65,11 @@ int	main(int ac, char **av, char **envp)
 	return (0);
 }
 
+// probleme avec le restore terminal qui ne restaure pas bien le terminal
+// a creuser
 
-// isatty pour pas que le ./minishell | ./minishell plante
-//	if (isatty(STDIN_FILENO) == 0)
-//	suis la fiche de correction stp
 
-// 
-// qd on fait entrer dans stdin ca fait des trucs bizarres genre pas \n mais \r
-// et je sais pas a quel moment ca a casser
 
-// tcgetattr que on peut utiliser pour regler ce prb mais bizarre 
 //
 // en fait je sais : ca vient d un moment ou readline a crasher et il a pas pu reset le terminal ce qui fait qu on quitte le mode canonique ou un truc du genre et du coup tout le terminal est bloque la dedans, ca vient pas de mon code - mais justement tcgetattr peut aider a regler ca et sera utile pour gerer les signaux
 // bref un bordel

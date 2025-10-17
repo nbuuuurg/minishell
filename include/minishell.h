@@ -251,4 +251,6 @@ int		ft_pwd(void);
 int		ft_unset(t_cmd cmd, t_line *line); // provisoire
 
 
+void	restore_terminal(void);
+
 #endif

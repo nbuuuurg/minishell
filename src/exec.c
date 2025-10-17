@@ -21,9 +21,7 @@
 // si mauvais chmode sur un fichier de redirection
 // si cmd introuvable
 // si pas de path
-
-
-/* - exit codes -- passer les fcts void en int pour faire remonter le code */
+// si chmode sur un dossier ou executable
 
 
 /* - gerer les builtins  */
