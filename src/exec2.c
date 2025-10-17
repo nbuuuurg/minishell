@@ -272,8 +272,6 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	cmd.redirect = pipeline.redirect;
 	cmd.cmd = pipeline.args;
 	cmd.env = env;
-	if (!cmd.env)
-		cmd.full_path = ft_strdup(cmd.cmd[0]);
 	i = 0;
 	while (path && path[i])
 	{
@@ -291,5 +289,15 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 		free(path_cmd);
 		i++;
 	}
+	if (!cmd.full_path)
+	{
+		cmd.full_path = ft_strdup(cmd.cmd[0]);
+		if (!cmd.full_path)
+			return (cmd); // error malloc
+	}
 	return (cmd);
 }
+
+// attention si cmd.cmd[0] est un chemin relatif ou absolu
+// faut tester direct access dessus avant de passer par le path	
+// si c est le cas faut faire cmd.full_path = ft_strdup(cmd.cmd[0])

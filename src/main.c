@@ -12,12 +12,29 @@
 
 #include "../include/minishell.h"
 
+static void	restore_terminal(void)
+{
+	struct termios	term;
+
+	if (tcgetattr(STDIN_FILENO, &term) == 0)
+	{
+		term.c_lflag |= (ICANON | ECHO);
+		tcsetattr(STDIN_FILENO, TCSANOW, &term);
+	}
+}
+
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;
 	char	**env;
 	int		start_flag;
 
+	if (!isatty(STDIN_FILENO))
+	{
+		restore_terminal();
+		write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
+		return (1);
+	}
 	start_flag = 0;
 	env = ft_strdup2(envp);
 	if (!env)
@@ -49,11 +66,14 @@ int	main(int ac, char **av, char **envp)
 
 
 // isatty pour pas que le ./minishell | ./minishell plante
+//	if (isatty(STDIN_FILENO) == 0)
+//	suis la fiche de correction stp
+
 // 
 // qd on fait entrer dans stdin ca fait des trucs bizarres genre pas \n mais \r
 // et je sais pas a quel moment ca a casser
 
 // tcgetattr que on peut utiliser pour regler ce prb mais bizarre 
 //
-// en fait je sais : ca vient d un moment ou readline a crasher et il a pas pu reset le terminal ce qui fait qu on quitte le mode cononique ou un truc du genre et du coup tout le terminal est bloque la dedans, ca vient pas de mon code - mais justement tcgetattr peut aider a regler ca et sera utile pour gerer les signaux
+// en fait je sais : ca vient d un moment ou readline a crasher et il a pas pu reset le terminal ce qui fait qu on quitte le mode canonique ou un truc du genre et du coup tout le terminal est bloque la dedans, ca vient pas de mon code - mais justement tcgetattr peut aider a regler ca et sera utile pour gerer les signaux
 // bref un bordel
