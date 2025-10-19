@@ -21,6 +21,8 @@ int    lexer_input(t_line *line)
     s = line->input;
     start = s;
     end = NULL;
+    if (!s)
+        return (line->last_exit);
     while (*s)
     {
         if (*s && is_something(*s))
@@ -28,9 +30,13 @@ int    lexer_input(t_line *line)
             s = lexer_input_something(line, s, start, end);
             if (line->last_exit != 0)
                 return (line->last_exit);
-            start = s + 1;
+            if (*s)
+                start = s + 1;
+            else
+                start = s;
         }
-        s++;
+        if (*s)
+            s++;
         end = s;
     }
     if (*s == 0 && *start != 0)
@@ -39,6 +45,8 @@ int    lexer_input(t_line *line)
         if (line->last_exit != 0)
             return (line->last_exit);
     }
+    // if (line->lexer_err != 0)
+    //     return (-1); // voir ce qu'on fait pour les input avec un erreur de syntaxe, regroupe trop de chose actuellement
     return (lexer_token(line));
 }
 

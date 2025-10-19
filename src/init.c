@@ -12,9 +12,9 @@
 
 #include "../include/minishell.h"
 
-void    init_minishell(t_line *line, char **envp)
+void    init_minishell(t_line *line, char **envp, int start_flag)
 {
-    init_line(line, envp);
+    init_line(line, envp, start_flag);
     if (line->last_exit != 0)
         return ;
     if (line->len == 0)
@@ -30,14 +30,7 @@ int    init_clean_input(t_line *line)
     size_t  j;
 
     if (line->len == 0 || line->len == 1)
-    {
-        line->clean = ft_strdup(line->input);
-        if (!line->clean)
-            return (EX_GEN);
-        free(line->input);
-        line->input = line->clean;
         return (0);
-    }
     j = len_whitespace(line);
     line->clean = ft_calloc(line->len - j + 1, 1);
     if (!line->clean)
@@ -52,7 +45,7 @@ int    init_clean_input(t_line *line)
     return (0);
 }
 
-void    init_line(t_line *line, char **envp)
+void    init_line(t_line *line, char **envp, int start_flag)
 {
     line->tokens = NULL;
     line->exprs = NULL;
@@ -61,7 +54,7 @@ void    init_line(t_line *line, char **envp)
     line->heredoc_flag = 0;
     line->path = get_path(envp);
     line->len = ft_strlen(line->input);
-    if (envp)
+    if (envp && start_flag == 0)
         line->envp = envp;
     line->last_exit = init_clean_input(line);
     if (line->last_exit != 0)

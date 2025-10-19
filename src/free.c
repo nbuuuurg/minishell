@@ -14,12 +14,15 @@
 
 void	free_line(t_line *line)
 {
+	if (!line)
+		return ;
 	if (line->tokens)
 		free_tokens(line->tokens);
 	if (line->exprs)
 		free_exprs(line->exprs);
+	if (line->path)
+	free_split(line->path);
 	free(line->input);
-	// free_split(line->path);
 }
 
 void	free_split(char **s)

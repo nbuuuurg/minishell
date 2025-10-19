@@ -177,6 +177,8 @@ char    *parse_quoted_token(t_line *line, t_token *token)
     j = 0;
     d_quote = 0;
     s_quote = 0;
+    if (!token)
+        return (line->last_exit = EX_GEN, NULL);
     if (token->quoted == SINGLE || token->quoted == DOUBLE)
     {
         s = ft_calloc(ft_strlen(token->s) - 1, 1);
@@ -186,7 +188,8 @@ char    *parse_quoted_token(t_line *line, t_token *token)
         {
             if (is_quote(token->s[i]))
                 i++;
-            s[j++] = token->s[i++];
+            if (token->s[i])
+                s[j++] = token->s[i++];
         }
     }
     else
@@ -236,12 +239,8 @@ char    *parse_quoted_token(t_line *line, t_token *token)
             i++;
         }
     }
-    (void)line;
     free(token->s);
-    token->s = ft_strdup(s);
-    if (!token->s)
-        return (free(s), line->last_exit = EX_GEN, NULL);
-    return (token->s);
+    return (s);
 }
 
 char	*parse_expand(t_line *line, t_token *token)

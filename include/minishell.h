@@ -28,6 +28,7 @@
 # include <sys/types.h>
 # include <signal.h>
 # include <sys/wait.h>
+# include <termios.h>
 
 /* ************************************************************************** */
 /*                                ENUMS                                       */
@@ -142,8 +143,6 @@ typedef struct	s_line
 
 typedef struct	s_cmd
 {
-	int		buildin;
-	char	*cmd_buildin;
 	t_redir	*redirect;
 	char	**cmd;
 	char	*full_path;
@@ -158,14 +157,15 @@ typedef struct	s_cmd
 
 /* builtin.c */
 
-// int	is_builtin(char *cmd);
-// int	exec_builtin(t_cmd cmd, t_line *line);
-// int	ft_echo(t_cmd cmd, t_line *line);
-// int	ft_env(t_cmd cmd, t_line *line);
-// int	ft_unset(t_cmd cmd, t_line *line);
-// int	ft_pwd(t_cmd cmd, t_line *line);
-// int	ft_cd(t_cmd cmd, t_line *line);
-// int	ft_exit(t_cmd cmd, t_line *line);
+int	ft_exit(t_cmd cmd, t_line *line);
+int	ft_cd(t_cmd cmd, t_line *line);
+int	ft_unset(t_cmd cmd, t_line *line);
+int	ft_pwd(void);
+int	ft_env(t_line *line);
+int	ft_echo(t_cmd cmd, t_line *line);
+int	is_option_n(char *s);
+int	exec_builtin(t_cmd cmd, t_line *line);
+int	is_builtin(char *cmd);
 
 /* env.c */
 
@@ -175,11 +175,11 @@ char	**get_path(char **env);
 
 /* exec.c */
 
-void	exec_minishell(t_line *line, char **env);
+void	exec_minishell(t_line *line);
 void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line);
 pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line);
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
-int	ft_redir(t_redir *redirect, int fd_in[2], int fd_out[2]);
+int	ft_redir(t_redir *redirect);
 int	here_doc_content(char *limiter, t_line *line);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 
@@ -195,9 +195,9 @@ void    free_pipeline(t_pipeline *pipe);
 
 /* init.c */
 
-void    init_minishell(t_line *line, char **envp);
+void    init_minishell(t_line *line, char **envp, int start_flag);
 int    init_clean_input(t_line *line);
-void    init_line(t_line *line, char **envp);
+void    init_line(t_line *line, char **envp, int start_flag);
 void	init_token(t_token *token, int multiple_quote, int quote, int i);
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
 
@@ -216,7 +216,6 @@ int     init_subshell(t_line *line, t_token *subinput);
 
 int		lexer_input(t_line *line);
 int		lexer_token(t_line *line);
-int		lexer_subshell_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
 int		lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
 int		lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
 
@@ -304,5 +303,6 @@ int count_subshell(char *s);
 t_quoted	def_quote(int	multiple_quote, int quote);
 int     is_something(char c);
 int		need_expand(char *s);
+char	**ft_strdup2(char **env);
 
 #endif

@@ -16,33 +16,87 @@
 // valgrind clean
 // wildcard
 // norme
+void	restore_terminal(void)
+{
+	struct termios	term;
+
+	if (tcgetattr(STDIN_FILENO, &term) == 0)
+	{
+		term.c_lflag |= (ICANON | ECHO);
+		tcsetattr(STDIN_FILENO, TCSANOW, &term);
+	}
+}
 
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;
 	char	**env;
+	int		start_flag;
 
-	(void)env;
+	if (!isatty(STDIN_FILENO))
+	{
+		restore_terminal();
+		write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
+		return (1);
+	}
+	start_flag = 0;
+	env = ft_strdup2(envp);
+	if (!env)
+		exit (1);
 	(void)av;
-	env = envp;
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
 	ft_bzero(&line, sizeof(t_line));
 	while(1)
 	{
+		restore_terminal();
 		line.input = readline("minishell>>>");
 		if (!line.input)
 			exit(EX_OK); // EOF
+		/* printf("%s\n", line.input); */
 		if (ft_strncmp(line.input, "exit", 4) == 0)
-			return (EX_OK); // exit
+			return(free_split(env), free(line.input), clear_history(), EX_OK); // exit
 		if (line.input)
 			add_history(line.input);
-		init_minishell(&line, envp);
-		if (line.exprs)
-		 	exec_minishell(&line, env);
-		// print_expr(&line);
-		// print_token(&line);
+		init_minishell(&line, env, start_flag);
+					/* ----- EXEC ---- */
+		if (line.exprs)// && line.last_exit != -1) // enlever print_expr(line) de lexer.c pour rentrer dans l exec
+			exec_minishell(&line);
+		// if (line.last_exit == -1) // voir lexer_input
+		// 	printf("non non non\n");
 		free_line(&line);
-		// free_readline(...);
+		start_flag = 1;
 	}
+	free_split(env);
+	return (0);
 }
+
+// int	main(int ac, char **av, char **envp)
+// {
+// 	t_line	line;
+// 	char	**env;
+
+// 	(void)env;
+// 	(void)av;
+// 	env = envp;
+// 	if (ac != 1)
+// 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
+// 	ft_bzero(&line, sizeof(t_line));
+// 	while(1)
+// 	{
+// 		line.input = readline("minishell>>>");
+// 		if (!line.input)
+// 			exit(EX_OK); // EOF
+// 		if (ft_strncmp(line.input, "exit", 4) == 0)
+// 			return (EX_OK); // exit
+// 		if (line.input)
+// 			add_history(line.input);
+// 		init_minishell(&line, envp);
+// 		if (line.exprs)
+// 		 	exec_minishell(&line, env);
+// 		// print_expr(&line);
+// 		// print_token(&line);
+// 		free_line(&line);
+// 		// free_readline(...);
+// 	}
+// }

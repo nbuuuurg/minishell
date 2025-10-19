@@ -52,3 +52,26 @@ int		need_expand(char *s)
 	}
 	return (0);
 }
+
+char	**ft_strdup2(char **env)
+{
+	int		i;
+	char	**new;
+
+	i = 0;
+	while (env[i])
+		i++;
+	new = malloc(sizeof(char *) * (i + 1));
+	if (!new)
+		return (NULL);
+	i = 0;
+	while (env[i])
+	{
+		new[i] = ft_strdup(env[i]);
+		if (!new[i])
+			return (free_split(new), NULL);
+		i++;
+	}
+	new[i] = NULL;
+	return (new);
+}
