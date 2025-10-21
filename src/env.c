@@ -18,6 +18,7 @@ char	**get_path(char **env)
 	char	*all_path = NULL;
 	char	**tmp;
 	int		i;
+	int		k;
 
 	if (!env)
 		return (NULL); // error pas d'env
@@ -44,10 +45,18 @@ char	**get_path(char **env)
 	{
 		path[i] = ft_strjoin(tmp[i], "/");
 		if (!path[i])
-			return (free_split(tmp), NULL); // error malloc
+		{
+		    // free partiel si échec au milieu
+		    k = 0;
+		    while (k < i)
+		        free(path[k++]);
+		    free(path);
+		    free_split(tmp);
+		    return (NULL);
+		}
+		// if (!path[i])
+		// 	return (free_split(tmp), NULL); // error malloc
 	}
 	path[i] = NULL;
 	return (free_split(tmp), path);
-
-	return (path);
 }

@@ -47,23 +47,28 @@ int	main(int ac, char **av, char **envp)
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
 	ft_bzero(&line, sizeof(t_line));
-	while(1)
+	while (1)
 	{
 		restore_terminal();
 		line.input = readline("minishell>>>");
 		if (!line.input)
-			exit(EX_OK); // EOF
-		/* printf("%s\n", line.input); */
+		{
+			clear_history();
+			free_line(&line);
+			free_split(env);
+			return (EX_OK);
+		}
 		if (ft_strncmp(line.input, "exit", 4) == 0)
-			return(free_split(env), free(line.input), clear_history(), EX_OK); // exit
+		{
+			clear_history();
+			free_split(env);
+			return (EX_OK);
+		}
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, env, start_flag);
-					/* ----- EXEC ---- */
-		if (line.exprs)// && line.last_exit != -1) // enlever print_expr(line) de lexer.c pour rentrer dans l exec
+		if (line.exprs)
 			exec_minishell(&line);
-		// if (line.last_exit == -1) // voir lexer_input
-		// 	printf("non non non\n");
 		free_line(&line);
 		start_flag = 1;
 	}

@@ -21,7 +21,7 @@ void	free_line(t_line *line)
 	if (line->exprs)
 		free_exprs(line->exprs);
 	if (line->path)
-	free_split(line->path);
+		free_split(line->path);
 	free(line->input);
 }
 
@@ -71,36 +71,77 @@ void    free_exprs(t_expr *exprs)
 
 void    free_pipeline(t_pipeline *pipe)
 {
-    int     i;
+    int i;
 
-	// printf("r %d as %d a %d\n", pipe->redir_count, pipe->assign_count, pipe->word_count);
     if (pipe->args)
-		free_split(pipe->args);
+        free_split(pipe->args);
     if (pipe->redirect && pipe->redir_count > 0)
     {
-		i = 0;
-		while (i < pipe->redir_count)
-		{
+        i = 0;
+        while (i < pipe->redir_count)
+        {
+            /* NEW: fermer un éventuel heredoc_fd */
+            if (pipe->redirect[i].redir
+                && pipe->redirect[i].redir[0] == '<'
+                && pipe->redirect[i].redir[1] == '<'
+                && pipe->redirect[i].heredoc_fd >= 0)
+                close(pipe->redirect[i].heredoc_fd);
 			if (pipe->redirect[i].redir)
-				free(pipe->redirect[i].redir);
-			if (pipe->redirect[i].file)
-				free(pipe->redirect[i].file);
-			i++;
-		}
-		free(pipe->redirect);
+                free(pipe->redirect[i].redir);
+            if (pipe->redirect[i].file)
+                free(pipe->redirect[i].file);
+            i++;
+        }
+        free(pipe->redirect);
     }
     if (pipe->assign && pipe->assign_count > 0)
     {
-		i = 0;
-		while (i < pipe->assign_count)
-		{
-        	if (pipe->assign[i].name)
-            	free(pipe->assign[i].name);
-        	if (pipe->assign[i].value)
-            	free(pipe->assign[i].value);
-			i++;
-		}
-		free(pipe->assign);
+        i = 0;
+        while (i < pipe->assign_count)
+        {
+            if (pipe->assign[i].name)
+                free(pipe->assign[i].name);
+            if (pipe->assign[i].value)
+                free(pipe->assign[i].value);
+            i++;
+        }
+        free(pipe->assign);
     }
-	free(pipe);
+    free(pipe);
 }
+
+// void    free_pipeline(t_pipeline *pipe)
+// {
+//     int     i;
+
+// 	// printf("r %d as %d a %d\n", pipe->redir_count, pipe->assign_count, pipe->word_count);
+//     if (pipe->args)
+// 		free_split(pipe->args);
+//     if (pipe->redirect && pipe->redir_count > 0)
+//     {
+// 		i = 0;
+// 		while (i < pipe->redir_count)
+// 		{
+// 			if (pipe->redirect[i].redir)
+// 				free(pipe->redirect[i].redir);
+// 			if (pipe->redirect[i].file)
+// 				free(pipe->redirect[i].file);
+// 			i++;
+// 		}
+// 		free(pipe->redirect);
+//     }
+//     if (pipe->assign && pipe->assign_count > 0)
+//     {
+// 		i = 0;
+// 		while (i < pipe->assign_count)
+// 		{
+//         	if (pipe->assign[i].name)
+//             	free(pipe->assign[i].name);
+//         	if (pipe->assign[i].value)
+//             	free(pipe->assign[i].value);
+// 			i++;
+// 		}
+// 		free(pipe->assign);
+//     }
+// 	free(pipe);
+// }

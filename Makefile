@@ -84,7 +84,8 @@ valgrind: $(NAME)
 			  --show-leak-kinds=all \
 			  --track-origins=yes \
 			  --num-callers=20 \
-			  --trace-children=yes \
+			  --child-silent-after-fork=yes \
+			  --track-fds=yes \
 			  --suppressions=.valgrind_readline.supp \
 			  -s \
 			  ./$(NAME)

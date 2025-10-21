@@ -76,32 +76,65 @@ int	is_option_n(char *s)
 	return (1);
 }
 
-int	ft_echo(t_cmd cmd, t_line *line)
+int ft_echo(t_cmd cmd, t_line *line)
 {
-	char	*str;
-	int		i;
-	int		n_flag;
+    char *str;
+    int   i;
+    int   n_flag;
+    int   need_free;
 
-	if (!cmd.cmd[1])
+    if (!cmd.cmd[1])
+        return (write(STDOUT_FILENO, "\n", 1), 0);
+    n_flag = 0;
+    i = 1;
+    while (is_option_n(cmd.cmd[i]) == 1)
 	{
-		write(STDOUT_FILENO, "\n", 1);
-		return (0);
+		n_flag = 1; 
+		i++; 
 	}
-	n_flag = 0;
-	i = 1;
-	while (is_option_n(cmd.cmd[i]) == 1)
-	{
-		n_flag = 1;
-		i++;
-	}
-	str = cmd.cmd[i];
-	if (ft_strncmp(str, "$?", 3) == 0) // provisoire ?
-		str = ft_itoa(line->last_exit);
-	ft_putstr_fd(str, STDOUT_FILENO);
-	if (n_flag == 0)
-		write(STDOUT_FILENO, "\n", 1);
-	return (0);
+    need_free = 0;
+    str = cmd.cmd[i];
+    if (ft_strncmp(str, "$?", 3) == 0)
+    {
+        str = ft_itoa(line->last_exit);
+        if (!str) 
+			return (perror("malloc"), 1);
+        need_free = 1;
+    }
+    ft_putstr_fd(str, STDOUT_FILENO);
+    if (n_flag == 0)
+        write(STDOUT_FILENO, "\n", 1);
+    if (need_free)
+        free(str);
+    return (0);
 }
+
+// int	ft_echo(t_cmd cmd, t_line *line)
+// {
+// 	char	*str;
+// 	int		i;
+// 	int		n_flag;
+
+// 	if (!cmd.cmd[1])
+// 	{
+// 		write(STDOUT_FILENO, "\n", 1);
+// 		return (0);
+// 	}
+// 	n_flag = 0;
+// 	i = 1;
+// 	while (is_option_n(cmd.cmd[i]) == 1)
+// 	{
+// 		n_flag = 1;
+// 		i++;
+// 	}
+// 	str = cmd.cmd[i];
+// 	if (ft_strncmp(str, "$?", 3) == 0) // provisoire ?
+// 		str = ft_itoa(line->last_exit);
+// 	ft_putstr_fd(str, STDOUT_FILENO);
+// 	if (n_flag == 0)
+// 		write(STDOUT_FILENO, "\n", 1);
+// 	return (0);
+// }
 
 int	ft_env(t_line *line)
 {
@@ -119,10 +152,21 @@ int	ft_env(t_line *line)
 
 int	ft_pwd(void)
 {
-	ft_putstr_fd(getcwd(NULL, 0), STDOUT_FILENO);
-	write(STDOUT_FILENO, "\n", 1);
-	return (0);
+	// ft_putstr_fd(getcwd(NULL, 0), STDOUT_FILENO);
+	// write(STDOUT_FILENO, "\n", 1);
+	// return (0);
+	char *cwd;
+
+	cwd = getcwd(NULL, 0);
+    if (!cwd)
+        return (perror("getcwd"), 1);
+    ft_putstr_fd(cwd, STDOUT_FILENO);
+    write(STDOUT_FILENO, "\n", 1);
+    free(cwd);
+    return (0);
 }
+
+
 
 /* int	ft_export(t_cmd cmd, t_line *line) // ca marche pas */
 /* { */
@@ -170,11 +214,20 @@ int	ft_pwd(void)
 
 int	ft_unset(t_cmd cmd, t_line *line)
 {
-	(void)cmd;
-
-	line->envp = NULL; // provisoire
-	return (0);
+    (void)cmd;
+    if (line->envp)
+        free_split(line->envp);// libère le tableau + les chaînes
+    line->envp = NULL;
+    return (0);
 }
+
+// int	ft_unset(t_cmd cmd, t_line *line)
+// {
+// 	(void)cmd;
+
+// 	line->envp = NULL; // provisoire
+// 	return (0);
+// }
 
 int	ft_cd(t_cmd cmd, t_line *line)
 {
