@@ -93,15 +93,22 @@ int ft_echo(t_cmd cmd, t_line *line)
 		i++; 
 	}
     need_free = 0;
-    str = cmd.cmd[i];
-    if (ft_strncmp(str, "$?", 3) == 0)
-    {
-        str = ft_itoa(line->last_exit);
-        if (!str) 
-			return (perror("malloc"), 1);
-        need_free = 1;
-    }
-    ft_putstr_fd(str, STDOUT_FILENO);
+	str = cmd.cmd[i];
+	while(cmd.cmd[i])
+	{
+		str = cmd.cmd[i];
+		if (ft_strncmp(str, "$?", 3) == 0)
+		{
+			str = ft_itoa(line->last_exit);
+			if (!str) 
+				return (perror("malloc"), 1);
+			need_free = 1;
+		}
+		ft_putstr_fd(str, STDOUT_FILENO);
+		i++;
+		if (cmd.cmd[i])
+			ft_putchar_fd(' ', STDOUT_FILENO);
+	}
     if (n_flag == 0)
         write(STDOUT_FILENO, "\n", 1);
     if (need_free)
@@ -166,8 +173,6 @@ int	ft_pwd(void)
     return (0);
 }
 
-
-
 /* int	ft_export(t_cmd cmd, t_line *line) // ca marche pas */
 /* { */
 /* 	char	*tmp; */
@@ -224,7 +229,6 @@ int	ft_unset(t_cmd cmd, t_line *line)
 // int	ft_unset(t_cmd cmd, t_line *line)
 // {
 // 	(void)cmd;
-
 // 	line->envp = NULL; // provisoire
 // 	return (0);
 // }

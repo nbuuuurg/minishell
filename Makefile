@@ -50,7 +50,7 @@ $(SRC_OBJ)%.o: $(SRC_DIR)%.c
 
 clean:
 	@rm -rf $(SRC_OBJ)
-	@rm -f .valgrind_readline.supp
+	@rm -f readline.supp
 	@make -C $(LIBFT) clean
 	@printf "\033[1;36mObjects cleaned.\033[0m\n"
 
@@ -66,27 +66,46 @@ valgrind: $(NAME)
 	@printf "\n\033[1;33m[ VALGRIND ] Running with leak check (readline ignored, summary shown)...\033[0m\n\n"
 	@printf '%s\n' \
 	'{' \
-	'  ignore_readline' \
-	'  Memcheck:Leak' \
-	'  match-leak-kinds: reachable,possible,definite,indirect' \
-	'  ...' \
-	'  obj:*libreadline*' \
-	'}' > .valgrind_readline.supp
+	'  leak readline' \
+    '  Memcheck:Leak' \
+    '  ...' \
+    '  fun:readline' \
+	'}' > readline.supp
 	@printf '%s\n' \
 	'{' \
-	'  ignore_history' \
-	'  Memcheck:Leak' \
-	'  match-leak-kinds: reachable,possible,definite,indirect' \
-	'  ...' \
-	'  obj:*libhistory*' \
-	'}' >> .valgrind_readline.supp
+	'  leak readline_buffer' \
+    '  Memcheck:Leak' \
+    '  ...' \
+    '  fun:readline_internal_char' \
+	'}' >> readline.supp
+	@printf '%s\n' \
+	'{' \
+	'  leak add_history' \
+    '  Memcheck:Leak' \
+    '  ...' \
+    '  fun:add_history' \
+	'}' >> readline.supp
+	@printf '%s\n' \
+	'{' \
+	'  leak usrbin' \
+    '  Memcheck:Leak' \
+    '  ...' \
+    '  obj:/usr/bin/*' \
+	'}' >> readline.supp
+	@printf '%s\n' \
+	'{' \
+	'  leak binbin' \
+    '  Memcheck:Leak' \
+    '  ...' \
+    '  obj:/bin/*' \
+	'}' >> readline.supp
 	@valgrind --leak-check=full \
 			  --show-leak-kinds=all \
 			  --track-origins=yes \
 			  --num-callers=20 \
-			  --child-silent-after-fork=yes \
+			  --trace-children=yes \
 			  --track-fds=yes \
-			  --suppressions=.valgrind_readline.supp \
+			  --suppressions=readline.supp \
 			  -s \
 			  ./$(NAME)
 

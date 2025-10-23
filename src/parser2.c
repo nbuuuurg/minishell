@@ -306,13 +306,10 @@ char	*parse_expand(t_line *line, t_token *token)
                         len++;
                         i++;
                     }
-                    if (len != 0)
-                    {
-                        var = ft_calloc(len + 1, 1);
-                        if (!var)
-                            return (line->last_exit = EX_GEN, NULL);
-                        ft_memcpy(var, &token->s[i + 1 - len], len);
-                    }
+                    var = ft_calloc(len + 1, 1);
+                    if (!var)
+                        return (line->last_exit = EX_GEN, NULL);
+                    ft_memcpy(var, &token->s[i + 1 - len], len);
                     end = i;
                 }
             }

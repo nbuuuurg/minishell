@@ -27,6 +27,8 @@ void	print_token(t_line *line)
             printf(" - (%d subshell)", line->tokens->in_subshell);
         if (line->tokens->has_expand != 0)
             printf(" - has %d env var", line->tokens->has_expand);
+        if (line->tokens->has_wildcards != 0)
+            printf(" - has wildcards");
         if (line->tokens->quoted != NO_QUOTE)
         {
             if (line->tokens->quoted == SINGLE)

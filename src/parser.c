@@ -55,7 +55,7 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
             new->has_subshell = temp->in_subshell;
             line->last_exit = 0;
         }
-        else if (temp->type == WORD && temp->in_subshell == 0)
+        else if (temp->type == WORD)
             line->last_exit = parse_word(line, new, temp, *i, &(*len)[0]);
         else if (temp->type == REDIR_IN || temp->type == REDIR_APPEND || temp->type == REDIR_OUT || temp->type == HEREDOC)
             line->last_exit = parse_redir(line, new, temp, *i, &(*len)[1]);
@@ -70,11 +70,47 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
     return (temp);
 }
 
+// t_token     *parse_wildcards(t_line *line, t_token *token)
+// {
+//     t_token **temp;
+//     DIR *dir;
+//     size_t     len_entry;
+//     struct dirent   *entry;
+
+//     dir = opendir(".");
+//     if (!dir)
+//         return (line->last_exit = 1, NULL);
+//     len_entry = 0;
+//     while((entry = readdir(dir)) != NULL)
+//         len_entry++;
+//     if (closedir(dir) == -1)
+//         return (line->last_exit = 1, NULL);
+    
+//     temp = ft_calloc(len_entry, sizeof(t_token *));
+//     if (!temp)
+//         return (line->last_exit = 1, NULL);
+//     dir = opendir(".");
+//     if (!dir)
+//         return (line->last_exit = 1, NULL);
+//     while((entry = readdir(dir)) != NULL)
+//     {
+//         if (is_a_match(entry->d_name, token->s))
+//             // Si il y a match, il faut remplacer le token par une liste de token et bien tout chainer
+//     }
+//     return (token);
+// }
+
 int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
     (void)line;
     if (temp->previous && (temp->previous->type == REDIR_IN || temp->previous->type == REDIR_APPEND || temp->previous->type == REDIR_OUT || temp->previous->type == HEREDOC))
         return (0);
+    // if (temp->has_wildcards)
+    // {
+    //     temp = parse_wildcards(line, temp);
+    //     if (line->last_exit == EX_GEN)
+    //         return (EX_GEN);
+    // }
     if (temp->has_expand != 0)
     {
         temp->s = parse_expand(line, temp);
@@ -95,13 +131,10 @@ int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
     (void)line;
-    if (ft_isdigit(temp->s[0]))
-        new->pipeline[i].redirect[*j].from_fd = ft_atoi(temp->s);
-    else if (temp->type == REDIR_IN || temp->type == HEREDOC)
+    if (temp->type == REDIR_IN || temp->type == HEREDOC)
         new->pipeline[i].redirect[*j].from_fd = 0;
     else
         new->pipeline[i].redirect[*j].from_fd = 1;
-
     if (temp->type == REDIR_IN)
         new->pipeline[i].redirect[*j].redir = ft_strdup("<");
     else if (temp->type == HEREDOC)
@@ -109,7 +142,7 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
         new->pipeline[i].redirect[*j].redir = ft_strdup("<<");
         if (!new->pipeline[i].redirect[*j].redir)
             return (EX_GEN);
-        if (temp->next)
+        if (temp->next && temp->next->type == WORD && temp->next->in_subshell == 0)
             new->pipeline[i].redirect[*j].heredoc_fd = here_doc_content(temp->next->s, line);
         else
             new->pipeline[i].redirect[*j].heredoc_fd = -1;
@@ -121,7 +154,7 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 
     if (!new->pipeline[i].redirect[*j].redir)
         return (EX_GEN);
-    if (temp->next)
+    if (temp->next && temp->next->type == WORD && temp->next->in_subshell == 0)
     {
         new->pipeline[i].redirect[*j].file = ft_strdup(temp->next->s);
         if (temp->next->type != WORD || temp->next->in_subshell != 0)
@@ -132,8 +165,8 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
         new->pipeline[i].redirect[*j].file = NULL;
         line->lexer_err = -8; // fini par << sans delimiteur
     }
-    if (!new->pipeline[i].redirect[*j].file)
-        return (free(new->pipeline[i].redirect[*j].redir), 1);
+    // if (!new->pipeline[i].redirect[*j].file)
+    //     return (free(new->pipeline[i].redirect[*j].redir), 1);
     new->pipeline[i].redirect[*j].order = *j;
     (*j)++;
     temp = temp->next;

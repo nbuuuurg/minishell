@@ -39,6 +39,10 @@ t_token	*create_token(t_line *line, char *s, int len)
 	token->in_heredoc = 0;
 	token = token_type(token);
 	token = has_expand(token);
+	if (has_wildcards(token->s))
+		token->has_wildcards = 1;
+	else
+		token->has_wildcards = 0;
 	return (token);
 }
 
@@ -67,6 +71,7 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 			multiple_quote++;
 	}
 	init_token(token, multiple_quote, quote, i);
+	token->has_wildcards = 0;
 	return (token);
 }
 

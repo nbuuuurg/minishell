@@ -78,7 +78,7 @@ int    lexer_token(t_line *line)
             line->last_exit = init_subshell(line, temp);
             if (line->last_exit != 0)
                 return (line->last_exit);
-            flag++;
+            flag = 1;
             new = ft_calloc(1, sizeof(t_expr));
             if (!new)
                 return (line->last_exit = 1);
@@ -92,6 +92,8 @@ int    lexer_token(t_line *line)
                     expr = expr->next;
                 expr->next = new;
             }
+            while(temp->next && temp->next->type != OR && temp->next->type != AND && temp->next->in_heredoc == 0)
+                temp = temp->next;
         }
         if ((temp->type == AND || temp->type == OR) && flag == 0)
             line->last_exit = lexer_split_expr(line, temp, new, expr, i);

@@ -23,7 +23,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	int		fd[2];
 	int		fd_next[2];
 
-	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL
+	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL // voir si pas mieux t_cmd **cmd
 	if (!cmd)
 		return ; // error malloc;
 	i = 0;
@@ -40,7 +40,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 		if (exprs->has_subshell == 0)
 		{
 			if (exprs->pipe_count == 0)
-				cmd[i].id = exec_cmd(cmd[i], NULL, NULL, line);
+				cmd[i].id = exec_cmd(&cmd[i], NULL, NULL, line);
 			else
 			{
 				if (exprs->pipeline[i].position != 3)
@@ -49,11 +49,11 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 						return (perror("pipe"));
 				}
 				if (exprs->pipeline[i].position == 1)
-					cmd[i].id = exec_cmd(cmd[i], NULL, fd_next, line);
+					cmd[i].id = exec_cmd(&cmd[i], NULL, fd_next, line);
 				else if (exprs->pipeline[i].position == 2)
-					cmd[i].id = exec_cmd(cmd[i], fd, fd_next, line);
+					cmd[i].id = exec_cmd(&cmd[i], fd, fd_next, line);
 				else if (exprs->pipeline[i].position == 3)
-					cmd[i].id = exec_cmd(cmd[i], fd, NULL, line);
+					cmd[i].id = exec_cmd(&cmd[i], fd, NULL, line);
 				if (i > 0)
 				{
 					close(fd[0]);
@@ -86,57 +86,57 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	free(cmd);
 }
 
-pid_t exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line)
+pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
     pid_t id;
 
-    if (is_builtin(cmd.cmd[0]) == 2) {
-        exec_builtin(cmd, line);
+    if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2) // cd a pas fork si pas pipe
+	{
+        exec_builtin(*cmd, line);
         return 0;
     }
-
     id = fork();
     if (id == -1)
         return (perror("fork"), id);
     if (id == 0) {
-        if (get_fd(fd_in, fd_out, cmd.redirect) == 0) 
+        if (cmd->cmd && get_fd(fd_in, fd_out, cmd->redirect) == 0) 
 		{
-            if (is_builtin(cmd.cmd[0]) == 1) 
+            if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
-                exec_builtin(cmd, line);
+                exec_builtin(*cmd, line);
                 // free enfant
-                if (cmd.full_path) 
-					free(cmd.full_path);
+                if (cmd->full_path) 
+					free(cmd->full_path);
 				if (line->envp)
 					free_split(line->envp);
                 free_line(line);
                 _exit(0);
             }
-            if (is_builtin(cmd.cmd[0]) == 2)
+            if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
                 // free enfant
-                if (cmd.full_path) 
-					free(cmd.full_path);
+                if (cmd->full_path) 
+					free(cmd->full_path);
 				if (line->envp)
 					free_split(line->envp);
                 free_line(line);
                 _exit(0);
             }
-            if (cmd.cmd[0])
+            if (cmd->cmd && cmd->cmd[0])
 			{
-                execve(cmd.full_path, cmd.cmd, cmd.env);
-                perror(cmd.cmd[0]);
+                execve(cmd->full_path, cmd->cmd, cmd->env);
+                perror(cmd->cmd[0]);
                 // free enfant
-                if (cmd.full_path)
-					free(cmd.full_path);
+                if (cmd->full_path)
+					free(cmd->full_path);
 				if (line->envp)
 					free_split(line->envp);
                 free_line(line);
                 _exit(127);
             }
         }
-        if (cmd.full_path)
-			free(cmd.full_path);
+        if (cmd->full_path)
+			free(cmd->full_path);
 		if (line->envp)
 			free_split(line->envp);
         free_line(line);
@@ -220,6 +220,8 @@ int	ft_redir(t_redir *redirect)
 {
 	int	i;
 	int	fd;
+
+	// Il faut sortir avec la bonne erreur si redirect[i].file == NULL mais ca ne segault plus
 
 	i = 0;
 	while (redirect[i].file)
@@ -320,7 +322,8 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	cmd.cmd = pipeline.args;
 	cmd.env = env;
 	i = 0;
-	path_cmd = NULL;
+	if (!cmd.cmd)
+		return (cmd);
 	while (path && path[i])
 	{
 		path_cmd = ft_strjoin(path[i], cmd.cmd[0]);

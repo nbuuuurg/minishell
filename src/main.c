@@ -12,10 +12,6 @@
 
 #include "../include/minishell.h"
 
-// sortir propre avec la fonction exit
-// valgrind clean
-// wildcard
-// norme
 void	restore_terminal(void)
 {
 	struct termios	term;
@@ -67,6 +63,8 @@ int	main(int ac, char **av, char **envp)
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, env, start_flag);
+		// print_token(&line);
+		// print_expr(&line);
 		if (line.exprs)
 			exec_minishell(&line);
 		free_line(&line);

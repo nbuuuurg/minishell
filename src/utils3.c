@@ -53,6 +53,22 @@ int		need_expand(char *s)
 	return (0);
 }
 
+int		has_wildcards(char *s)
+{
+	int		i;
+
+	if (!s)
+		return (0);
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == '*')
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 char	**ft_strdup2(char **env)
 {
 	int		i;

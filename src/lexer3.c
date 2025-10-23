@@ -45,8 +45,8 @@ t_token *token_type(t_token *token)
         return (token->type = REDIR_APPEND, token);
     else if (ft_strnstr(token->s, "<<", ft_strlen(token->s)) && token->quoted == NO_QUOTE)
         return (token->type = HEREDOC, token);
-    else if (is_assignment(token->s) && token->in_subshell == 0 && token->in_heredoc == 0)
-        return (token->type = ASSIGNMENT, token);
+    // else if (is_assignment(token->s) && token->in_subshell == 0 && token->in_heredoc == 0)
+    //     return (token->type = ASSIGNMENT, token);
     return (token->type = WORD, token);
 }
 

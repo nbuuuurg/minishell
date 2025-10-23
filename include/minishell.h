@@ -29,6 +29,8 @@
 # include <signal.h>
 # include <sys/wait.h>
 # include <termios.h>
+# include <dirent.h> 
+# include <errno.h>
 
 /* ************************************************************************** */
 /*                                ENUMS                                       */
@@ -86,6 +88,7 @@ typedef struct	s_token
 	int			in_subshell;
 	int			in_heredoc;
 	int			has_expand;
+	int			has_wildcards;
 	struct s_token	*next;
 	struct s_token	*previous;
 }		t_token;
@@ -123,6 +126,7 @@ typedef struct	s_expr
 	t_token_type		op_after;
 	int			pipe_count;
 	int			has_subshell;
+	int			has_wildcards;
 	struct s_expr	*next;
 }				t_expr;
 
@@ -177,7 +181,7 @@ char	**get_path(char **env);
 
 void	exec_minishell(t_line *line);
 void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line);
-pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line);
+pid_t	exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
 int	ft_redir(t_redir *redirect);
 int	here_doc_content(char *limiter, t_line *line);
@@ -303,6 +307,7 @@ int count_subshell(char *s);
 t_quoted	def_quote(int	multiple_quote, int quote);
 int     is_something(char c);
 int		need_expand(char *s);
+int		has_wildcards(char *s);
 char	**ft_strdup2(char **env);
 
 #endif
