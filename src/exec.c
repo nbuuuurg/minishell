@@ -27,6 +27,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	if (!cmd)
 		return ; // error malloc;
 	i = 0;
+	ft_bzero(cmd, sizeof(t_cmd));
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->has_subshell == 0)
@@ -97,20 +98,12 @@ pid_t exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line)
     id = fork();
     if (id == -1)
         return (perror("fork"), id);
-
     if (id == 0) {
-        if (get_fd(fd_in, fd_out, cmd.redirect) == 0) {
-            if (is_builtin(cmd.cmd[0]) == 1) {
+        if (get_fd(fd_in, fd_out, cmd.redirect) == 0) 
+		{
+            if (is_builtin(cmd.cmd[0]) == 1) 
+			{
                 exec_builtin(cmd, line);
-                // free enfant
-                if (cmd.full_path) 
-					free(cmd.full_path);\
-				if (line->envp)
-					free_split(line->envp);
-                free_line(line);
-                _exit(0);
-            }
-            if (is_builtin(cmd.cmd[0]) == 2) {
                 // free enfant
                 if (cmd.full_path) 
 					free(cmd.full_path);
@@ -119,7 +112,18 @@ pid_t exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line)
                 free_line(line);
                 _exit(0);
             }
-            if (cmd.cmd[0]) {
+            if (is_builtin(cmd.cmd[0]) == 2)
+			{
+                // free enfant
+                if (cmd.full_path) 
+					free(cmd.full_path);
+				if (line->envp)
+					free_split(line->envp);
+                free_line(line);
+                _exit(0);
+            }
+            if (cmd.cmd[0])
+			{
                 execve(cmd.full_path, cmd.cmd, cmd.env);
                 perror(cmd.cmd[0]);
                 // free enfant

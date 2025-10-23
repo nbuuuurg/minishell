@@ -56,12 +56,19 @@ void    free_tokens(t_token *tokens)
 void    free_exprs(t_expr *exprs)
 {
     t_expr  *temp;
+    int     i;
 
     temp = exprs;
     while (exprs)
     {
-		if (exprs->pipeline)
-            	free_pipeline(exprs->pipeline);
+        i = exprs->pipe_count;
+		while (i >= 0)
+        {
+            	free_pipeline(&exprs->pipeline[i]);
+                i--;
+        }
+        if (exprs->pipeline)
+            free(exprs->pipeline);
         exprs = exprs->next;
         free(temp);
         temp = exprs;
@@ -73,6 +80,8 @@ void    free_pipeline(t_pipeline *pipe)
 {
     int i;
 
+    if (!pipe)
+        return ;
     if (pipe->args)
         free_split(pipe->args);
     if (pipe->redirect && pipe->redir_count > 0)
@@ -80,7 +89,7 @@ void    free_pipeline(t_pipeline *pipe)
         i = 0;
         while (i < pipe->redir_count)
         {
-            /* NEW: fermer un éventuel heredoc_fd */
+            // fermer un éventuel heredoc_fd
             if (pipe->redirect[i].redir
                 && pipe->redirect[i].redir[0] == '<'
                 && pipe->redirect[i].redir[1] == '<'
@@ -107,41 +116,4 @@ void    free_pipeline(t_pipeline *pipe)
         }
         free(pipe->assign);
     }
-    free(pipe);
 }
-
-// void    free_pipeline(t_pipeline *pipe)
-// {
-//     int     i;
-
-// 	// printf("r %d as %d a %d\n", pipe->redir_count, pipe->assign_count, pipe->word_count);
-//     if (pipe->args)
-// 		free_split(pipe->args);
-//     if (pipe->redirect && pipe->redir_count > 0)
-//     {
-// 		i = 0;
-// 		while (i < pipe->redir_count)
-// 		{
-// 			if (pipe->redirect[i].redir)
-// 				free(pipe->redirect[i].redir);
-// 			if (pipe->redirect[i].file)
-// 				free(pipe->redirect[i].file);
-// 			i++;
-// 		}
-// 		free(pipe->redirect);
-//     }
-//     if (pipe->assign && pipe->assign_count > 0)
-//     {
-// 		i = 0;
-// 		while (i < pipe->assign_count)
-// 		{
-//         	if (pipe->assign[i].name)
-//             	free(pipe->assign[i].name);
-//         	if (pipe->assign[i].value)
-//             	free(pipe->assign[i].value);
-// 			i++;
-// 		}
-// 		free(pipe->assign);
-//     }
-// 	free(pipe);
-// }
