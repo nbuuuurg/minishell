@@ -12,6 +12,19 @@
 
 #include "../include/minishell.h"
 
+// signaux
+// wildcards
+// free cmd dans le fork
+// builtin
+// assignation
+// exit avec les bon codes erreurs
+// invalid synthaxe si redirect.file = NULL
+// (fun check)
+// (SHLVL et si export PATH=:)
+// operateur OU
+
+
+
 void	restore_terminal(void)
 {
 	struct termios	term;
