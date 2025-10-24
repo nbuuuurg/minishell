@@ -31,6 +31,7 @@
 # include <termios.h>
 # include <dirent.h> 
 # include <errno.h>
+# include <stdbool.h>
 
 /* ************************************************************************** */
 /*                                ENUMS                                       */
@@ -316,6 +317,8 @@ char	**ft_strdup2(char **env);
 t_token	*lst_join(t_token *at, t_token *nw);
 t_token	*last_elem_w(t_token *token);
 t_token *add_back_w(t_token *old, t_token *new);
+int	match_tab(const char **pattern, char c);
+int	ft_fnmatch(const char *pattern, const char *str);
 t_token     *parse_wildcards(t_line *line, t_token *token);
 
 #endif

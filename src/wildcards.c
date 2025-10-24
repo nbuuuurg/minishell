@@ -70,6 +70,100 @@ t_token *add_back_w(t_token *old, t_token *new)
 	return (old);
 }
 
+int	match_tab(const char **pattern, char c)
+{
+	const char	*p;
+	int			neg;
+	int			ok;
+	char		start;
+	char		end;
+
+	p = *pattern;
+	neg = 0;
+	ok = 0;
+	if (*p == '!' || *p == '^')
+	{
+		neg = 1;
+		p++;
+	}
+	while (*p && *p != ']')
+	{
+		if (*(p + 1) == '-' && *(p + 2) && *(p + 2) != ']')
+		{
+			start = *p;
+			end = *(p + 2);
+			if (start <= c && c <= end)
+				ok = 1;
+			p += 3;
+		}
+		else
+		{
+			if (*p == c)
+				ok = 1;
+			p++;
+		}
+	}
+	if (*p == ']')
+		p++;
+	*pattern = p;
+	return (neg ? !ok : ok);
+}
+
+int	ft_fnmatch(const char *pattern, const char *str)
+{
+	const char	*p;
+	const char	*s;
+	const char	*star_pat;
+	const char	*star_str;
+
+	p = pattern;
+	s = str;
+	star_pat = NULL;
+	star_str = NULL;
+	if (*s == '.' && *p != '.')
+		return (0);
+	while (*s)
+	{
+		if (*p == '*')
+		{
+			while (*p == '*')
+				p++;
+			star_pat = p;
+			star_str = s;
+		}
+		else if (*p == '?')
+		{
+			if (*s == '/')
+				return (0);
+			p++;
+			s++;
+		}
+		else if (*p == '[')
+		{
+			p++;
+			if (*s == '/' || !match_tab(&p, *s))
+				return (0);
+			s++;
+		}
+		else if (*p == *s && *p != '\0')
+		{
+			p++;
+			s++;
+		}
+		else if (star_pat)
+		{
+			star_str++;
+			s = star_str;
+			p = star_pat;
+		}
+		else
+			return (0);
+	}
+	while (*p == '*')
+		p++;
+	return (*p == '\0');
+}
+
 t_token     *parse_wildcards(t_line *line, t_token *token)
 {
     t_token *temp2 = NULL;
@@ -81,7 +175,8 @@ t_token     *parse_wildcards(t_line *line, t_token *token)
         return (line->last_exit = 1, NULL);
     while((entry = readdir(dir)) != NULL)
     {
-        //if is a match(token->s, entry->d_name)
+        if (ft_fnmatch(token->s, entry->d_name) == 1)
+		{
             t_token *temp = ft_calloc(1, sizeof(t_token));
             if (!temp)
                 return (line->last_exit = 1, NULL);
@@ -89,10 +184,10 @@ t_token     *parse_wildcards(t_line *line, t_token *token)
             if (!temp->s)
                 return (free(temp), line->last_exit = 1, NULL);
             temp2 = add_back_w(temp2, temp);
-        //else on change r
+		}
     }
-    // pas tout le temps que si y a eu changement
-    token = lst_join(token, temp2);
+	if (temp2)
+    	token = lst_join(token, temp2);
     closedir(dir);
     return (token);
 }

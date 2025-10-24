@@ -63,7 +63,7 @@ fclean: clean
 run: $(NAME)
 	@./$(NAME)
 
-valgrind: $(NAME)
+va: $(NAME)
 	@printf "\n\033[1;33m[ VALGRIND ] Running with leak check (readline ignored, summary shown)...\033[0m\n\n"
 	@printf '%s\n' \
 	'{' \
@@ -112,7 +112,7 @@ valgrind: $(NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean run valgrind re
+.PHONY: all clean fclean run va re
 
 # OBJ= $(SRC:$(SRC_DIR)%.c=$(SRC_OBJ)%.o)
 

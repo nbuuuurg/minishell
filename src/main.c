@@ -13,7 +13,6 @@
 #include "../include/minishell.h"
 
 // signaux
-// wildcards
 // free cmd dans le fork
 // builtin
 // assignation
@@ -22,6 +21,7 @@
 // (fun check)
 // (SHLVL et si export PATH=:)
 // operateur OU
+// probleme valgrind enfant quand on a plusieurs exprs
 
 void	restore_terminal(void)
 {

@@ -135,12 +135,15 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
                 _exit(127);
             }
         }
-        if (cmd->full_path)
-			free(cmd->full_path);
-		if (line->envp)
-			free_split(line->envp);
-        free_line(line);
-        _exit(1);
+		else
+		{
+			if (cmd->full_path)
+				free(cmd->full_path);
+			if (line->envp)
+				free_split(line->envp);
+			free_line(line);
+			_exit(1);
+		}
     }
     return id;
 }
