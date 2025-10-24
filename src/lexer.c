@@ -54,13 +54,11 @@ int    lexer_token(t_line *line)
 {
     int     i;
     t_token *temp;
-    t_token *temp2;
     t_expr  *expr;
     t_expr  *new;
     int     flag;
 
     temp = line->tokens;
-    temp2 = line->tokens;
     expr = NULL;
     new = NULL;
     i = 0;
@@ -95,6 +93,12 @@ int    lexer_token(t_line *line)
             while(temp->next && temp->next->type != OR && temp->next->type != AND && temp->next->in_heredoc == 0)
                 temp = temp->next;
         }
+        if (temp->has_wildcards == 1)
+        {
+            temp = parse_wildcards(line, temp);
+            if (!temp)
+                return (line->last_exit);
+        }
         if ((temp->type == AND || temp->type == OR) && flag == 0)
             line->last_exit = lexer_split_expr(line, temp, new, expr, i);
         if (line->last_exit != 0)
@@ -107,7 +111,6 @@ int    lexer_token(t_line *line)
             return (line->last_exit);
         flag = 0;
     }
-    line->tokens = temp2;
     // print_expr(line);
     return (0);
 }

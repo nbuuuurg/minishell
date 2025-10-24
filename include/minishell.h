@@ -89,6 +89,7 @@ typedef struct	s_token
 	int			in_heredoc;
 	int			has_expand;
 	int			has_wildcards;
+	int			w_expanded;
 	struct s_token	*next;
 	struct s_token	*previous;
 }		t_token;
@@ -309,5 +310,12 @@ int     is_something(char c);
 int		need_expand(char *s);
 int		has_wildcards(char *s);
 char	**ft_strdup2(char **env);
+
+/* wildcards.c */
+
+t_token	*lst_join(t_token *at, t_token *nw);
+t_token	*last_elem_w(t_token *token);
+t_token *add_back_w(t_token *old, t_token *new);
+t_token     *parse_wildcards(t_line *line, t_token *token);
 
 #endif

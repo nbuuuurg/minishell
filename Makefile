@@ -30,7 +30,8 @@ SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)tokenizer.c \
 	  $(SRC_DIR)utils.c \
 	  $(SRC_DIR)utils2.c \
-	  $(SRC_DIR)utils3.c
+	  $(SRC_DIR)utils3.c \
+	  $(SRC_DIR)wildcards.c
 
 OBJ= $(SRC:$(SRC_DIR)%.c=$(SRC_OBJ)%.o)
 

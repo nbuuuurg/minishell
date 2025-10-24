@@ -24,25 +24,26 @@ t_expr  *parse_new_expr(t_line *line, t_token_type op_ctrl)
         return (NULL);
     temp = line->tokens;
     i = 0;
-    while (temp && temp->type != op_ctrl)
+    while (line->tokens && line->tokens->type != op_ctrl)
     {
         ft_bzero(len, sizeof(len));
-        count_token(temp, &len, op_ctrl);
+        count_token(line->tokens, &len, op_ctrl);
         new->pipeline[i] = init_pipeline(line,  &len);
         if (line->last_exit != 0)
             return (free_pipeline(&new->pipeline[i]), free_exprs(new), NULL);
-        temp = parse_pipeline(line, temp, new, &len, &i);
+        line->tokens = parse_pipeline(line, line->tokens, new, &len, &i);
         if (line->last_exit != 0)
             return (free_pipeline(&new->pipeline[i]), free_exprs(new), NULL);
-        if (!temp)
+        if (!line->tokens)
             break ;
-        if (temp->type == PIPE)
-            temp = temp->next;
+        if (line->tokens->type == PIPE)
+            line->tokens = line->tokens->next;
         else
             break ;
 
     }
     new->next = NULL;
+    line->tokens = temp;
     return (new);
 }
 
@@ -70,47 +71,11 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
     return (temp);
 }
 
-// t_token     *parse_wildcards(t_line *line, t_token *token)
-// {
-//     t_token **temp;
-//     DIR *dir;
-//     size_t     len_entry;
-//     struct dirent   *entry;
-
-//     dir = opendir(".");
-//     if (!dir)
-//         return (line->last_exit = 1, NULL);
-//     len_entry = 0;
-//     while((entry = readdir(dir)) != NULL)
-//         len_entry++;
-//     if (closedir(dir) == -1)
-//         return (line->last_exit = 1, NULL);
-    
-//     temp = ft_calloc(len_entry, sizeof(t_token *));
-//     if (!temp)
-//         return (line->last_exit = 1, NULL);
-//     dir = opendir(".");
-//     if (!dir)
-//         return (line->last_exit = 1, NULL);
-//     while((entry = readdir(dir)) != NULL)
-//     {
-//         if (is_a_match(entry->d_name, token->s))
-//             // Si il y a match, il faut remplacer le token par une liste de token et bien tout chainer
-//     }
-//     return (token);
-// }
-
 int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
     (void)line;
     if (temp->previous && (temp->previous->type == REDIR_IN || temp->previous->type == REDIR_APPEND || temp->previous->type == REDIR_OUT || temp->previous->type == HEREDOC))
         return (0);
-    // if (temp->has_wildcards)
-    // {
-    //     temp = parse_wildcards(line, temp);
-    //     if (line->last_exit == EX_GEN)
-    //         return (EX_GEN);
-    // }
     if (temp->has_expand != 0)
     {
         temp->s = parse_expand(line, temp);

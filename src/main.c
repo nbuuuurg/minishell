@@ -23,16 +23,19 @@
 // (SHLVL et si export PATH=:)
 // operateur OU
 
-
-
 void	restore_terminal(void)
 {
 	struct termios	term;
 
-	if (tcgetattr(STDIN_FILENO, &term) == 0)
+	if (!isatty(STDIN_FILENO))
 	{
-		term.c_lflag |= (ICANON | ECHO);
-		tcsetattr(STDIN_FILENO, TCSANOW, &term);
+		write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
+		if (tcgetattr(STDIN_FILENO, &term) == 0)
+		{
+			term.c_lflag |= (ICANON | ECHO);
+			tcsetattr(STDIN_FILENO, TCSANOW, &term);
+		}
+		exit (1);
 	}
 }
 
@@ -42,12 +45,7 @@ int	main(int ac, char **av, char **envp)
 	char	**env;
 	int		start_flag;
 
-	if (!isatty(STDIN_FILENO))
-	{
-		restore_terminal();
-		write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
-		return (1);
-	}
+	restore_terminal();
 	start_flag = 0;
 	env = ft_strdup2(envp);
 	if (!env)
@@ -108,9 +106,20 @@ int	main(int ac, char **av, char **envp)
 // 		if (line.input)
 // 			add_history(line.input);
 // 		init_minishell(&line, envp);
-// 		if (line.exprs)
-// 		 	exec_minishell(&line, env);
-// 		// print_expr(&line);
+// 		// if (line.exprs)
+// 		//  	exec_minishell(&line, env);
+// 		t_token *temp;
+// 		temp = line.tokens;
+// 		while (line.tokens->next)
+// 		{
+// 			if (line.tokens->has_wildcards == 1)
+// 			{
+// 				line.tokens = parse_wildcards(&line, line.tokens);
+// 				line.tokens = line.tokens->next;
+// 			}
+// 		}
+// 		temp = line.tokens;
+// 		print_expr(&line);
 // 		// print_token(&line);
 // 		free_line(&line);
 // 		// free_readline(...);

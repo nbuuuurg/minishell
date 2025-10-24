@@ -43,6 +43,7 @@ t_token	*create_token(t_line *line, char *s, int len)
 		token->has_wildcards = 1;
 	else
 		token->has_wildcards = 0;
+	token->w_expanded = 0;
 	return (token);
 }
 
@@ -72,6 +73,7 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 	}
 	init_token(token, multiple_quote, quote, i);
 	token->has_wildcards = 0;
+	token->w_expanded = 0;
 	return (token);
 }
 
