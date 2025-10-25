@@ -249,6 +249,7 @@ int	here_doc_content(char *limiter, t_line *line)
 	char	*content;
 	char	*res;
 	char	*tmp;
+	char	*temp = NULL;
 
 	res = ft_strdup("");
 	if (!res)
@@ -271,12 +272,14 @@ int	here_doc_content(char *limiter, t_line *line)
 		}
 		(void)line;
 		/*ici*/
-		while (need_expand(content) != 0)
+		while (content && need_expand(content) != 0)
 		{
 			// printf("content : %s\n", content);
-			content = expanded_content(content, line);
-			if (!content)
-				return (free(res), perror("malloc"), -1);
+			temp = expanded_content(content, line);
+			if (!temp)
+				return (free(res), free(content), perror("malloc"), -1);
+			free(content);
+			content = temp;
 		}
 		tmp = res;
 		if (!tmp)

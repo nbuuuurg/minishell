@@ -15,7 +15,8 @@
 int	is_builtin(char *cmd)
 {
 	// builtin qui n ont pas d effet sur l env 
-
+	if (!cmd)
+		return (0);
 	if (ft_strncmp(cmd, "pwd", 4) == 0)
 		return (1);
 	if (ft_strncmp(cmd, "echo", 5) == 0)

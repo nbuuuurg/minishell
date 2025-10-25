@@ -19,6 +19,7 @@
 // (fun check)
 // (SHLVL et si export PATH=:)
 // operateur OU
+// heredoc avec guillemets sans expand de variable voir e"'e'"
 
 volatile sig_atomic_t g_sig = 0;
 
@@ -28,7 +29,7 @@ void	restore_terminal(void)
 
 	if (!isatty(STDIN_FILENO))
 	{
-		write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
+		// write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
 		if (tcgetattr(STDIN_FILENO, &term) == 0)
 		{
 			term.c_lflag |= (ICANON | ECHO);

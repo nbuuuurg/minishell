@@ -70,19 +70,19 @@ char    *expanded_var(t_line *line, char *var)
     {
         expanded_var = ft_itoa(getpid());
         if (!expanded_var)
-            return (free(var), NULL);
+            return (NULL);
     }
     else if (ft_strncmp(var, "$?", 2) == 0)
     {
         expanded_var = ft_itoa(line->last_exit);
         if (!expanded_var)
-            return (free(var), NULL);
+            return (NULL);
     }
     else if (ft_strncmp(var,"$", 1) == 0)
     {
         expanded_var = ft_strdup("");
         if (!expanded_var)
-            return (free(var), NULL);
+            return (NULL);
     }
     else
     {
@@ -92,16 +92,15 @@ char    *expanded_var(t_line *line, char *var)
         {
             expanded_var = ft_strdup("\0");
             if (!expanded_var)
-                return (free(var), NULL);
+                return (NULL);
         }
         else
         {
             expanded_var = ft_strdup(the_env);
             if (!expanded_var)
-                return (free(var), NULL);
+                return (NULL);
         }
     }
-    free(var);
     return (expanded_var);
 
 }

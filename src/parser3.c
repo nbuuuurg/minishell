@@ -28,7 +28,7 @@ char	*new_expanded_content(t_line *line, size_t j, char *s, char *ex_var, size_t
         else
             return (ft_strdup("\n"));
 	}
-	new_s = ft_calloc(new_len, 1);
+	new_s = ft_calloc(new_len + 1, 1);
 	if (!new_s)
 		return (NULL);
 	i = 0;
@@ -95,6 +95,10 @@ char	*expanded_content(char *s, t_line *line)
 			new_s = new_expanded_content(line, (size_t)j, s, ex_var, (size_t)len + 1);
 			if (!new_s)
 				return (free(var), free(ex_var), NULL);
+			if (ex_var)
+				free(ex_var);
+			if (var)
+				free(var);
 			return (new_s);
 		}
 		i++;
