@@ -277,7 +277,7 @@ void	print_token(t_line *line);
 void    print_expr(t_line *line);
 void    print_error(char *s, t_exit code);
 
-/* signal.c */
+/* signals.c */
 
 void sigint_handler(int sig);
 void setup_signals(void);

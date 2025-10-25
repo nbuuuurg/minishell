@@ -108,34 +108,19 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
                 exec_builtin(*cmd, line);
-                // free enfant
-                if (cmd->full_path) 
-					free(cmd->full_path);
                 _exit(0);
-            }
+			}
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
-			{
-                // free enfant
-                if (cmd->full_path) 
-					free(cmd->full_path);
                 _exit(0);
-            }
             if (cmd->cmd && cmd->cmd[0])
 			{
                 execve(cmd->full_path, cmd->cmd, cmd->env);
                 perror(cmd->cmd[0]);
-                // free enfant
-                if (cmd->full_path)
-					free(cmd->full_path);
                 _exit(127);
             }
         }
 		else
-		{
-			if (cmd->full_path)
-				free(cmd->full_path);
 			_exit(1);
-		}
     }
     return id;
 }
@@ -272,11 +257,8 @@ int	here_doc_content(char *limiter, t_line *line)
 		return (perror("pipe"), -1);
 	while (1)
 	{
-		if (g_sig == 1) {
-            line->last_exit = 130;
-            g_sig = 0;
+		if (g_sig == 1)
 			break ;
-        }
 		write(STDOUT_FILENO, "heredoc> ", 9);
 		content = get_next_line(STDIN_FILENO);
 		if (!content)

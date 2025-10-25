@@ -12,16 +12,13 @@
 
 #include "../include/minishell.h"
 
-// signaux
-// free cmd dans le fork
 // builtin
-// assignation
+// assignation -> mettre un flag plutot qu'un token type
 // exit avec les bon codes erreurs
 // invalid synthaxe si redirect.file = NULL
 // (fun check)
 // (SHLVL et si export PATH=:)
 // operateur OU
-// probleme valgrind enfant quand on a plusieurs exprs
 
 volatile sig_atomic_t g_sig = 0;
 
@@ -66,6 +63,7 @@ int	main(int ac, char **av, char **envp)
 		line.input = readline("minishell>>>");
 		if (!line.input)
 		{
+			write(STDOUT_FILENO, "exit\n", 5);
 			clear_history();
 			free_split(env);
 			return (EX_OK);

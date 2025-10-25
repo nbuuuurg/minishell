@@ -17,7 +17,7 @@ void sigint_handler(int sig)
 {
     (void)sig;
     g_sig = 1;
-    write(STDOUT_FILENO, "\n", 1);
+    write(STDOUT_FILENO, "^C\n", 3);
     rl_replace_line("", 0);
     rl_on_new_line();
     rl_redisplay();
@@ -25,7 +25,7 @@ void sigint_handler(int sig)
 
 void setup_signals(void)
 {
-    extern int rl_catch_signals;
+    extern int rl_catch_signals; // connue par la lib readline
     rl_catch_signals = 0;
     signal(SIGINT, sigint_handler);
     signal(SIGQUIT, SIG_IGN);
