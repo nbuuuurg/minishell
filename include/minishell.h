@@ -18,6 +18,7 @@
 /* ************************************************************************** */
 
 # include "../libft/libft.h"
+# include <signal.h>
 # include <stdio.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -32,6 +33,7 @@
 # include <dirent.h> 
 # include <errno.h>
 # include <stdbool.h>
+# include <stdlib.h>
 
 /* ************************************************************************** */
 /*                                ENUMS                                       */
@@ -80,6 +82,8 @@ typedef enum e_pipe
 /* ************************************************************************** */
 /*                               STRUCTS                                      */
 /* ************************************************************************** */
+
+extern volatile sig_atomic_t g_sig;
 
 typedef struct	s_token
 {
@@ -273,7 +277,11 @@ void	print_token(t_line *line);
 void    print_expr(t_line *line);
 void    print_error(char *s, t_exit code);
 
-/* signals.c */
+/* signal.c */
+
+void sigint_handler(int sig);
+void setup_signals(void);
+void setup_signals_child(void);
 
 /* subshell.c */
 

@@ -25,7 +25,7 @@ SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)parser2.c \
 	  $(SRC_DIR)parser3.c \
 	  $(SRC_DIR)print.c \
-	  $(SRC_DIR)signals.c \
+	  $(SRC_DIR)signal.c \
 	  $(SRC_DIR)subshell.c \
 	  $(SRC_DIR)tokenizer.c \
 	  $(SRC_DIR)utils.c \

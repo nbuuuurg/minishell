@@ -23,6 +23,8 @@
 // operateur OU
 // probleme valgrind enfant quand on a plusieurs exprs
 
+volatile sig_atomic_t g_sig = 0;
+
 void	restore_terminal(void)
 {
 	struct termios	term;
@@ -45,7 +47,7 @@ int	main(int ac, char **av, char **envp)
 	char	**env;
 	int		start_flag;
 
-	restore_terminal();
+	setup_signals(); 	
 	start_flag = 0;
 	env = ft_strdup2(envp);
 	if (!env)
@@ -56,12 +58,15 @@ int	main(int ac, char **av, char **envp)
 	ft_bzero(&line, sizeof(t_line));
 	while (1)
 	{
+		if (g_sig == 1) {
+            line.last_exit = 130;
+            g_sig = 0;
+        }
 		restore_terminal();
 		line.input = readline("minishell>>>");
 		if (!line.input)
 		{
 			clear_history();
-			free_line(&line);
 			free_split(env);
 			return (EX_OK);
 		}
@@ -69,6 +74,7 @@ int	main(int ac, char **av, char **envp)
 		{
 			clear_history();
 			free_split(env);
+			free(line.input);
 			return (EX_OK);
 		}
 		if (line.input)

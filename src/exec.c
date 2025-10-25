@@ -7,6 +7,8 @@ void	exec_minishell(t_line *line)
 	/*ici*/
 	t_expr	*temp;
 	temp = line->exprs;
+	while(line->tokens->previous)
+		line->tokens = line->tokens->previous;
 	while (temp != NULL)
 	{
 		if (temp)
@@ -27,7 +29,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	if (!cmd)
 		return ; // error malloc;
 	i = 0;
-	ft_bzero(cmd, sizeof(t_cmd));
+	ft_bzero(cmd, sizeof(t_cmd) * (exprs->pipe_count + 1));
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->has_subshell == 0)
@@ -98,7 +100,9 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
     id = fork();
     if (id == -1)
         return (perror("fork"), id);
-    if (id == 0) {
+    if (id == 0)
+	{
+		setup_signals_child();	
         if (cmd->cmd && get_fd(fd_in, fd_out, cmd->redirect) == 0) 
 		{
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
@@ -107,9 +111,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
                 // free enfant
                 if (cmd->full_path) 
 					free(cmd->full_path);
-				if (line->envp)
-					free_split(line->envp);
-                free_line(line);
                 _exit(0);
             }
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
@@ -117,9 +118,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
                 // free enfant
                 if (cmd->full_path) 
 					free(cmd->full_path);
-				if (line->envp)
-					free_split(line->envp);
-                free_line(line);
                 _exit(0);
             }
             if (cmd->cmd && cmd->cmd[0])
@@ -129,9 +127,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
                 // free enfant
                 if (cmd->full_path)
 					free(cmd->full_path);
-				if (line->envp)
-					free_split(line->envp);
-                free_line(line);
                 _exit(127);
             }
         }
@@ -139,9 +134,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 		{
 			if (cmd->full_path)
 				free(cmd->full_path);
-			if (line->envp)
-				free_split(line->envp);
-			free_line(line);
 			_exit(1);
 		}
     }
@@ -280,6 +272,11 @@ int	here_doc_content(char *limiter, t_line *line)
 		return (perror("pipe"), -1);
 	while (1)
 	{
+		if (g_sig == 1) {
+            line->last_exit = 130;
+            g_sig = 0;
+			break ;
+        }
 		write(STDOUT_FILENO, "heredoc> ", 9);
 		content = get_next_line(STDIN_FILENO);
 		if (!content)
