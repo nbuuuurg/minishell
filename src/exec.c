@@ -30,10 +30,14 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 		return ; // error malloc;
 	i = 0;
 	ft_bzero(cmd, sizeof(t_cmd) * (exprs->pipe_count + 1));
+	line->cmd = cmd;
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->has_subshell == 0)
+		{
 			cmd[i] = get_cmd(exprs->pipeline[i], path, env);
+			cmd[i].pipe_count = exprs->pipe_count;
+		}
 		i++;
 	}
 	i = 0;
@@ -103,26 +107,60 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
     if (id == 0)
 	{
 		setup_signals_child();	
-        if (cmd->cmd && get_fd(fd_in, fd_out, cmd->redirect) == 0) 
+        if (get_fd(fd_in, fd_out, cmd->redirect) == 0) 
 		{
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
                 exec_builtin(*cmd, line);
+				free_cmd_path(line);
+				if (line->envp)
+					free_split(line->envp);
+				free(line->cmd);
+                free_line(line);
                 _exit(0);
 			}
-            if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
+            else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
+			{
+				free_cmd_path(line);
+				if (line->envp)
+					free_split(line->envp);
+				free(line->cmd);
+                free_line(line);
                 _exit(0);
-            if (cmd->cmd && cmd->cmd[0])
+			}
+            else if (cmd->cmd && cmd->cmd[0])
 			{
                 execve(cmd->full_path, cmd->cmd, cmd->env);
                 perror(cmd->cmd[0]);
+				free_cmd_path(line);
+				if (line->envp)
+					free_split(line->envp);
+				free(line->cmd);
+                free_line(line);
                 _exit(127);
             }
+			else
+			{
+				free_cmd_path(line);
+				if (line->envp)
+					free_split(line->envp);
+				free(line->cmd);
+				free_line(line);
+				_exit(0);
+			}
         }
 		else
-			_exit(1);
+		{
+			free_cmd_path(line);
+			if (line->envp)
+				free_split(line->envp);
+			free(line->cmd);
+			free_line(line);
+			if (!g_sig)
+				_exit(1);
+		}
     }
-    return id;
+    return (id);
 }
 
 // pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line) // ajouter gestion buildin
@@ -256,10 +294,12 @@ int	here_doc_content(char *limiter, t_line *line)
 		return (perror("malloc"), -1);
 	if (pipe(here_tube) == -1)
 		return (perror("pipe"), -1);
+	// fork pour gerer les signaux
+	signal(SIGINT, sigint_handler_hd);
 	while (1)
 	{
 		if (g_sig == 1)
-			break ;
+			return(free(res), close(here_tube[1]), g_sig = 0, -1) ;
 		write(STDOUT_FILENO, "heredoc> ", 9);
 		content = get_next_line(STDIN_FILENO);
 		if (!content)
@@ -274,7 +314,6 @@ int	here_doc_content(char *limiter, t_line *line)
 		/*ici*/
 		while (content && need_expand(content) != 0)
 		{
-			// printf("content : %s\n", content);
 			temp = expanded_content(content, line);
 			if (!temp)
 				return (free(res), free(content), perror("malloc"), -1);

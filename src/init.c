@@ -49,6 +49,7 @@ void    init_line(t_line *line, char **envp, int start_flag)
 {
     line->tokens = NULL;
     line->exprs = NULL;
+    line->cmd = NULL;
     line->num_expr = 0;
     line->lexer_err = 0;
     line->heredoc_flag = 0;

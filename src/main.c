@@ -20,6 +20,7 @@
 // (SHLVL et si export PATH=:)
 // operateur OU
 // heredoc avec guillemets sans expand de variable voir e"'e'"
+// "> e" boucle infini
 
 volatile sig_atomic_t g_sig = 0;
 
@@ -56,7 +57,8 @@ int	main(int ac, char **av, char **envp)
 	ft_bzero(&line, sizeof(t_line));
 	while (1)
 	{
-		if (g_sig == 1) {
+		if (g_sig == 1)
+		{
             line.last_exit = 130;
             g_sig = 0;
         }

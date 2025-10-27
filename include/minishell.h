@@ -136,6 +136,17 @@ typedef struct	s_expr
 	struct s_expr	*next;
 }				t_expr;
 
+typedef struct	s_cmd
+{
+	t_redir	*redirect;
+	char	**cmd;
+	char	*full_path;
+	pid_t	id;
+	int		status;
+	char	**env;
+	int		pipe_count;
+}	t_cmd;
+
 typedef struct	s_line
 {
 	char	*input;
@@ -149,17 +160,8 @@ typedef struct	s_line
 	int		num_expr;
 	int		heredoc_flag;
 	t_expr	*exprs;
+	t_cmd	*cmd;
 }		t_line;
-
-typedef struct	s_cmd
-{
-	t_redir	*redirect;
-	char	**cmd;
-	char	*full_path;
-	pid_t	id;
-	int		status;
-	char	**env;
-}	t_cmd;
 
 /* ************************************************************************** */
 /*                               PROTOTYPES                                   */
@@ -202,6 +204,7 @@ void	free_split(char **s);
 void    free_tokens(t_token *tokens);
 void    free_exprs(t_expr *exprs);
 void    free_pipeline(t_pipeline *pipe);
+void    free_cmd_path(t_line *line);
 
 /* init.c */
 
@@ -282,6 +285,8 @@ void    print_error(char *s, t_exit code);
 void sigint_handler(int sig);
 void setup_signals(void);
 void setup_signals_child(void);
+void sigint_handler_hd(int sig);
+
 
 /* subshell.c */
 

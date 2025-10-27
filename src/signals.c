@@ -23,6 +23,17 @@ void sigint_handler(int sig)
     rl_redisplay();
 }
 
+void sigint_handler_hd(int sig)
+{
+    (void)sig;
+    g_sig = 1;
+    write(STDOUT_FILENO, "\n", 1);
+    rl_replace_line("", 0);
+    rl_on_new_line();
+    //_exit(0) quand le heredoc sera fork
+}
+
+
 void setup_signals(void)
 {
     extern int rl_catch_signals; // connue par la lib readline

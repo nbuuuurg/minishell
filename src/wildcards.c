@@ -26,8 +26,6 @@ t_token	*lst_join(t_token *at, t_token *nw)
 		right->previous = tail;
 	if (left)
 		nw = left;
-	else
-		nw = nw;
 	while (nw->previous)
 		nw = nw->previous;
 	return (nw);
