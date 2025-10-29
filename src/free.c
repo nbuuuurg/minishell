@@ -67,6 +67,17 @@ void	free_split(char **s)
 	free(s);
 }
 
+void	free_split2(char **s)
+{
+	char	**temp;
+	temp = s;
+	while (temp && *temp)
+	{
+		free(*temp);
+		temp++;
+	}
+}
+
 void    free_tokens(t_token *tokens)
 {
     t_token *temp;

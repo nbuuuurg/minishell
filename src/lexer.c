@@ -30,7 +30,7 @@ int    lexer_input(t_line *line)
             s = lexer_input_something(line, s, start, end);
             if (line->last_exit != 0)
                 return (line->last_exit);
-            if (*s)
+            if (*s && *(s + 1))
                 start = s + 1;
             else
                 start = s;

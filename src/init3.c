@@ -15,6 +15,9 @@ int     init_subshell(t_line *line, t_token *subinput)
         exec_minishell(subline);
     // if (subline->last_exit == -1)
     //     printf("non non non\n");
+    if (subline->lexer_err != 0)
+        line->lexer_err = -3; // erreur subshell
+    line->prev_exit = subline->prev_exit;
     free_line(subline);
     free(subline);
     return (0);

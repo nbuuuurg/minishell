@@ -13,14 +13,11 @@
 #include "../include/minishell.h"
 
 // builtin
-// assignation -> mettre un flag plutot qu'un token type
-// exit avec les bon codes erreurs
-// invalid synthaxe si redirect.file = NULL
 // (fun check)
 // (SHLVL et si export PATH=:)
-// operateur OU
-// heredoc avec guillemets sans expand de variable voir e"'e'"
-// echo lala &&
+// (heredoc avec guillemets sans expand de variable voir e"'e'")
+// signaux heredoc / signaux dans cat > e
+// > e ou >> e
 
 volatile sig_atomic_t g_sig = 0;
 
@@ -46,7 +43,7 @@ void	recup_save(t_line *line, t_save *save)
 		save->envp = ft_strdup2(line->envp);
 	else
 		save->envp = NULL;
-	save->exit = line->last_exit;
+	save->exit = line->prev_exit;
 }
 
 int	main(int ac, char **av, char **envp)
@@ -73,7 +70,7 @@ int	main(int ac, char **av, char **envp)
             line.last_exit = 130;
             g_sig = 0;
         }
-		/* restore_terminal(); */
+		restore_terminal();
 		line.input = readline("minishell>>>");
 		if (!line.input)
 		{
@@ -84,20 +81,21 @@ int	main(int ac, char **av, char **envp)
 		}
 		if (ft_strncmp(line.input, "exit", 4) == 0)
 		{
+			// free propre fonction exit
 			clear_history();
-			if (start_flag == 1 && save.envp)
-				free_split(save.envp);
+			recup_save(&line, &save);
 			free_split(env);
+			free_split(save.envp);
 			free(line.input);
 			return (EX_OK);
 		}
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, env, start_flag, &save); // +1 var
-		// print_token(&line);
-		// print_expr(&line);
 		if (line.exprs)
 			exec_minishell(&line);
+		// print_expr(&line);
+		// print_token(&line);
 		recup_save(&line, &save);
 		free_line(&line);
 		start_flag = 1;
