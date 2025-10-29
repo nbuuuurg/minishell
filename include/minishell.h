@@ -199,8 +199,8 @@ char	**get_path(char **env);
 void	exec_minishell(t_line *line);
 void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line);
 pid_t	exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
-int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
-int	ft_redir(t_redir *redirect);
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd);
+int	ft_redir(t_redir *redirect, char *cmd);
 int	here_doc_content(char *limiter, t_line *line);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 

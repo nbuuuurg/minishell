@@ -1,4 +1,14 @@
-#include "../include/minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/29 20:45:16 by adeflers          #+#    #+#             */
+/*   Updated: 2025/10/29 20:45:16 by adeflers         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../include/minishell.h"
 
@@ -191,7 +201,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
     if (id == 0)
 	{
 		setup_signals_child();	
-        if (get_fd(fd_in, fd_out, cmd->redirect) == 0) 
+        if (get_fd(fd_in, fd_out, cmd->redirect, cmd->cmd[0]) == 0) 
 		{
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
@@ -278,33 +288,33 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 // 	return (id);
 // }
 
-int		get_fd(int *fd_in, int *fd_out, t_redir *redirect)
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
 {
-	if (fd_in)
+	if (fd_in && cmd != NULL)
 	{
-		
 		dup2(fd_in[0], STDIN_FILENO);
 		close(fd_in[0]);
 		close(fd_in[1]);
 	}
-	if (fd_out)
+	if (fd_out && cmd != NULL)
 	{
 		dup2(fd_out[1], STDOUT_FILENO);
 		close(fd_out[0]);
 		close(fd_out[1]);
 	}
 	if (redirect)
-		return (ft_redir(redirect));
+		return (ft_redir(redirect, cmd));
 	return (0);
 }
 
-int	ft_redir(t_redir *redirect)
+int	ft_redir(t_redir *redirect, char *cmd)
 {
 	int	i;
 	int	fd;
 
 	// Il faut sortir avec la bonne erreur si redirect[i].file == NULL mais ca ne segault plus
 
+	(void)cmd;
 	i = 0;
 	if (redirect[i].file == NULL)
 		return(1);
@@ -314,23 +324,25 @@ int	ft_redir(t_redir *redirect)
 		{
 			fd = open(redirect[i].file, O_WRONLY | O_TRUNC | O_CREAT, 0644); 
 			if (fd == -1)
-				return (perror("mini"), 1); // la cmd au lieu de mini
-			dup2(fd, STDOUT_FILENO);
+				return (perror(redirect[i].file), 1);
+			if (cmd != NULL)
+				dup2(fd, STDOUT_FILENO);
 			close(fd);
 		}
 		else if (ft_strncmp(redirect[i].redir, ">>", ft_strlen(redirect[i].redir)) == 0)
 		{
 			fd = open(redirect[i].file, O_WRONLY | O_APPEND | O_CREAT, 0644); 
 			if (fd == -1)
-				return (perror("mini"), 1); // la cmd au lieu de mini
-			dup2(fd, STDOUT_FILENO);
+				return (perror(redirect[i].file), 1);
+			if (cmd != NULL)
+				dup2(fd, STDOUT_FILENO);
 			close(fd);
 		}
 		else if (ft_strncmp(redirect[i].redir, "<", ft_strlen(redirect[i].redir)) == 0)
 		{
 			fd = open(redirect[i].file, O_RDONLY, 0644);
 			if (fd == -1)
-				return (perror("mini"), 1); // la cmd au lieu de mini
+				return (perror(redirect[i].file), 1);
 			dup2(fd, STDIN_FILENO);
 			close(fd);
 		}
@@ -413,7 +425,11 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	cmd.env = env;
 	i = 0;
 	if (!cmd.cmd)
+	{
+		printf("cmd.cmd NULL\n");
 		return (cmd);
+	}
+	printf("cmd.cmd[0] = %s\n", cmd.cmd[0]);
 	while (path && path[i])
 	{
 		path_cmd = ft_strjoin(path[i], cmd.cmd[0]);
