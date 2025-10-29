@@ -73,7 +73,7 @@ int	main(int ac, char **av, char **envp)
             line.last_exit = 130;
             g_sig = 0;
         }
-		restore_terminal();
+		/* restore_terminal(); */
 		line.input = readline("minishell>>>");
 		if (!line.input)
 		{
