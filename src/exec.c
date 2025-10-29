@@ -8,7 +8,6 @@ void	exec_minishell(t_line *line)
 	/*ici*/
 	t_expr	*temp;
 	temp = line->exprs;
-	printf("err : %d\n", line->lexer_err);
 	while(line->tokens->previous)
 		line->tokens = line->tokens->previous;
 	while (temp != NULL)
@@ -93,6 +92,8 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 			free(cmd[i].full_path);
 		i++;
 	}
+	if (WIFEXITED(cmd[i - 1].status))
+		line->last_exit = WEXITSTATUS(cmd[i - 1].status);
 	free(cmd);
 }
 
@@ -117,7 +118,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2) // cd a pas fork si pas pipe
 	{
         exec_builtin(*cmd, line);
-        return 0;
     }
     id = fork();
     if (id == -1)
@@ -133,19 +133,19 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				free_exec_cmd(line);
                 _exit(0);
 			}
-            else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
+            if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
 				free_exec_cmd(line);
                 _exit(0);
 			}
-            else if (cmd->cmd && cmd->cmd[0])
+            if (cmd->cmd && cmd->cmd[0])
 			{
                 execve(cmd->full_path, cmd->cmd, cmd->env);
                 perror(cmd->cmd[0]);
 				free_exec_cmd(line);
                 _exit(127);
             }
-			else
+			if (!cmd->cmd)
 			{
 				free_exec_cmd(line);
 				_exit(0);

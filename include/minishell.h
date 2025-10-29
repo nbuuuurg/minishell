@@ -147,6 +147,12 @@ typedef struct	s_cmd
 	int		pipe_count;
 }	t_cmd;
 
+typedef struct	s_save
+{
+	int		exit;
+	char	**envp;
+}	t_save;
+
 typedef struct	s_line
 {
 	char	*input;
@@ -156,12 +162,14 @@ typedef struct	s_line
 	char	**envp;
 	char	**path;
 	int		last_exit; //$? $$
+	int		prev_exit;
 	int		lexer_err;
 	int		num_expr;
 	int		heredoc_flag;
 	t_expr	*exprs;
 	t_cmd	*cmd;
 	struct s_line	*subline;
+	t_save	*save;
 }		t_line;
 
 /* ************************************************************************** */
@@ -210,9 +218,9 @@ void    free_cmd_path(t_line *line);
 
 /* init.c */
 
-void    init_minishell(t_line *line, char **envp, int start_flag);
+void    init_minishell(t_line *line, char **envp, int start_flag, t_save *save);
 int    init_clean_input(t_line *line);
-void    init_line(t_line *line, char **envp, int start_flag);
+void    init_line(t_line *line, char **envp, int start_flag, t_save *save);
 void	init_token(t_token *token, int multiple_quote, int quote, int i);
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
 

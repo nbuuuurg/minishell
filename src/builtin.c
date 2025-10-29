@@ -100,7 +100,7 @@ int ft_echo(t_cmd cmd, t_line *line)
 		str = cmd.cmd[i];
 		if (ft_strncmp(str, "$?", 3) == 0)
 		{
-			str = ft_itoa(line->last_exit);
+			str = ft_itoa(line->prev_exit);
 			if (!str) 
 				return (perror("malloc"), 1);
 			need_free = 1;

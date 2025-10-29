@@ -64,39 +64,44 @@ char    *expanded_var(t_line *line, char *var)
     char    *expanded_var;
     char    *the_env;
 
+    (void)line;
     if (!var)
         return (NULL);
     if (ft_strncmp(var, "$$", 2) == 0)
     {
         expanded_var = ft_itoa(getpid());
+        free(var);
         if (!expanded_var)
             return (NULL);
     }
     else if (ft_strncmp(var, "$?", 2) == 0)
     {
-        expanded_var = ft_itoa(line->last_exit);
+        expanded_var = ft_strdup("$?");
+        free(var);
         if (!expanded_var)
             return (NULL);
     }
     else if (ft_strncmp(var,"$", 1) == 0)
     {
         expanded_var = ft_strdup("");
+        free(var);
         if (!expanded_var)
             return (NULL);
     }
     else
     {
-        //decouper
         the_env = getenv(var);
         if (!the_env)
         {
             expanded_var = ft_strdup("\0");
+            free(var);
             if (!expanded_var)
                 return (NULL);
         }
         else
         {
             expanded_var = ft_strdup(the_env);
+            free(var);
             if (!expanded_var)
                 return (NULL);
         }
@@ -128,10 +133,6 @@ int    expanded_token(t_line *line, t_token *token, char *var, size_t start, siz
         len_var = ft_strlen(var);
     len_old_var = end - start + 1;
     len_s = ft_strlen(token->s) - len_old_var + len_var;
-    if (len_s == 0)
-    {
-
-    }
     s = ft_calloc(len_s + 1, 1);
     if (!s)
         return (line->last_exit = EX_GEN, -1);

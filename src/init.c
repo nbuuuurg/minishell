@@ -12,9 +12,9 @@
 
 #include "../include/minishell.h"
 
-void    init_minishell(t_line *line, char **envp, int start_flag)
+void    init_minishell(t_line *line, char **envp, int start_flag, t_save *save)
 {
-    init_line(line, envp, start_flag);
+    init_line(line, envp, start_flag, save);
     if (line->last_exit != 0)
         return ;
     if (line->len == 0)
@@ -45,22 +45,58 @@ int    init_clean_input(t_line *line)
     return (0);
 }
 
-void    init_line(t_line *line, char **envp, int start_flag)
+void    init_line(t_line *line, char **envp, int start_flag, t_save *save)
 {
-    line->tokens = NULL;
-    line->exprs = NULL;
-    line->cmd = NULL;
-    line->subline = NULL;
-    line->num_expr = 0;
-    line->lexer_err = 0;
-    line->heredoc_flag = 0;
-    line->path = get_path(envp);
-    line->len = ft_strlen(line->input);
-    if (envp && start_flag == 0)
-        line->envp = envp;
-    line->last_exit = init_clean_input(line);
-    if (line->last_exit != 0)
-        return ;
+    if (start_flag == 0)
+    {
+        line->tokens = NULL;
+        line->exprs = NULL;
+        line->cmd = NULL;
+        line->subline = NULL;
+        line->num_expr = 0;
+        line->lexer_err = 0;
+        line->heredoc_flag = 0;
+        line->prev_exit = 0;
+        line->len = ft_strlen(line->input);
+        if (envp)
+            line->envp = envp;
+        else
+            line->envp = NULL;
+        if (envp)
+            line->path = get_path(envp);
+        else
+            line->path = NULL;
+        line->last_exit = init_clean_input(line);
+        if (line->last_exit != 0)
+            return ;
+    }
+    else
+    {
+        line->tokens = NULL;
+        line->exprs = NULL;
+        line->cmd = NULL;
+        line->subline = NULL;
+        line->num_expr = 0;
+        line->lexer_err = 0;
+        line->heredoc_flag = 0;
+        line->len = ft_strlen(line->input);
+        if (line->envp)
+            free_split(line->envp);
+        if (envp)
+            line->envp = ft_strdup2(save->envp);
+        else
+            line->envp = NULL;
+        if (save->envp)
+            line->path = get_path(save->envp);
+        else
+            line->path = NULL;
+        line->last_exit = init_clean_input(line);
+        if (line->last_exit != 0)
+            return ;
+        if (save->envp)
+            free_split(save->envp);
+        line->prev_exit = save->exit;
+    }
 }
 
 void	init_token(t_token *token, int multiple_quote, int quote, int i)

@@ -40,9 +40,19 @@ void	restore_terminal(void)
 	}
 }
 
+void	recup_save(t_line *line, t_save *save)
+{
+	if (line->envp)
+		save->envp = ft_strdup2(line->envp);
+	else
+		save->envp = NULL;
+	save->exit = line->last_exit;
+}
+
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;
+	t_save	save;
 	char	**env;
 	int		start_flag;
 
@@ -55,6 +65,7 @@ int	main(int ac, char **av, char **envp)
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
 	ft_bzero(&line, sizeof(t_line));
+	ft_bzero(&save, sizeof(t_save));
 	while (1)
 	{
 		if (g_sig == 1)
@@ -74,17 +85,20 @@ int	main(int ac, char **av, char **envp)
 		if (ft_strncmp(line.input, "exit", 4) == 0)
 		{
 			clear_history();
+			if (start_flag == 1 && save.envp)
+				free_split(save.envp);
 			free_split(env);
 			free(line.input);
 			return (EX_OK);
 		}
 		if (line.input)
 			add_history(line.input);
-		init_minishell(&line, env, start_flag);
+		init_minishell(&line, env, start_flag, &save); // +1 var
 		// print_token(&line);
 		// print_expr(&line);
 		if (line.exprs)
 			exec_minishell(&line);
+		recup_save(&line, &save);
 		free_line(&line);
 		start_flag = 1;
 	}
