@@ -12,10 +12,40 @@
 
 #include "../include/minishell.h"
 
+void	free_line_fork(t_line *line, int i)
+{
+	if (!line)
+		return ;
+	if (line->tokens)
+    {
+        while(line->tokens->previous)
+            line->tokens = line->tokens->previous;
+		free_tokens(line->tokens);
+    }
+	if (line->exprs)
+		free_exprs(line->exprs);
+	if (line->path)
+		free_split(line->path);
+	free(line->input);
+    if (line->subline)
+    {
+        if (line->subline->subline)
+            free_line_fork(line->subline, 0);
+        else
+            free_line_fork(line->subline, 1);
+    }
+    else
+        free_line_fork(line->subline, 1);
+    if (i == 0)
+        free(line);
+}
+
 void	free_line(t_line *line)
 {
 	if (!line)
 		return ;
+    // printf("2 - line->token->s : %s\n", line->tokens->s);
+    // printf("2 - line->sub->token->s : %s\n", line->subline->tokens->s);
 	if (line->tokens)
 		free_tokens(line->tokens);
 	if (line->exprs)
@@ -42,10 +72,14 @@ void    free_tokens(t_token *tokens)
     t_token *temp;
 
     temp = tokens;
+    if (!tokens)
+        return ;
     while(tokens)
     {
         if (tokens->s)
+        {
             free(tokens->s);
+        }
         tokens = tokens->next;
         free(temp);
         temp = tokens;

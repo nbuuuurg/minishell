@@ -2,11 +2,13 @@
 
 #include "../include/minishell.h"
 
+
 void	exec_minishell(t_line *line)
 {
 	/*ici*/
 	t_expr	*temp;
 	temp = line->exprs;
+	printf("err : %d\n", line->lexer_err);
 	while(line->tokens->previous)
 		line->tokens = line->tokens->previous;
 	while (temp != NULL)
@@ -25,6 +27,8 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	int		fd[2];
 	int		fd_next[2];
 
+	if (exprs->has_subshell != 0)
+		return ;
 	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL // voir si pas mieux t_cmd **cmd
 	if (!cmd)
 		return ; // error malloc;
@@ -92,6 +96,20 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	free(cmd);
 }
 
+void	free_exec_cmd(t_line *line)
+{
+	free_cmd_path(line);
+	if (line->envp)
+		free_split(line->envp);
+	free(line->cmd);
+	if (line->subline)
+	{
+		free_line_fork(line, 0);
+	}
+	else
+		free_line(line);
+}
+
 pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
     pid_t id;
@@ -112,50 +130,30 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
                 exec_builtin(*cmd, line);
-				free_cmd_path(line);
-				if (line->envp)
-					free_split(line->envp);
-				free(line->cmd);
-                free_line(line);
+				free_exec_cmd(line);
                 _exit(0);
 			}
             else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
-				free_cmd_path(line);
-				if (line->envp)
-					free_split(line->envp);
-				free(line->cmd);
-                free_line(line);
+				free_exec_cmd(line);
                 _exit(0);
 			}
             else if (cmd->cmd && cmd->cmd[0])
 			{
                 execve(cmd->full_path, cmd->cmd, cmd->env);
                 perror(cmd->cmd[0]);
-				free_cmd_path(line);
-				if (line->envp)
-					free_split(line->envp);
-				free(line->cmd);
-                free_line(line);
+				free_exec_cmd(line);
                 _exit(127);
             }
 			else
 			{
-				free_cmd_path(line);
-				if (line->envp)
-					free_split(line->envp);
-				free(line->cmd);
-				free_line(line);
+				free_exec_cmd(line);
 				_exit(0);
 			}
         }
 		else
 		{
-			free_cmd_path(line);
-			if (line->envp)
-				free_split(line->envp);
-			free(line->cmd);
-			free_line(line);
+			free_exec_cmd(line);
 			if (!g_sig)
 				_exit(1);
 		}

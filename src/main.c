@@ -20,7 +20,7 @@
 // (SHLVL et si export PATH=:)
 // operateur OU
 // heredoc avec guillemets sans expand de variable voir e"'e'"
-// "> e" boucle infini
+// echo lala &&
 
 volatile sig_atomic_t g_sig = 0;
 

@@ -161,6 +161,7 @@ typedef struct	s_line
 	int		heredoc_flag;
 	t_expr	*exprs;
 	t_cmd	*cmd;
+	struct s_line	*subline;
 }		t_line;
 
 /* ************************************************************************** */
@@ -199,6 +200,7 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 
 /* free.c */
 
+void	free_line_fork(t_line *line, int i);
 void	free_line(t_line *line);
 void	free_split(char **s);
 void    free_tokens(t_token *tokens);

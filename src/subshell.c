@@ -85,6 +85,7 @@ t_line  *dup_line(t_line *line, t_token *subinput)
     subline->tokens = NULL;
     subline->exprs = NULL;
     subline->cmd = NULL;
+    subline->subline = line;
     subline->last_exit = 0;
     subline->len = line->len - 2;
     subline->lexer_err = 0;
