@@ -121,15 +121,11 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
     if (!new->pipeline[i].redirect[*j].redir)
         return (EX_GEN);
     if (temp->next && temp->next->type == WORD && temp->next->in_subshell == 0)
-    {
         new->pipeline[i].redirect[*j].file = ft_strdup(temp->next->s);
-        if (temp->next->type != WORD || temp->next->in_subshell != 0)
-            line->lexer_err = -8; // delimiteur non valide
-    }
     else
     {
         new->pipeline[i].redirect[*j].file = NULL;
-        line->lexer_err = -8; // fini par << sans delimiteur
+        line->lexer_err = -5;
     }
     // if (!new->pipeline[i].redirect[*j].file)
     //     return (free(new->pipeline[i].redirect[*j].redir), 1);

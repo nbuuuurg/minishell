@@ -211,6 +211,7 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 void	free_line_fork(t_line *line, int i);
 void	free_line(t_line *line);
 void	free_split(char **s);
+void	free_split2(char **s);
 void    free_tokens(t_token *tokens);
 void    free_exprs(t_expr *exprs);
 void    free_pipeline(t_pipeline *pipe);

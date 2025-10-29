@@ -2,19 +2,85 @@
 
 #include "../include/minishell.h"
 
+int		last_parse_err(t_line *line)
+{
+	t_token	*temp;
+	t_token *temp2;
+
+	temp = line->tokens;
+	temp2 = line->tokens;
+	while (temp && temp->next)
+		temp = temp->next;
+	while (temp2 && temp2->previous)
+		temp2 = temp2->previous;
+	// printf("temp->s = %s\n", temp2->s);
+	if (temp && temp->type == PIPE)
+	{
+		printf("fini par un pipe\n");
+		return (line->lexer_err = -1, line->prev_exit = 2, 1);
+	}
+	if (temp2 && temp2->type == PIPE)
+	{
+		printf("commence par un pipe\n");
+		return (line->lexer_err = -2, line->prev_exit = 2, 1);
+	}
+	if (line->lexer_err == -3) // erreur subshell
+		return (1);
+	if (line->lexer_err == -4)
+	{
+		printf("fini ou commence par && ou ||\n");
+		return (line->lexer_err = -3, line->prev_exit = 2, 1);
+	}
+	if (line->lexer_err == -5)
+	{
+		printf("erreur redirect.file = NULL\n");
+		return (line->lexer_err = -4, line->prev_exit = 2, 1);
+	}
+	return (0);
+}
 
 void	exec_minishell(t_line *line)
 {
 	/*ici*/
+	// print_expr(line);
+	// print_token(line);
 	t_expr	*temp;
 	temp = line->exprs;
 	while(line->tokens->previous)
 		line->tokens = line->tokens->previous;
+	// printf("err : %d\n", line->lexer_err);
+	if (last_parse_err(line))
+		return ;
 	while (temp != NULL)
 	{
 		if (temp)
 			exec_exprs(temp, line->path, line->envp, line);
-		temp = temp->next;
+		// printf("exit : %d\n", line->prev_exit);
+		if (temp)
+		{
+			if (line->prev_exit == 2) // error redirection
+				return ;
+			if (line->prev_exit == 0 && temp->op_after == AND) // true &&
+				temp = temp->next;
+			else if (line->prev_exit != 0 && temp->op_after == AND) // false &&
+			{
+				while (temp && temp->op_after != OR)
+					temp = temp->next;
+				if (temp)
+					temp = temp->next;
+			}
+			else if (line->prev_exit != 0 && temp->op_after == OR) // false ||
+				temp = temp->next;
+			else if (line->prev_exit == 0 && temp->op_after == OR) // true ||
+			{
+				while (temp && temp->op_after != AND)
+					temp = temp->next;
+				if (temp)
+					temp = temp->next;
+			}
+			else
+				temp = temp->next;
+		}
 	}
 }
 
@@ -93,7 +159,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 		i++;
 	}
 	if (WIFEXITED(cmd[i - 1].status))
-		line->last_exit = WEXITSTATUS(cmd[i - 1].status);
+		line->prev_exit = WEXITSTATUS(cmd[i - 1].status);
 	free(cmd);
 }
 
@@ -155,7 +221,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 		{
 			free_exec_cmd(line);
 			if (!g_sig)
-				_exit(1);
+				_exit(2);
 		}
     }
     return (id);
@@ -240,6 +306,8 @@ int	ft_redir(t_redir *redirect)
 	// Il faut sortir avec la bonne erreur si redirect[i].file == NULL mais ca ne segault plus
 
 	i = 0;
+	if (redirect[i].file == NULL)
+		return(1);
 	while (redirect[i].file)
 	{
 		if (ft_strncmp(redirect[i].redir, ">", ft_strlen(redirect[i].redir)) == 0)

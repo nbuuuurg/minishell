@@ -21,10 +21,11 @@ void    count_token(t_token *temp, int (*len)[3], t_token_type op_ctrl)
     {
         if (temp2->type == WORD)// && temp2->in_subshell == 0)
         {
-            if (!temp2->next)
-                (*len)[0]++;
-            else if (temp2->next && temp2->next->type != REDIR_IN && temp2->next->type != REDIR_APPEND && temp2->next->type != REDIR_OUT && temp2->next->type != HEREDOC)
-                (*len)[0]++;
+            (*len)[0]++;
+            // if (!temp2->next)
+            //     (*len)[0]++;
+            // else if (temp2->next && temp2->next->type != REDIR_IN && temp2->next->type != REDIR_APPEND && temp2->next->type != REDIR_OUT && temp2->next->type != HEREDOC)
+            //     (*len)[0]++;
         }
         if (temp2->type == REDIR_IN || temp2->type == REDIR_APPEND || temp2->type == REDIR_OUT || temp2->type == HEREDOC)
             (*len)[1]++;
