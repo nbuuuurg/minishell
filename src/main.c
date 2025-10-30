@@ -74,7 +74,7 @@ int	main(int ac, char **av, char **envp)
 		line.input = readline("minishell>");
 		if (!line.input)
 		{
-			write(STDOUT_FILENO, "exit\n", 5);
+			write(STDOUT_FILENO, "EEEE\n", 5);
 			clear_history();
 			free_split(env);
 			return (EX_OK);

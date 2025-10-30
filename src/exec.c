@@ -128,7 +128,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 				cmd[i].id = exec_cmd(&cmd[i], NULL, NULL, line);
 			else
 			{
-				if (cmd[i].cmd[0] != NULL && exprs->pipeline[i].position != 3)
+				if (exprs->pipeline[i].position != 3)
 				{
 					if (pipe(fd_next) == -1)
 						return (perror("pipe"));
@@ -139,7 +139,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 					cmd[i].id = exec_cmd(&cmd[i], fd, fd_next, line);
 				else if (exprs->pipeline[i].position == 3)
 					cmd[i].id = exec_cmd(&cmd[i], fd, NULL, line);
-				if (i > 0 && cmd[i - 1].cmd[0] != NULL)
+				if (i > 0)
 				{
 					close(fd[0]);
 					close(fd[1]);
@@ -190,7 +190,13 @@ void	free_exec_cmd(t_line *line)
 pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
     pid_t id;
-
+	/**/
+	/* // AVANT l'exécution des redirections */
+	/* int saved_stdout = dup(STDOUT_FILENO);  // Sauvegarder STDOUT */
+	/* int saved_stdin = dup(STDIN_FILENO);    // Sauvegarder STDIN */
+	/**/
+	/* // Exécuter les redirections et commandes */
+	/* // ... votre code d'exécution ... */
     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2) // cd a pas fork si pas pipe
 	{
         exec_builtin(*cmd, line);
@@ -235,6 +241,13 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				_exit(2);
 		}
     }
+	/**/
+	/* // APRÈS l'exécution (TOUJOURS, même en cas d'erreur) */
+	/* dup2(saved_stdout, STDOUT_FILENO);      // Restaurer STDOUT */
+	/* dup2(saved_stdin, STDIN_FILENO);        // Restaurer STDIN */
+	/* close(saved_stdout); */
+	/* close(saved_stdin); */
+	/**/
     return (id);
 }
 
@@ -293,21 +306,20 @@ int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
 {
 	if (fd_in)
 	{
-		if (cmd != NULL)
-		{
-			dup2(fd_in[0], STDIN_FILENO);
-			close(fd_in[0]);
-			close(fd_in[1]);
-		}
+		dup2(fd_in[0], STDIN_FILENO);
+		close(fd_in[0]);
+		close(fd_in[1]);
 	}
-	if (fd_out)
+	if (fd_out && cmd != NULL)
 	{
-		if (cmd != NULL)
-		{
-			dup2(fd_out[1], STDOUT_FILENO);
-			close(fd_out[0]);
-			close(fd_out[1]);
-		}
+		dup2(fd_out[1], STDOUT_FILENO);
+		close(fd_out[0]);
+		close(fd_out[1]);
+	}
+	else if (fd_out && cmd == NULL)
+	{
+		close(fd_out[0]);
+		close(fd_out[1]);
 	}
 	if (redirect)
 		return (ft_redir(redirect, cmd));
