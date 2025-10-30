@@ -70,8 +70,8 @@ int	main(int ac, char **av, char **envp)
             line.last_exit = 130;
             g_sig = 0;
         }
-		restore_terminal();
-		line.input = readline("minishell>>>");
+		/* restore_terminal(); */
+		line.input = readline("minishell>");
 		if (!line.input)
 		{
 			write(STDOUT_FILENO, "exit\n", 5);

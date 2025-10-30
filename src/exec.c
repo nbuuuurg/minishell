@@ -52,8 +52,8 @@ int		last_parse_err(t_line *line)
 void	exec_minishell(t_line *line)
 {
 	/*ici*/
-	// print_expr(line);
-	// print_token(line);
+	/* print_expr(line); */
+	/* print_token(line); */
 	t_expr	*temp;
 	temp = line->exprs;
 	while(line->tokens->previous)
@@ -128,7 +128,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 				cmd[i].id = exec_cmd(&cmd[i], NULL, NULL, line);
 			else
 			{
-				if (exprs->pipeline[i].position != 3)
+				if (cmd[i].cmd[0] != NULL && exprs->pipeline[i].position != 3)
 				{
 					if (pipe(fd_next) == -1)
 						return (perror("pipe"));
@@ -139,7 +139,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 					cmd[i].id = exec_cmd(&cmd[i], fd, fd_next, line);
 				else if (exprs->pipeline[i].position == 3)
 					cmd[i].id = exec_cmd(&cmd[i], fd, NULL, line);
-				if (i > 0)
+				if (i > 0 && cmd[i - 1].cmd[0] != NULL)
 				{
 					close(fd[0]);
 					close(fd[1]);
@@ -224,6 +224,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			if (!cmd->cmd)
 			{
 				free_exec_cmd(line);
+				printf("exit child no cmd\n");
 				_exit(0);
 			}
         }
@@ -290,17 +291,23 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
 {
-	if (fd_in && cmd != NULL)
+	if (fd_in)
 	{
-		dup2(fd_in[0], STDIN_FILENO);
-		close(fd_in[0]);
-		close(fd_in[1]);
+		if (cmd != NULL)
+		{
+			dup2(fd_in[0], STDIN_FILENO);
+			close(fd_in[0]);
+			close(fd_in[1]);
+		}
 	}
-	if (fd_out && cmd != NULL)
+	if (fd_out)
 	{
-		dup2(fd_out[1], STDOUT_FILENO);
-		close(fd_out[0]);
-		close(fd_out[1]);
+		if (cmd != NULL)
+		{
+			dup2(fd_out[1], STDOUT_FILENO);
+			close(fd_out[0]);
+			close(fd_out[1]);
+		}
 	}
 	if (redirect)
 		return (ft_redir(redirect, cmd));
@@ -420,16 +427,17 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	char	*path_cmd;
 
 	ft_bzero(&cmd, sizeof(t_cmd));
+	cmd.id = -2;
 	cmd.redirect = pipeline.redirect;
 	cmd.cmd = pipeline.args;
 	cmd.env = env;
 	i = 0;
 	if (!cmd.cmd)
 	{
-		printf("cmd.cmd NULL\n");
+		/* printf("cmd.cmd NULL\n"); */
 		return (cmd);
 	}
-	printf("cmd.cmd[0] = %s\n", cmd.cmd[0]);
+	/* printf("cmd.cmd[0] = %s\n", cmd.cmd[0]); */
 	while (path && path[i])
 	{
 		path_cmd = ft_strjoin(path[i], cmd.cmd[0]);
