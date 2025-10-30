@@ -13,7 +13,7 @@
 #include "../include/minishell.h"
 
 // builtin
-// (fun check)
+// exit code cmd not found
 // (SHLVL et si export PATH=:)
 // (heredoc avec guillemets sans expand de variable voir e"'e'")
 // signaux heredoc / signaux dans cat > e
@@ -27,13 +27,14 @@ void	restore_terminal(void)
 
 	if (!isatty(STDIN_FILENO))
 	{
-		// write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
+		/* write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66); */
 		if (tcgetattr(STDIN_FILENO, &term) == 0)
 		{
 			term.c_lflag |= (ICANON | ECHO);
 			tcsetattr(STDIN_FILENO, TCSANOW, &term);
 		}
 		exit (1);
+		// attention aux leaks si tu sors d'ici
 	}
 }
 
@@ -70,7 +71,7 @@ int	main(int ac, char **av, char **envp)
             line.last_exit = 130;
             g_sig = 0;
         }
-		/* restore_terminal(); */
+		restore_terminal();
 		line.input = readline("minishell>");
 		if (!line.input)
 		{

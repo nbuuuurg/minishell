@@ -215,22 +215,22 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				free_exec_cmd(line);
                 _exit(0);
 			}
-            if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
+			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
 				free_exec_cmd(line);
                 _exit(0);
 			}
-            if (cmd->cmd && cmd->cmd[0])
+			else if (cmd->cmd && cmd->cmd[0])
 			{
                 execve(cmd->full_path, cmd->cmd, cmd->env);
                 perror(cmd->cmd[0]);
 				free_exec_cmd(line);
                 _exit(127);
             }
-			if (!cmd->cmd)
+			else if (!cmd->cmd[0])
 			{
 				free_exec_cmd(line);
-				printf("exit child no cmd\n");
+				/* printf("exit child no cmd\n"); */
 				_exit(0);
 			}
         }
