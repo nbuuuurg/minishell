@@ -109,7 +109,6 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
             return (EX_GEN);
         if (temp->next && temp->next->type == WORD && temp->next->in_subshell == 0)
             new->pipeline[i].redirect[*j].heredoc_fd = here_doc_content(temp->next->s, line);
-            // fork le heredoc et waitpid
         else
             new->pipeline[i].redirect[*j].heredoc_fd = -1;
     }

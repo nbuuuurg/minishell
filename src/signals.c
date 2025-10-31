@@ -17,7 +17,7 @@ void sigint_handler(int sig)
 {
     (void)sig;
     g_sig = 1;
-    write(STDOUT_FILENO, "^C\n", 3);
+    write(STDERR_FILENO, "^C\n", 3);
     rl_replace_line("", 0);
     rl_on_new_line();
     rl_redisplay();
@@ -27,12 +27,41 @@ void sigint_handler_hd(int sig)
 {
     (void)sig;
     g_sig = 1;
-    write(STDOUT_FILENO, "\n", 1);
+    write(STDERR_FILENO, "\n", 1);
     rl_replace_line("", 0);
     rl_on_new_line();
-    //_exit(0) quand le heredoc sera fork
+    _exit(130);
 }
 
+void sigquit_handler_hd(int sig)
+{
+    (void)sig;
+    g_sig = 1;
+    write(STDERR_FILENO, "Quit (core dumped)\n", 19);
+    rl_replace_line("", 0);
+    rl_on_new_line();
+    _exit(131);
+}
+
+void sigint_handler_child(int sig)
+{
+    (void)sig;
+    g_sig = 1;
+    write(STDERR_FILENO, "\n", 1);
+    rl_replace_line("", 0);
+    rl_on_new_line();
+    _exit(130);
+}
+
+void sigquit_handler_child(int sig)
+{
+    (void)sig;
+    g_sig = 1;
+    write(STDERR_FILENO, "Quit (core dumped)\n", 19);
+    rl_replace_line("", 0);
+    rl_on_new_line();
+    _exit(131);
+}
 
 void setup_signals(void)
 {

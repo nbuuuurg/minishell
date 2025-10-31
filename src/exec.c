@@ -1,4 +1,14 @@
-#include "../include/minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exec.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/29 20:45:16 by adeflers          #+#    #+#             */
+/*   Updated: 2025/10/29 20:45:16 by adeflers         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../include/minishell.h"
 
@@ -42,8 +52,8 @@ int		last_parse_err(t_line *line)
 void	exec_minishell(t_line *line)
 {
 	/*ici*/
-	// print_expr(line);
-	// print_token(line);
+	/* print_expr(line); */
+	/* print_token(line); */
 	t_expr	*temp;
 	temp = line->exprs;
 	while(line->tokens->previous)
@@ -92,6 +102,13 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	int		fd[2];
 	int		fd_next[2];
 
+	struct sigaction old_int;
+	struct sigaction old_quit;
+	struct sigaction new;
+	sigemptyset(&new.sa_mask);
+	new.sa_handler = SIG_IGN;
+	new.sa_flags = 0;
+
 	if (exprs->has_subshell != 0)
 		return ;
 	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL // voir si pas mieux t_cmd **cmd
@@ -110,6 +127,10 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 		i++;
 	}
 	i = 0;
+	sigaction(SIGINT, &new, &old_int);
+	sigaction(SIGQUIT, &new, &old_quit);
+	signal(SIGINT, sigint_handler_child);
+	signal(SIGQUIT, sigquit_handler_child);	
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->has_subshell == 0)
@@ -160,6 +181,8 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	}
 	if (WIFEXITED(cmd[i - 1].status))
 		line->prev_exit = WEXITSTATUS(cmd[i - 1].status);
+	sigaction(SIGINT, &old_int, NULL);
+	sigaction(SIGQUIT, &old_quit, NULL);
 	free(cmd);
 }
 
@@ -180,18 +203,25 @@ void	free_exec_cmd(t_line *line)
 pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
     pid_t id;
+	/**/
+	/* // AVANT l'exécution des redirections */
+	/* int saved_stdout = dup(STDOUT_FILENO);  // Sauvegarder STDOUT */
+	/* int saved_stdin = dup(STDIN_FILENO);    // Sauvegarder STDIN */
+	/**/
+	/* // Exécuter les redirections et commandes */
+	/* // ... votre code d'exécution ... */
 
     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2) // cd a pas fork si pas pipe
 	{
         exec_builtin(*cmd, line);
     }
+
     id = fork();
     if (id == -1)
         return (perror("fork"), id);
     if (id == 0)
 	{
-		setup_signals_child();	
-        if (get_fd(fd_in, fd_out, cmd->redirect) == 0) 
+        if (get_fd(fd_in, fd_out, cmd->redirect, cmd->cmd[0]) == 0) 
 		{
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
@@ -199,20 +229,27 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				free_exec_cmd(line);
                 _exit(0);
 			}
-            if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
+			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
 				free_exec_cmd(line);
                 _exit(0);
 			}
-            if (cmd->cmd && cmd->cmd[0])
+			else if (cmd->cmd && cmd->cmd[0])
 			{
                 execve(cmd->full_path, cmd->cmd, cmd->env);
                 perror(cmd->cmd[0]);
 				free_exec_cmd(line);
                 _exit(127);
             }
-			if (!cmd->cmd)
+			else if (!cmd->cmd[0])
 			{
+				free_exec_cmd(line);
+				/* printf("exit child no cmd\n"); */
+				_exit(0);
+			}
+			else
+			{
+				//pour etre sur
 				free_exec_cmd(line);
 				_exit(0);
 			}
@@ -224,6 +261,13 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				_exit(2);
 		}
     }
+	/**/
+	/* // APRÈS l'exécution (TOUJOURS, même en cas d'erreur) */
+	/* dup2(saved_stdout, STDOUT_FILENO);      // Restaurer STDOUT */
+	/* dup2(saved_stdin, STDIN_FILENO);        // Restaurer STDIN */
+	/* close(saved_stdout); */
+	/* close(saved_stdin); */
+	/**/
     return (id);
 }
 
@@ -278,33 +322,38 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 // 	return (id);
 // }
 
-int		get_fd(int *fd_in, int *fd_out, t_redir *redirect)
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
 {
 	if (fd_in)
 	{
-		
 		dup2(fd_in[0], STDIN_FILENO);
 		close(fd_in[0]);
 		close(fd_in[1]);
 	}
-	if (fd_out)
+	if (fd_out && cmd != NULL)
 	{
 		dup2(fd_out[1], STDOUT_FILENO);
 		close(fd_out[0]);
 		close(fd_out[1]);
 	}
+	else if (fd_out && cmd == NULL)
+	{
+		close(fd_out[0]);
+		close(fd_out[1]);
+	}
 	if (redirect)
-		return (ft_redir(redirect));
+		return (ft_redir(redirect, cmd));
 	return (0);
 }
 
-int	ft_redir(t_redir *redirect)
+int	ft_redir(t_redir *redirect, char *cmd)
 {
 	int	i;
 	int	fd;
 
 	// Il faut sortir avec la bonne erreur si redirect[i].file == NULL mais ca ne segault plus
 
+	(void)cmd;
 	i = 0;
 	if (redirect[i].file == NULL)
 		return(1);
@@ -314,23 +363,25 @@ int	ft_redir(t_redir *redirect)
 		{
 			fd = open(redirect[i].file, O_WRONLY | O_TRUNC | O_CREAT, 0644); 
 			if (fd == -1)
-				return (perror("mini"), 1); // la cmd au lieu de mini
-			dup2(fd, STDOUT_FILENO);
+				return (perror(redirect[i].file), 1);
+			if (cmd != NULL)
+				dup2(fd, STDOUT_FILENO);
 			close(fd);
 		}
 		else if (ft_strncmp(redirect[i].redir, ">>", ft_strlen(redirect[i].redir)) == 0)
 		{
 			fd = open(redirect[i].file, O_WRONLY | O_APPEND | O_CREAT, 0644); 
 			if (fd == -1)
-				return (perror("mini"), 1); // la cmd au lieu de mini
-			dup2(fd, STDOUT_FILENO);
+				return (perror(redirect[i].file), 1);
+			if (cmd != NULL)
+				dup2(fd, STDOUT_FILENO);
 			close(fd);
 		}
 		else if (ft_strncmp(redirect[i].redir, "<", ft_strlen(redirect[i].redir)) == 0)
 		{
 			fd = open(redirect[i].file, O_RDONLY, 0644);
 			if (fd == -1)
-				return (perror("mini"), 1); // la cmd au lieu de mini
+				return (perror(redirect[i].file), 1);
 			dup2(fd, STDIN_FILENO);
 			close(fd);
 		}
@@ -354,50 +405,86 @@ int	here_doc_content(char *limiter, t_line *line)
 	char	*res;
 	char	*tmp;
 	char	*temp = NULL;
+	pid_t	id;
+	int		status;
+	struct sigaction old_int;
+	struct sigaction old_quit;
+	struct sigaction new;
+
+	sigemptyset(&new.sa_mask);
+	new.sa_handler = SIG_IGN;
+	new.sa_flags = 0;
+	sigaction(SIGINT, &new, &old_int);
+	sigaction(SIGQUIT, &new, &old_quit);
 
 	res = ft_strdup("");
 	if (!res)
 		return (perror("malloc"), -1);
 	if (pipe(here_tube) == -1)
 		return (perror("pipe"), -1);
-	// fork pour gerer les signaux
+	id = fork();
+	if (id == -1)
+        return (free(res), perror("fork"), -1);
+	signal(SIGQUIT, sigquit_handler_hd);
 	signal(SIGINT, sigint_handler_hd);
-	while (1)
+	if (id == 0)
 	{
-		if (g_sig == 1)
-			return(free(res), close(here_tube[1]), g_sig = 0, -1) ;
-		write(STDOUT_FILENO, "heredoc> ", 9);
-		content = get_next_line(STDIN_FILENO);
-		if (!content)
-			return (free(res), perror("malloc"), -1);
-		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
-			&& content[ft_strlen(limiter)] == '\n')
+		while (1)
 		{
+			if (g_sig == 1)
+			{
+				free(res);
+				close(here_tube[1]);
+				g_sig = 0;
+				line->prev_exit = 130;
+				_exit(130);
+			}
+			write(STDOUT_FILENO, "heredoc> ", 9);
+			content = get_next_line(STDIN_FILENO);
+			if (!content)
+			{
+				free(res);
+				close(here_tube[1]);
+				ft_putstr_fd("\nwarning: here-document delimited by end-of-file\n", STDIN_FILENO);
+				_exit(0);
+			}
+			if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
+				&& content[ft_strlen(limiter)] == '\n')
+			{
+				free(content);
+				write(here_tube[1], res, ft_strlen(res));
+				free(res);
+				close(here_tube[1]);
+				_exit(0);
+			}
+			(void)line;
+			/*ici*/
+			while (content && need_expand(content) != 0)
+			{
+				temp = expanded_content(content, line);
+				if (!temp)
+					return (free(res), free(content), perror("malloc"), -1);
+				free(content);
+				content = temp;
+			}
+			tmp = res;
+			if (!tmp)
+				return (free(content), free(res), perror("malloc"), -1);
+			res = ft_strjoin(tmp, content);
+			if (!res)
+				return (free(content), free(tmp), perror("malloc"), -1);
 			free(content);
-			break ;
+			free(tmp);
 		}
-		(void)line;
-		/*ici*/
-		while (content && need_expand(content) != 0)
-		{
-			temp = expanded_content(content, line);
-			if (!temp)
-				return (free(res), free(content), perror("malloc"), -1);
-			free(content);
-			content = temp;
-		}
-		tmp = res;
-		if (!tmp)
-			return (free(content), free(res), perror("malloc"), -1);
-		res = ft_strjoin(tmp, content);
-		if (!res)
-			return (free(content), free(tmp), perror("malloc"), -1);
-		free(content);
-		free(tmp);
+		write(here_tube[1], res, ft_strlen(res));
+		free(res);
+		close(here_tube[1]);
+		_exit(0);
 	}
-	write(here_tube[1], res, ft_strlen(res));
-	free(res);
-	close(here_tube[1]);
+	if (waitpid(id, &status, 0) == -1)
+		perror("waitpid");
+	sigaction(SIGINT, &old_int, NULL);
+	sigaction(SIGQUIT, &old_quit, NULL);
 	return (here_tube[0]);
 }
 
@@ -408,12 +495,17 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	char	*path_cmd;
 
 	ft_bzero(&cmd, sizeof(t_cmd));
+	cmd.id = -2;
 	cmd.redirect = pipeline.redirect;
 	cmd.cmd = pipeline.args;
 	cmd.env = env;
 	i = 0;
 	if (!cmd.cmd)
+	{
+		/* printf("cmd.cmd NULL\n"); */
 		return (cmd);
+	}
+	/* printf("cmd.cmd[0] = %s\n", cmd.cmd[0]); */
 	while (path && path[i])
 	{
 		path_cmd = ft_strjoin(path[i], cmd.cmd[0]);

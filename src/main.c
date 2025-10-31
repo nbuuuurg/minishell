@@ -16,8 +16,7 @@
 // (fun check)
 // (SHLVL et si export PATH=:)
 // (heredoc avec guillemets sans expand de variable voir e"'e'")
-// signaux heredoc / signaux dans cat > e
-// > e ou >> e
+// signaux cat << e
 
 volatile sig_atomic_t g_sig = 0;
 

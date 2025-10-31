@@ -199,8 +199,8 @@ char	**get_path(char **env);
 void	exec_minishell(t_line *line);
 void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line);
 pid_t	exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
-int		get_fd(int *fd_in, int *fd_out, t_redir *redirect);
-int	ft_redir(t_redir *redirect);
+int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd);
+int	ft_redir(t_redir *redirect, char *cmd);
 int	here_doc_content(char *limiter, t_line *line);
 t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
 
@@ -296,7 +296,10 @@ void    print_error(char *s, t_exit code);
 void sigint_handler(int sig);
 void setup_signals(void);
 void setup_signals_child(void);
+void sigint_handler_child(int sig);
 void sigint_handler_hd(int sig);
+void sigquit_handler_child(int sig);
+void sigquit_handler_hd(int sig);
 
 
 /* subshell.c */
