@@ -33,7 +33,7 @@ void	restore_terminal(void)
 			term.c_lflag |= (ICANON | ECHO);
 			tcsetattr(STDIN_FILENO, TCSANOW, &term);
 		}
-		exit (1);
+		return ;
 		// attention aux leaks si tu sors d'ici
 	}
 }
@@ -64,6 +64,7 @@ int	main(int ac, char **av, char **envp)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
 	ft_bzero(&line, sizeof(t_line));
 	ft_bzero(&save, sizeof(t_save));
+	/* restore_terminal(); */
 	while (1)
 	{
 		if (g_sig == 1)
@@ -71,11 +72,10 @@ int	main(int ac, char **av, char **envp)
             line.last_exit = 130;
             g_sig = 0;
         }
-		restore_terminal();
-		line.input = readline("minishell>");
+		line.input = readline("minishell> ");
 		if (!line.input)
 		{
-			write(STDOUT_FILENO, "EEEE\n", 5);
+			write(STDOUT_FILENO, "exit\n", 5);
 			clear_history();
 			free_split(env);
 			return (EX_OK);

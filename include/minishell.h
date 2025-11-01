@@ -145,6 +145,7 @@ typedef struct	s_cmd
 	int		status;
 	char	**env;
 	int		pipe_count;
+	int		no_path;
 }	t_cmd;
 
 typedef struct	s_save
