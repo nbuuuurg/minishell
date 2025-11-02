@@ -12,12 +12,9 @@
 
 #include "../include/minishell.h"
 
-// builtin
-// exit code cmd not found
 // (SHLVL et si export PATH=:)
 // (heredoc avec guillemets sans expand de variable voir e"'e'")
 // signaux heredoc / signaux dans cat > e
-// > e ou >> e
 
 volatile sig_atomic_t g_sig = 0;
 
@@ -85,16 +82,16 @@ int	main(int ac, char **av, char **envp)
 			free_split(env);
 			return (EX_OK);
 		}
-		if (ft_strncmp(line.input, "exit", 4) == 0)
-		{
-			// free propre fonction exit
-			clear_history();
-			recup_save(&line, &save);
-			free_split(env);
-			free_split(save.envp);
-			free(line.input);
-			return (EX_OK);
-		}
+		/* if (ft_strncmp(line.input, "exit", 4) == 0) */
+		/* { */
+		/* 	// free propre fonction exit */
+		/* 	clear_history(); */
+		/* 	recup_save(&line, &save); */
+		/* 	free_split(env); */
+		/* 	free_split(save.envp); */
+		/* 	free(line.input); */
+		/* 	return (EX_OK); */
+		/* } */
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, env, start_flag, &save); // +1 var

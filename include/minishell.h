@@ -179,6 +179,7 @@ typedef struct	s_line
 /* builtin.c */
 
 int		ft_exit(t_cmd cmd, t_line *line);
+long	ft_atol(char *s);
 int		ft_cd(t_cmd cmd, t_line *line);
 void	update_env_cd(t_line *line, char *oldpwd, char *newpwd);
 int		ft_unset(t_cmd cmd, t_line *line);
@@ -339,6 +340,7 @@ int		need_expand(char *s);
 int		has_wildcards(char *s);
 char	**ft_strdup2(char **env);
 char	*find_env_var(t_line *line, char *var);
+int		ft_isdigit_str(char *s);
 
 /* wildcards.c */
 

@@ -118,3 +118,19 @@ char	*find_env_var(t_line *line, char *var)
 	}
 	return (NULL);
 }
+
+int	ft_isdigit_str(char *s)
+{
+	int i;
+
+	if (!s || !s[0])
+		return (0);
+	i = 0;
+	while (s[i])
+	{
+		if (!ft_isdigit(s[i]))
+			return (0);
+		i++;
+	}
+	return (1);
+}

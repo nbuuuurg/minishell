@@ -32,11 +32,8 @@ int	is_builtin(char *cmd)
 		return (2);
 	if (ft_strncmp(cmd, "cd", 3) == 0)
 		return (2);
-
-	// exit 
-
-	/* if (ft_strncmp(cmd, "exit", 5) == 0) */
-	/* 	return (3); */
+	if (ft_strncmp(cmd, "exit", 5) == 0)
+		return (2);
 	return (0);
 } 
 
@@ -48,8 +45,8 @@ int	exec_builtin(t_cmd cmd, t_line *line)
 		return (ft_echo(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "env", 4) == 0)
 		return (ft_env(line));
-	/* if (ft_strncmp(cmd.cmd[0], "exit", 5) == 0) */
-	/* 	return (ft_exit(cmd, line)); */
+	if (ft_strncmp(cmd.cmd[0], "exit", 5) == 0)
+		return (ft_exit(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "export", 7) == 0)
 		return (ft_export(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "unset", 6) == 0)
@@ -333,9 +330,74 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	return (0);
 }
 
+long	ft_atol(char *s)
+{
+	long long	result;
+	int			sign;
+	int			i;
+
+	result = 0;
+	sign = 1;
+	i = 0;
+	if (s[i] == '-' || s[i] == '+')
+	{
+		if (s[i] == '-')
+			sign = -1;
+		i++;
+	}
+	while (s[i])
+	{
+		if (s[i] >= '0' && s[i] <= '9')
+		{
+			result = result * 10 + (s[i] - '0');
+			i++;
+		}
+		else
+			return (555);
+	}
+	if (result > 9223372036854775807 || (result * sign) < -9223372036854775807)
+		return (555);
+	// attention long long min
+	return ((result * sign) % 256);
+}
+
 int	ft_exit(t_cmd cmd, t_line *line)
 {
-	(void)line;
-	(void)cmd;
+	long	exit_code;
+
+	if (!cmd.cmd[1])
+	{
+		write(STDOUT_FILENO, "exit\n", 5);
+		free_line(line);
+		clear_history();
+		exit(line->prev_exit);
+	}
+	else if (ft_isdigit_str(cmd.cmd[1]) == 0)
+	{
+		write(STDOUT_FILENO, "exit\n", 5);
+		ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
+		free_line(line);
+		clear_history();
+		exit(2);
+	}
+	else if (cmd.cmd[1] && cmd.cmd[2])
+	{
+		ft_putstr_fd("exit: too many arguments\n", STDERR_FILENO);
+		return (1);
+	}
+	else if (cmd.cmd[1])
+	{
+		exit_code = ft_atol(cmd.cmd[1]);
+		write(STDOUT_FILENO, "exit\n", 5);
+		free_line(line);
+		clear_history();
+		if (exit_code == 555)
+		{
+			ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
+			exit(2);
+		}
+		else
+			exit(exit_code);
+	}
 	return (0);
 }
