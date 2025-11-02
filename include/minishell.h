@@ -143,7 +143,6 @@ typedef struct	s_cmd
 	char	*full_path;
 	pid_t	id;
 	int		status;
-	char	**env;
 	int		pipe_count;
 	int		no_path;
 }	t_cmd;
@@ -186,6 +185,8 @@ int	ft_pwd(void);
 int	ft_env(t_line *line);
 int	ft_echo(t_cmd cmd, t_line *line);
 int	is_option_n(char *s);
+int	ft_export(t_cmd cmd, t_line *line);
+int	var_exists(t_line *line, char *name);
 int	exec_builtin(t_cmd cmd, t_line *line);
 int	is_builtin(char *cmd);
 
@@ -198,12 +199,12 @@ char	**get_path(char **env);
 /* exec.c */
 
 void	exec_minishell(t_line *line);
-void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line);
+void	exec_exprs(t_expr *exprs, char **path ,t_line *line);
 pid_t	exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd);
 int	ft_redir(t_redir *redirect, char *cmd);
 int	here_doc_content(char *limiter, t_line *line);
-t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env);
+t_cmd	get_cmd(t_pipeline pipeline, char **path);
 
 /* exit.c */
 

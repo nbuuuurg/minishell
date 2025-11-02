@@ -64,7 +64,7 @@ void	exec_minishell(t_line *line)
 	while (temp != NULL)
 	{
 		if (temp)
-			exec_exprs(temp, line->path, line->envp, line);
+			exec_exprs(temp, line->path, line);
 		// printf("exit : %d\n", line->prev_exit);
 		if (temp)
 		{
@@ -94,7 +94,7 @@ void	exec_minishell(t_line *line)
 	}
 }
 
-void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
+void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 {
 
 	int		i;
@@ -114,7 +114,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	{
 		if (exprs->has_subshell == 0)
 		{
-			cmd[i] = get_cmd(exprs->pipeline[i], path, env);
+			cmd[i] = get_cmd(exprs->pipeline[i], path);
 			cmd[i].pipe_count = exprs->pipe_count;
 		}
 		i++;
@@ -192,7 +192,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
     pid_t id;
 
     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2)
-	// cd a pas fork si pas pipe
         exec_builtin(*cmd, line);
     id = fork();
     if (id == -1)
@@ -215,7 +214,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			}
 			else if (cmd->cmd && cmd->cmd[0])
 			{
-				if (execve(cmd->full_path, cmd->cmd, cmd->env) == -1)
+				if (execve(cmd->full_path, cmd->cmd, line->envp) == -1)
 				{
 					if (cmd->no_path == 1)
 					{
@@ -386,7 +385,7 @@ int	here_doc_content(char *limiter, t_line *line)
 	return (here_tube[0]);
 }
 
-t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
+t_cmd	get_cmd(t_pipeline pipeline, char **path)
 {
 	int		i;
 	t_cmd	cmd;
@@ -395,7 +394,6 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	ft_bzero(&cmd, sizeof(t_cmd));
 	cmd.redirect = pipeline.redirect;
 	cmd.cmd = pipeline.args;
-	cmd.env = env;
 	i = 0;
 	if (!cmd.cmd)
 	{

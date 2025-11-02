@@ -56,9 +56,14 @@ int	main(int ac, char **av, char **envp)
 
 	setup_signals(); 	
 	start_flag = 0;
+	// pour faire un env avec que 3 lignes comme env -i bash --posix (si on a le temps)
+	/* if (!envp || !envp[0]) */
+	// env = malloc(3 * sizeof(char *));
+	// avec pwd, shlvl=X, _=/usr/bin/env
+
 	env = ft_strdup2(envp);
 	if (!env)
-		exit (1);
+		return (1);
 	(void)av;
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
