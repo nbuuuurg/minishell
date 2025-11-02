@@ -110,6 +110,8 @@ char	*find_env_var(t_line *line, char *var)
 			&& line->envp[i][len_var] == '=')
 		{
 			the_env = line->envp[i] + len_var + 1;
+			// pour l instant on retourne le pointeur vers la valeur dans envp
+			// si pb de gestion de memoire, on pourra faire un strdup ici
 			return (the_env);
 		}
 		i++;

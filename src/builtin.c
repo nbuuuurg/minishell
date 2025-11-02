@@ -30,8 +30,8 @@ int	is_builtin(char *cmd)
 		return (2);
 	if (ft_strncmp(cmd, "unset", 6) == 0)
 		return (2);
-	/* if (ft_strncmp(cmd, "cd", 3) == 0) */
-	/* 	return (2); */
+	if (ft_strncmp(cmd, "cd", 3) == 0)
+		return (2);
 
 	// exit 
 
@@ -54,8 +54,8 @@ int	exec_builtin(t_cmd cmd, t_line *line)
 		return (ft_export(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "unset", 6) == 0)
 		return (ft_unset(cmd, line));
-	/* if (ft_strncmp(cmd.cmd[0], "cd", 3) == 0) */
-	/* 	return (ft_cd(cmd, line)); */
+	if (ft_strncmp(cmd.cmd[0], "cd", 3) == 0)
+		return (ft_cd(cmd, line));
 	return (1);
 }
 
@@ -267,10 +267,69 @@ int	ft_unset(t_cmd cmd, t_line *line)
     return (0);
 }
 
+void	update_env_cd(t_line *line, char *oldpwd, char *newpwd)
+{
+	int		i;
+
+	i = 0;
+	while (line->envp && line->envp[i])
+	{
+		if (ft_strncmp(line->envp[i], "OLDPWD=", 7) == 0)
+		{
+			free(line->envp[i]);
+			line->envp[i] = oldpwd;
+		}
+		else if (ft_strncmp(line->envp[i], "PWD=", 4) == 0)
+		{
+			free(line->envp[i]);
+			line->envp[i] = newpwd;
+		}
+		i++;
+	}
+}
+
 int	ft_cd(t_cmd cmd, t_line *line)
 {
-	(void)line;
-	(void)cmd;
+	char	*path;
+	char	*oldpwd;
+	char	*new_env_pwd;
+	char	*temp;
+
+	if (!cmd.cmd[1])
+	{
+		path = find_env_var(line, "HOME");
+		if (!path)
+			return (ft_putstr_fd("cd: HOME not set\n", STDERR_FILENO), 1);
+	}
+	else
+		path = cmd.cmd[1];
+	temp = getcwd(NULL, 0);
+	if (!temp)
+		return (perror("getcwd"), 1);
+	oldpwd = ft_strjoin("OLDPWD=", temp);
+	if (!oldpwd)
+		return (perror("malloc"), 1);
+	free(temp);
+	if (chdir(path) == -1)
+	{
+		ft_putstr_fd("cd: ", STDERR_FILENO);
+		ft_putstr_fd(path, STDERR_FILENO);
+		if (errno == ENOTDIR)
+			ft_putstr_fd(": Not a directory\n", STDERR_FILENO);
+		else if (errno == EACCES)
+			ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+		else
+			ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
+		return (1);
+	}
+	temp = getcwd(NULL, 0);
+	if (!temp)
+		return (perror("getcwd"), free(oldpwd), 1);
+	new_env_pwd = ft_strjoin("PWD=", temp);
+	if (!new_env_pwd)
+		return (perror("malloc"), free(oldpwd), free(temp), 1);
+	free(temp);
+	update_env_cd(line, oldpwd, new_env_pwd);
 	return (0);
 }
 

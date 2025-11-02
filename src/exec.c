@@ -189,10 +189,11 @@ void	free_exec_cmd(t_line *line)
 
 pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
-    pid_t id;
+    pid_t	id;
+	int		exit_code;
 
     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2)
-        exec_builtin(*cmd, line);
+        exit_code = exec_builtin(*cmd, line);
     id = fork();
     if (id == -1)
         return (perror("fork"), id);
@@ -203,14 +204,14 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 		{
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
-                exec_builtin(*cmd, line);
+                exit_code = exec_builtin(*cmd, line);
 				free_exec_cmd(line);
-                _exit(0);
+                _exit(exit_code);
 			}
 			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
 				free_exec_cmd(line);
-                _exit(0);
+                _exit(exit_code);
 			}
 			else if (cmd->cmd && cmd->cmd[0])
 			{
