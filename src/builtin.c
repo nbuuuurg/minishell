@@ -225,33 +225,39 @@ int	ft_unset(t_cmd cmd, t_line *line)
 {
 	char	**new_env;
 	int		exist_pos;
-	int		i;
+	int		old_size;
+	int		new_size;
+	int		src;
+	int		dest;
 
 	if (!cmd.cmd[1])
 		return (1);
-	i = 0;
-	while (line->envp && line->envp[i])
-		i++;
+	old_size = 0;
+	while (line->envp && line->envp[old_size])
+		old_size++;
 	exist_pos = var_exists(line, cmd.cmd[1]);
 	if (exist_pos < 0)
 		return (0);
-	new_env = malloc(sizeof(char *) * i);
+	new_size = old_size - 1;
+	new_env = malloc(sizeof(char *) * (new_size + 1));
 	if (!new_env)
 		return (perror("malloc"), 1);
-	i = 0;
-	while (line->envp && line->envp[i])
+	src = 0;
+	dest = 0;
+	while (src < old_size)
 	{
-		if (i == exist_pos)
-			i++;
+		if (src == exist_pos)
+			src++;
 		else
 		{
-			new_env[i] = ft_strdup(line->envp[i]);
-			if (!new_env[i])
+			new_env[dest] = ft_strdup(line->envp[src]);
+			if (!new_env[dest])
 				return (perror("malloc"), free_split(new_env), 1);
-			i++;
+			src++;
+			dest++;
 		}
 	}
-	new_env[i] = NULL;
+	new_env[dest] = NULL;
 	if (line->envp)
 		free_split(line->envp);
 	line->envp = ft_strdup2(new_env);
