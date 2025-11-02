@@ -405,86 +405,79 @@ int	here_doc_content(char *limiter, t_line *line)
 	char	*res;
 	char	*tmp;
 	char	*temp = NULL;
-	pid_t	id;
-	int		status;
+
 	struct sigaction old_int;
 	struct sigaction old_quit;
-	struct sigaction new;
+	struct sigaction sa_int;
+	struct sigaction sa_quit;
 
-	sigemptyset(&new.sa_mask);
-	new.sa_handler = SIG_IGN;
-	new.sa_flags = 0;
-	sigaction(SIGINT, &new, &old_int);
-	sigaction(SIGQUIT, &new, &old_quit);
+	sigemptyset(&sa_int.sa_mask);
+	sigemptyset(&sa_quit.sa_mask);
+	sa_int.sa_flags = 0;
+	sa_quit.sa_flags = 0;
+	sa_int.sa_handler = sigint_handler_hd;
+	sa_quit.sa_handler = SIG_IGN;
+	sigaction(SIGINT, &sa_int, &old_int);
+	sigaction(SIGQUIT, &sa_quit, &old_quit);
+	//empeche ^\ avec CTRL '\'
+	struct termios 	t;
+	struct termios	old;
+	tcgetattr(STDIN_FILENO, &old);
+	t = old;
+	t.c_lflag &= ~ECHOCTL; // désactive le bit ECHOCTL -> n'affiche plus ^/, ^C, etc
+	tcsetattr(STDIN_FILENO, TCSANOW, &t);
 
 	res = ft_strdup("");
 	if (!res)
 		return (perror("malloc"), -1);
 	if (pipe(here_tube) == -1)
 		return (perror("pipe"), -1);
-	id = fork();
-	if (id == -1)
-        return (free(res), perror("fork"), -1);
-	signal(SIGQUIT, sigquit_handler_hd);
-	signal(SIGINT, sigint_handler_hd);
-	if (id == 0)
+	while (1)
 	{
-		while (1)
+		write(STDOUT_FILENO, "heredoc> ", 9);
+		content = get_next_line(STDIN_FILENO);
+		if (g_sig == 1)
 		{
-			if (g_sig == 1)
-			{
-				free(res);
-				close(here_tube[1]);
-				g_sig = 0;
-				line->prev_exit = 130;
-				_exit(130);
-			}
-			write(STDOUT_FILENO, "heredoc> ", 9);
-			content = get_next_line(STDIN_FILENO);
-			if (!content)
-			{
-				free(res);
-				close(here_tube[1]);
-				ft_putstr_fd("\nwarning: here-document delimited by end-of-file\n", STDIN_FILENO);
-				_exit(0);
-			}
-			if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
-				&& content[ft_strlen(limiter)] == '\n')
-			{
-				free(content);
-				write(here_tube[1], res, ft_strlen(res));
-				free(res);
-				close(here_tube[1]);
-				_exit(0);
-			}
-			(void)line;
-			/*ici*/
-			while (content && need_expand(content) != 0)
-			{
-				temp = expanded_content(content, line);
-				if (!temp)
-					return (free(res), free(content), perror("malloc"), -1);
-				free(content);
-				content = temp;
-			}
-			tmp = res;
-			if (!tmp)
-				return (free(content), free(res), perror("malloc"), -1);
-			res = ft_strjoin(tmp, content);
-			if (!res)
-				return (free(content), free(tmp), perror("malloc"), -1);
-			free(content);
-			free(tmp);
+			g_sig = 0;
+			break ;
 		}
-		write(here_tube[1], res, ft_strlen(res));
-		free(res);
-		close(here_tube[1]);
-		_exit(0);
+		if (!content)
+		{
+				write(STDERR_FILENO,"\nhere-document delimited by end-of-file\n", 40);
+				break;
+				// return (free(res), perror("malloc"), -1);  // a differencier avec EOF (CTRL D) et erreur malloc
+		}
+		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
+			&& content[ft_strlen(limiter)] == '\n')
+		{
+			free(content);
+			break ;
+		}
+		(void)line;
+		/*ici*/
+		while (content && need_expand(content) != 0)
+		{
+			temp = expanded_content(content, line);
+			if (!temp)
+				return (free(res), free(content), perror("malloc"), -1);
+			free(content);
+			content = temp;
+		}
+		tmp = res;
+		if (!tmp)
+			return (free(content), free(res), perror("malloc"), -1);
+		res = ft_strjoin(tmp, content);
+		if (!res)
+			return (free(content), free(tmp), perror("malloc"), -1);
+		free(content);
+		free(tmp);
 	}
-	if (waitpid(id, &status, 0) == -1)
-		perror("waitpid");
+	write(here_tube[1], res, ft_strlen(res));
+	free(res);
+	close(here_tube[1]);
 	sigaction(SIGINT, &old_int, NULL);
 	sigaction(SIGQUIT, &old_quit, NULL);
+	tcsetattr(STDIN_FILENO, TCSANOW, &old);
 	return (here_tube[0]);
 }
 
