@@ -74,6 +74,8 @@ char	**ft_strdup2(char **env)
 	int		i;
 	char	**new;
 
+	if (!env)
+		return (NULL);
 	i = 0;
 	while (env[i])
 		i++;
@@ -90,4 +92,27 @@ char	**ft_strdup2(char **env)
 	}
 	new[i] = NULL;
 	return (new);
+}
+
+char	*find_env_var(t_line *line, char *var)
+{
+	int     i;
+	int     len_var;
+	char    *the_env;
+
+	if (!line->envp || !var)
+		return (NULL);
+	len_var = ft_strlen(var);
+	i = 0;
+	while (line->envp[i])
+	{
+		if (ft_strncmp(line->envp[i], var, len_var) == 0
+			&& line->envp[i][len_var] == '=')
+		{
+			the_env = line->envp[i] + len_var + 1;
+			return (the_env);
+		}
+		i++;
+	}
+	return (NULL);
 }

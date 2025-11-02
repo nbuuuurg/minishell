@@ -337,6 +337,7 @@ int     is_something(char c);
 int		need_expand(char *s);
 int		has_wildcards(char *s);
 char	**ft_strdup2(char **env);
+char	*find_env_var(t_line *line, char *var);
 
 /* wildcards.c */
 

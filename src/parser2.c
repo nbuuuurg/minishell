@@ -77,6 +77,7 @@ char    *expanded_var(t_line *line, char *var)
     }
     else if (ft_strncmp(var, "$?", 2) == 0)
     {
+		// a revoir car ca n expand pas bien sur echo $?wefwefwefuisafiuweyhf ou alors a revoir dans echo
         expanded_var = ft_strdup("$?");
         free(var);
         if (!expanded_var)
@@ -91,7 +92,7 @@ char    *expanded_var(t_line *line, char *var)
     }
     else
     {
-        the_env = getenv(var);
+        the_env = find_env_var(line, var);
         if (!the_env)
         {
             expanded_var = ft_strdup("\0");
