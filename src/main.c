@@ -12,11 +12,10 @@
 
 #include "../include/minishell.h"
 
-// builtin
 // (fun check)
 // (SHLVL et si export PATH=:)
 // (heredoc avec guillemets sans expand de variable voir e"'e'")
-// signaux cat << e
+// norme
 
 volatile sig_atomic_t g_sig = 0;
 
@@ -66,7 +65,7 @@ int	main(int ac, char **av, char **envp)
 	{
 		if (g_sig == 1)
 		{
-            line.last_exit = 130;
+            line.prev_exit = 130;
             g_sig = 0;
         }
 		restore_terminal();

@@ -10,6 +10,12 @@ int     init_subshell(t_line *line, t_token *subinput)
     subline->last_exit = lexer_input(subline);
     if (subline->last_exit != 0)
         return (free_line(subline), EX_GEN);
+    if (subline->heredoc_flag == 1)
+    {
+        free_line(subline);
+        free(subline);
+        return (-1);
+    }
     // print_expr(subline);
     if (subline->exprs)// && subline->last_exit != -1)
         exec_minishell(subline);

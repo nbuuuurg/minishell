@@ -181,6 +181,8 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	}
 	if (WIFEXITED(cmd[i - 1].status))
 		line->prev_exit = WEXITSTATUS(cmd[i - 1].status);
+	else if (WIFSIGNALED(cmd[i - 1].status))
+    	line->prev_exit = 128 + WTERMSIG(cmd[i - 1].status);
 	sigaction(SIGINT, &old_int, NULL);
 	sigaction(SIGQUIT, &old_quit, NULL);
 	free(cmd);
@@ -405,6 +407,7 @@ int	here_doc_content(char *limiter, t_line *line)
 	char	*res;
 	char	*tmp;
 	char	*temp = NULL;
+	int		flag;
 
 	struct sigaction old_int;
 	struct sigaction old_quit;
@@ -432,6 +435,7 @@ int	here_doc_content(char *limiter, t_line *line)
 		return (perror("malloc"), -1);
 	if (pipe(here_tube) == -1)
 		return (perror("pipe"), -1);
+	flag = 0;
 	while (1)
 	{
 		write(STDOUT_FILENO, "heredoc> ", 9);
@@ -439,6 +443,7 @@ int	here_doc_content(char *limiter, t_line *line)
 		if (g_sig == 1)
 		{
 			g_sig = 0;
+			flag = 1;
 			break ;
 		}
 		if (!content)
@@ -471,6 +476,18 @@ int	here_doc_content(char *limiter, t_line *line)
 			return (free(content), free(tmp), perror("malloc"), -1);
 		free(content);
 		free(tmp);
+	}
+	if (flag == 1)
+	{
+		close(here_tube[1]);
+		close(here_tube[0]);
+		free(res);
+		sigaction(SIGINT, &old_int, NULL);
+		sigaction(SIGQUIT, &old_quit, NULL);
+		tcsetattr(STDIN_FILENO, TCSANOW, &old);
+		line->heredoc_flag = 1;
+		line->prev_exit = 130;
+		return (-2);
 	}
 	write(here_tube[1], res, ft_strlen(res));
 	free(res);

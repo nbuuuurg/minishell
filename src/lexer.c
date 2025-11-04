@@ -76,6 +76,11 @@ int    lexer_token(t_line *line)
             line->last_exit = init_subshell(line, temp);
             if (line->last_exit != 0)
                 return (line->last_exit);
+            if (line->heredoc_flag == 1)
+            {
+                line->prev_exit = 130;
+                return (0);
+            }
             flag = 1;
             new = ft_calloc(1, sizeof(t_expr));
             if (!new)

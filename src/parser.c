@@ -64,6 +64,8 @@ t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3],
             line->last_exit = parse_assignment(line, new, temp, *i, &(*len)[2]);
         if (line->last_exit != 0)
             return (NULL);
+        if (line->heredoc_flag == 1)
+            break ;
         temp = temp->next;
         find_pipe_position(new, temp, *i);
     }
@@ -111,6 +113,8 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
             new->pipeline[i].redirect[*j].heredoc_fd = here_doc_content(temp->next->s, line);
         else
             new->pipeline[i].redirect[*j].heredoc_fd = -1;
+        // if (new->pipeline[i].redirect[*j].heredoc_fd == -2)
+        //     return (-2);
     }
     else if (temp->type == REDIR_APPEND)
         new->pipeline[i].redirect[*j].redir = ft_strdup(">>");
