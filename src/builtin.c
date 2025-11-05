@@ -169,9 +169,17 @@ int	ft_export(t_cmd cmd, t_line *line)
 	int		src;
 	int		dest;
 
-	// exit code pour : export hello
-	if (!cmd.cmd[1] || is_assignment(cmd.cmd[1]) == 0)
+	if (cmd.cmd[1] && has_equal(cmd.cmd[1]) == 0)
+		return (0);
+	if (!cmd.cmd[1])
 		return (1);
+	if (is_assignment(cmd.cmd[1]) == 0)
+	{
+		ft_putstr_fd("export: `", STDERR_FILENO);
+		ft_putstr_fd(cmd.cmd[1], STDERR_FILENO);
+		ft_putstr_fd("\': not a valid identifier\n", STDERR_FILENO);
+		return (1);
+	}
 	exist_pos = var_exists(line, cmd.cmd[1]);
 	old_size = 0;
 	while (line->envp && line->envp[old_size])

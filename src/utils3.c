@@ -148,3 +148,19 @@ int	ft_isdigit_str(char *s)
 	}
 	return (1);
 }
+
+int	has_equal(char *s)
+{
+	int		i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (!ft_isalpha(s[i]))
+			return (1);
+		if (is_equal(s[i]))
+			return (1);
+		i++;
+	}
+	return (0);
+}

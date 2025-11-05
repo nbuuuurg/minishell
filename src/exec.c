@@ -428,8 +428,11 @@ int	here_doc_content(char *limiter, t_line *line)
 		}
 		if (!content)
 		{
-				write(STDERR_FILENO,"\nhere-document delimited by end-of-file\n", 40);
-				break;
+			ft_putstr_fd("\nmini: warning: here-document delimited by end-of-file (wanted `", STDERR_FILENO);
+			if (limiter)
+				ft_putstr_fd(limiter, STDERR_FILENO);
+			ft_putstr_fd("')\n", STDERR_FILENO);
+			break;
 				// return (free(res), perror("malloc"), -1);  // a differencier avec EOF (CTRL D) et erreur malloc
 		}
 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
