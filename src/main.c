@@ -70,11 +70,6 @@ int	main(int ac, char **av, char **envp)
 	/* restore_terminal(); */
 	while (1)
 	{
-		if (g_sig == 1)
-		{
-            line.prev_exit = 130;
-            g_sig = 0;
-        }
 		line.input = readline("minishell> ");
 		if (!line.input)
 		{
@@ -83,6 +78,8 @@ int	main(int ac, char **av, char **envp)
 			free_split(env);
 			return (EX_OK);
 		}
+		if (g_sig == 1)
+            g_sig = 0;
 		/* if (ft_strncmp(line.input, "exit", 4) == 0) */
 		/* { */
 		/* 	// free propre fonction exit */

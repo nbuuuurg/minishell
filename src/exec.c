@@ -130,7 +130,13 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 	sigaction(SIGINT, &new, &old_int);
 	sigaction(SIGQUIT, &new, &old_quit);
 	signal(SIGINT, sigint_handler_child);
-	signal(SIGQUIT, sigquit_handler_child);	
+	signal(SIGQUIT, sigquit_handler_child);
+	struct termios 	t;
+	struct termios	old;
+	tcgetattr(STDIN_FILENO, &old);
+	t = old;
+	t.c_lflag &= ~ECHOCTL; // désactive le bit ECHOCTL -> n'affiche plus ^/, ^C, etc
+	tcsetattr(STDIN_FILENO, TCSANOW, &t);
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->has_subshell == 0)
@@ -185,6 +191,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
     	line->prev_exit = 128 + WTERMSIG(cmd[i - 1].status);
 	sigaction(SIGINT, &old_int, NULL);
 	sigaction(SIGQUIT, &old_quit, NULL);
+	tcsetattr(STDIN_FILENO, TCSANOW, &old);
 	free(cmd);
 }
 
@@ -284,7 +291,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 		{
 			free_exec_cmd(line);
 			if (!g_sig)
-				_exit(2);
+				_exit(1);
 		}
     }
 	/**/
