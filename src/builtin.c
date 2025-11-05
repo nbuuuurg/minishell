@@ -169,6 +169,7 @@ int	ft_export(t_cmd cmd, t_line *line)
 	int		src;
 	int		dest;
 
+	// exit code pour : export hello
 	if (!cmd.cmd[1] || is_assignment(cmd.cmd[1]) == 0)
 		return (1);
 	exist_pos = var_exists(line, cmd.cmd[1]);

@@ -78,14 +78,14 @@ char    *expanded_var(t_line *line, char *var)
     else if (ft_strncmp(var, "$?", 2) == 0)
     {
 		// a revoir car ca n expand pas bien sur echo $?wefwefwefuisafiuweyhf ou alors a revoir dans echo
-        expanded_var = ft_strdup("$?");
+        expanded_var = ft_itoa(line->prev_exit);
         free(var);
         if (!expanded_var)
             return (NULL);
     }
     else if (ft_strncmp(var,"$", 1) == 0)
     {
-        expanded_var = ft_strdup("");
+        expanded_var = ft_strdup("$");
         free(var);
         if (!expanded_var)
             return (NULL);
@@ -308,10 +308,14 @@ char	*parse_expand(t_line *line, t_token *token)
                         len++;
                         i++;
                     }
-                    var = ft_calloc(len + 1, 1);
+                    if (len == 0)
+                        var = ft_strdup("$");
+                    else
+                        var = ft_calloc(len + 1, 1);
                     if (!var)
                         return (line->last_exit = EX_GEN, NULL);
-                    ft_memcpy(var, &token->s[i + 1 - len], len);
+                    if (len != 0)
+                        ft_memcpy(var, &token->s[i + 1 - len], len);
                     end = i;
                 }
             }

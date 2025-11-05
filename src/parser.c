@@ -88,7 +88,13 @@ int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
         temp->s = parse_quoted_token(line, temp);
     if (line->last_exit == EX_GEN)
         return (EX_GEN);
-    new->pipeline[i].args[*j] = ft_strdup(temp->s);
+    if (temp->s[0] == 0)
+    {
+        new->pipeline[i].args[*j] = NULL;
+        return (0);
+    }
+    else
+        new->pipeline[i].args[*j] = ft_strdup(temp->s);
     if (!new->pipeline[i].args[*j])
         return (EX_GEN);
     (*j)++;
@@ -124,14 +130,26 @@ int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j)
     if (!new->pipeline[i].redirect[*j].redir)
         return (EX_GEN);
     if (temp->next && temp->next->type == WORD && temp->next->in_subshell == 0)
+    {
+        if (temp->next->has_expand != 0)
+        {
+            temp->next->s = parse_expand(line, temp->next);
+            if (line->last_exit == EX_GEN)
+                return (EX_GEN);
+        }
+        if (temp->next->quoted != NO_QUOTE)
+            temp->next->s = parse_quoted_token(line, temp->next);
+        if (line->last_exit == EX_GEN)
+            return (EX_GEN);
         new->pipeline[i].redirect[*j].file = ft_strdup(temp->next->s);
+    }
     else
     {
         new->pipeline[i].redirect[*j].file = NULL;
         line->lexer_err = -5;
     }
     // if (!new->pipeline[i].redirect[*j].file)
-    //     return (free(new->pipeline[i].redirect[*j].redir), 1);
+    //     return (free(127new->pipeline[i].redirect[*j].redir), 1);
     new->pipeline[i].redirect[*j].order = *j;
     (*j)++;
     temp = temp->next;
