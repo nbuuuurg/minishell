@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils3.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/05 01:15:21 by adeflers          #+#    #+#             */
+/*   Updated: 2025/11/05 01:15:21 by adeflers         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
 int count_subshell(char *s)
@@ -74,6 +86,8 @@ char	**ft_strdup2(char **env)
 	int		i;
 	char	**new;
 
+	if (!env)
+		return (NULL);
 	i = 0;
 	while (env[i])
 		i++;
@@ -90,4 +104,47 @@ char	**ft_strdup2(char **env)
 	}
 	new[i] = NULL;
 	return (new);
+}
+
+char	*find_env_var(t_line *line, char *var)
+{
+	int     i;
+	int     len_var;
+	char    *the_env;
+
+	if (!line->envp || !var)
+		return (NULL);
+	len_var = ft_strlen(var);
+	i = 0;
+	while (line->envp[i])
+	{
+		if (ft_strncmp(line->envp[i], var, len_var) == 0
+			&& line->envp[i][len_var] == '=')
+		{
+			the_env = line->envp[i] + len_var + 1;
+			// pour l instant on retourne le pointeur vers la valeur dans envp
+			// si pb de gestion de memoire, on pourra faire un strdup ici
+			return (the_env);
+		}
+		i++;
+	}
+	return (NULL);
+}
+
+int	ft_isdigit_str(char *s)
+{
+	int i;
+
+	if (!s || !s[0])
+		return (0);
+	i = 0;
+	if (s[i] == '-' || s[i] == '+')
+		i++;
+	while (s[i])
+	{
+		if (!ft_isdigit(s[i]))
+			return (0);
+		i++;
+	}
+	return (1);
 }

@@ -25,13 +25,14 @@ void	restore_terminal(void)
 
 	if (!isatty(STDIN_FILENO))
 	{
-		// write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66);
+		/* write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66); */
 		if (tcgetattr(STDIN_FILENO, &term) == 0)
 		{
 			term.c_lflag |= (ICANON | ECHO);
 			tcsetattr(STDIN_FILENO, TCSANOW, &term);
 		}
-		exit (1);
+		return ;
+		// attention aux leaks si tu sors d'ici
 	}
 }
 
@@ -53,14 +54,20 @@ int	main(int ac, char **av, char **envp)
 
 	setup_signals(); 	
 	start_flag = 0;
+	// pour faire un env avec que 3 lignes comme env -i bash --posix (si on a le temps)
+	/* if (!envp || !envp[0]) */
+	// env = malloc(3 * sizeof(char *));
+	// avec pwd, shlvl=X, _=/usr/bin/env
+
 	env = ft_strdup2(envp);
 	if (!env)
-		exit (1);
+		return (1);
 	(void)av;
 	if (ac != 1)
 		exit ((ft_putstr_fd("invalid arguments\n", 2), EX_USAGE));
 	ft_bzero(&line, sizeof(t_line));
 	ft_bzero(&save, sizeof(t_save));
+	/* restore_terminal(); */
 	while (1)
 	{
 		if (g_sig == 1)
@@ -68,8 +75,7 @@ int	main(int ac, char **av, char **envp)
             line.prev_exit = 130;
             g_sig = 0;
         }
-		restore_terminal();
-		line.input = readline("minishell>>>");
+		line.input = readline("minishell> ");
 		if (!line.input)
 		{
 			write(STDOUT_FILENO, "exit\n", 5);
@@ -77,16 +83,16 @@ int	main(int ac, char **av, char **envp)
 			free_split(env);
 			return (EX_OK);
 		}
-		if (ft_strncmp(line.input, "exit", 4) == 0)
-		{
-			// free propre fonction exit
-			clear_history();
-			recup_save(&line, &save);
-			free_split(env);
-			free_split(save.envp);
-			free(line.input);
-			return (EX_OK);
-		}
+		/* if (ft_strncmp(line.input, "exit", 4) == 0) */
+		/* { */
+		/* 	// free propre fonction exit */
+		/* 	clear_history(); */
+		/* 	recup_save(&line, &save); */
+		/* 	free_split(env); */
+		/* 	free_split(save.envp); */
+		/* 	free(line.input); */
+		/* 	return (EX_OK); */
+		/* } */
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, env, start_flag, &save); // +1 var

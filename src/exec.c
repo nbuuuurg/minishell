@@ -64,7 +64,7 @@ void	exec_minishell(t_line *line)
 	while (temp != NULL)
 	{
 		if (temp)
-			exec_exprs(temp, line->path, line->envp, line);
+			exec_exprs(temp, line->path, line);
 		// printf("exit : %d\n", line->prev_exit);
 		if (temp)
 		{
@@ -94,7 +94,7 @@ void	exec_minishell(t_line *line)
 	}
 }
 
-void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
+void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 {
 
 	int		i;
@@ -121,7 +121,7 @@ void	exec_exprs(t_expr *exprs, char **path ,char **env, t_line *line)
 	{
 		if (exprs->has_subshell == 0)
 		{
-			cmd[i] = get_cmd(exprs->pipeline[i], path, env);
+			cmd[i] = get_cmd(exprs->pipeline[i], path);
 			cmd[i].pipe_count = exprs->pipe_count;
 		}
 		i++;
@@ -204,45 +204,69 @@ void	free_exec_cmd(t_line *line)
 
 pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
-    pid_t id;
-	/**/
-	/* // AVANT l'exécution des redirections */
-	/* int saved_stdout = dup(STDOUT_FILENO);  // Sauvegarder STDOUT */
-	/* int saved_stdin = dup(STDIN_FILENO);    // Sauvegarder STDIN */
-	/**/
-	/* // Exécuter les redirections et commandes */
-	/* // ... votre code d'exécution ... */
+    pid_t	id;
+	int		exit_code;
 
-    if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2) // cd a pas fork si pas pipe
-	{
-        exec_builtin(*cmd, line);
-    }
-
+    if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2)
+        exit_code = exec_builtin(*cmd, line);
     id = fork();
     if (id == -1)
         return (perror("fork"), id);
     if (id == 0)
 	{
+		setup_signals_child();	
         if (get_fd(fd_in, fd_out, cmd->redirect, cmd->cmd[0]) == 0) 
 		{
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{
-                exec_builtin(*cmd, line);
+                exit_code = exec_builtin(*cmd, line);
 				free_exec_cmd(line);
-                _exit(0);
+                _exit(exit_code);
 			}
 			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
 				free_exec_cmd(line);
-                _exit(0);
+                _exit(exit_code);
 			}
 			else if (cmd->cmd && cmd->cmd[0])
 			{
-                execve(cmd->full_path, cmd->cmd, cmd->env);
-                perror(cmd->cmd[0]);
-				free_exec_cmd(line);
-                _exit(127);
-            }
+				if (execve(cmd->full_path, cmd->cmd, line->envp) == -1)
+				{
+					if (errno == ENOENT)
+					{
+					   ft_putstr_fd(cmd->cmd[0], 2);
+					   ft_putstr_fd(": command not found\n", 2);
+					   free_exec_cmd(line);
+					   _exit(127);
+					}
+					else if (errno == EACCES)
+					{
+					   ft_putstr_fd(cmd->cmd[0], 2);
+					   ft_putstr_fd(": Permission denied\n", 2);
+					   free_exec_cmd(line);
+					   _exit(126);
+					}
+					else if (errno == EISDIR)
+					{
+					   ft_putstr_fd(cmd->cmd[0], 2);
+					   ft_putstr_fd(": Is a directory\n", 2);
+					   free_exec_cmd(line);
+					   _exit(126);
+					}
+					else
+					{
+					   perror(cmd->cmd[0]);
+					   free_exec_cmd(line);
+					   _exit(126);
+					}
+				}
+				else
+				{
+					perror(cmd->cmd[0]);
+					free_exec_cmd(line);
+					_exit(127);
+				}
+			}
 			else if (!cmd->cmd[0])
 			{
 				free_exec_cmd(line);
@@ -272,57 +296,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 	/**/
     return (id);
 }
-
-// pid_t	exec_cmd(t_cmd cmd, int *fd_in, int *fd_out, t_line *line) // ajouter gestion buildin
-// {
-// 	pid_t	id;
-
-// 	// is buildin qui modifie l env
-	
-// 	if (is_builtin(cmd.cmd[0]) == 2)
-// 	{
-// 		/* if (get_fd(fd_in, fd_out, cmd.redirect, here_doc_fds) == 0) */
-// 		exec_builtin(cmd, line);
-// 	}
-// 	id = fork();
-// 	if (id == -1)
-// 		return (perror("fork"),	id); // error fork
-// 	if (id == 0)
-// 	{
-// 		if (get_fd(fd_in, fd_out, cmd.redirect) == 0)
-// 		{
-// 			if (is_builtin(cmd.cmd[0]) == 1)
-// 			{
-// 				exec_builtin(cmd, line);
-// 				// free tt
-// 				exit (0);
-// 			}
-// 			if (is_builtin(cmd.cmd[0]) == 2)
-// 			{
-// 				// free tt
-// 				exit (0);
-// 			}
-// 			if (cmd.cmd[0])
-// 			{
-// 				/* if (cmd.full_path) */
-// 				/* { */
-// 					execve(cmd.full_path, cmd.cmd, cmd.env);
-// 					/* printf("---%s---\n", cmd.full_path); */
-// 					/* perror("execve"); */
-// 				/* } */
-// 				/* else  */
-// 				/* { */
-// 					/* ft_putstr_fd(cmd.cmd[0], 2); */
-// 					/* ft_putstr_fd(": command not found\n", 2); */
-// 					perror(cmd.cmd[0]);
-// 					exit (127);
-// 				/* } */
-// 			}
-// 		}
-// 		exit (1); // penser a free cmd
-// 	}
-// 	return (id);
-// }
 
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
 {
@@ -498,7 +471,7 @@ int	here_doc_content(char *limiter, t_line *line)
 	return (here_tube[0]);
 }
 
-t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
+t_cmd	get_cmd(t_pipeline pipeline, char **path)
 {
 	int		i;
 	t_cmd	cmd;
@@ -508,7 +481,6 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	cmd.id = -2;
 	cmd.redirect = pipeline.redirect;
 	cmd.cmd = pipeline.args;
-	cmd.env = env;
 	i = 0;
 	if (!cmd.cmd)
 	{
@@ -534,6 +506,7 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path, char **env)
 	}
 	if (!cmd.full_path)
 	{
+		cmd.no_path = 1;
 		cmd.full_path = ft_strdup(cmd.cmd[0]);
 		if (!cmd.full_path)
 			return (cmd); // error malloc

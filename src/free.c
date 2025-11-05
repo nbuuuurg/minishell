@@ -170,7 +170,7 @@ void    free_cmd_path(t_line *line)
     i = line->cmd->pipe_count;
     while (i >= 0)
     {
-        if (line->cmd[i].full_path)
+        if (line->cmd && line->cmd[i].full_path)
             free(line->cmd[i].full_path);
         i--;
     }
