@@ -217,17 +217,30 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			{
 				if (execve(cmd->full_path, cmd->cmd, line->envp) == -1)
 				{
-					if (cmd->no_path == 1)
+					if (errno == ENOENT)
 					{
 					   ft_putstr_fd(cmd->cmd[0], 2);
 					   ft_putstr_fd(": command not found\n", 2);
 					   free_exec_cmd(line);
 					   _exit(127);
 					}
-					else if (access(cmd->full_path, X_OK) == -1)
+					else if (errno == EACCES)
 					{
 					   ft_putstr_fd(cmd->cmd[0], 2);
 					   ft_putstr_fd(": Permission denied\n", 2);
+					   free_exec_cmd(line);
+					   _exit(126);
+					}
+					else if (errno == EISDIR)
+					{
+					   ft_putstr_fd(cmd->cmd[0], 2);
+					   ft_putstr_fd(": Is a directory\n", 2);
+					   free_exec_cmd(line);
+					   _exit(126);
+					}
+					else
+					{
+					   perror(cmd->cmd[0]);
 					   free_exec_cmd(line);
 					   _exit(126);
 					}
@@ -250,7 +263,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 		{
 			free_exec_cmd(line);
 			if (!g_sig)
-				_exit(2);
+				_exit(1);
 		}
     }
     return (id);

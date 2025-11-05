@@ -228,7 +228,7 @@ int	ft_unset(t_cmd cmd, t_line *line)
 	int		dest;
 
 	if (!cmd.cmd[1])
-		return (1);
+		return (0);
 	old_size = 0;
 	while (line->envp && line->envp[old_size])
 		old_size++;
@@ -292,6 +292,8 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	char	*new_env_pwd;
 	char	*temp;
 
+	if (cmd.cmd[2])
+		return (ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO), 1);
 	if (!cmd.cmd[1])
 	{
 		path = find_env_var(line, "HOME");
@@ -364,24 +366,27 @@ long	ft_atol(char *s)
 int	ft_exit(t_cmd cmd, t_line *line)
 {
 	long	exit_code;
+	int		last_exit;
 
 	if (!cmd.cmd[1])
 	{
+		last_exit = line->prev_exit;
 		write(STDOUT_FILENO, "exit\n", 5);
-		free_line(line);
+		free_exec_cmd(line);
 		clear_history();
-		exit(line->prev_exit);
+		exit(last_exit);
 	}
 	else if (ft_isdigit_str(cmd.cmd[1]) == 0)
 	{
 		write(STDOUT_FILENO, "exit\n", 5);
 		ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
-		free_line(line);
+		free_exec_cmd(line);
 		clear_history();
 		exit(2);
 	}
 	else if (cmd.cmd[1] && cmd.cmd[2])
 	{
+		write(STDOUT_FILENO, "exit\n", 5);
 		ft_putstr_fd("exit: too many arguments\n", STDERR_FILENO);
 		return (1);
 	}
@@ -389,7 +394,7 @@ int	ft_exit(t_cmd cmd, t_line *line)
 	{
 		exit_code = ft_atol(cmd.cmd[1]);
 		write(STDOUT_FILENO, "exit\n", 5);
-		free_line(line);
+		free_exec_cmd(line);
 		clear_history();
 		if (exit_code == 555)
 		{
