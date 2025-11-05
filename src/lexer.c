@@ -58,6 +58,7 @@ int    lexer_token(t_line *line)
     t_expr  *new;
     int     flag;
 
+    // print_token(line);
     temp = line->tokens;
     expr = NULL;
     new = NULL;

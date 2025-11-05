@@ -190,7 +190,7 @@ char    *parse_quoted_token(t_line *line, t_token *token)
         {
             if (is_quote(token->s[i]))
                 i++;
-            if (token->s[i])
+            else if (token->s[i])
                 s[j++] = token->s[i++];
         }
     }

@@ -66,7 +66,6 @@ char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end)
     add_back(line, create_quoted_token(line, start, (end - start) + 1 , quote));
     if (line->last_exit != 0)
         return (NULL);
-    s--;
     return (s);
 }
 
