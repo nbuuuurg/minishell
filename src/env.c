@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init_line.c                                        :+:      :+:    :+:   */
+/*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nburgevi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/23 18:55:29 by nburgevi          #+#    #+#             */
-/*   Updated: 2025/08/24 18:37:04 by nburgevi         ###   ########.fr       */
+/*   Updated: 2025/11/05 07:52:25 by nburgevi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,14 @@
 char	**get_path(char **env)
 {
 	char	**path;
-	char	*all_path = NULL;
+	char	*all_path;
 	char	**tmp;
 	int		i;
 	int		k;
 
+	all_path = NULL;
 	if (!env)
-		return (NULL); // error pas d'env
+		return (NULL);
 	i = -1;
 	while (env[++i])
 	{
@@ -29,8 +30,7 @@ char	**get_path(char **env)
 			all_path = env[i] + 5 ;
 	}
 	if (!all_path)
-		return (NULL); // error pas de PATH
-
+		return (NULL);
 	tmp = ft_split(all_path, ':');
 	if (!tmp)
 		return (perror("ft_split"), NULL);
@@ -39,23 +39,20 @@ char	**get_path(char **env)
 		i++;
 	path = malloc(sizeof(char *) * (i + 1));
 	if (!path)
-		return (NULL); // error malloc
+		return (NULL);
 	i = -1;
 	while (tmp[++i])
 	{
 		path[i] = ft_strjoin(tmp[i], "/");
 		if (!path[i])
 		{
-		    // free partiel si échec au milieu
-		    k = 0;
-		    while (k < i)
-		        free(path[k++]);
-		    free(path);
-		    free_split(tmp);
-		    return (NULL);
+			k = 0;
+			while (k < i)
+				free(path[k++]);
+			free(path);
+			free_split(tmp);
+			return (NULL);
 		}
-		// if (!path[i])
-		// 	return (free_split(tmp), NULL); // error malloc
 	}
 	path[i] = NULL;
 	return (free_split(tmp), path);

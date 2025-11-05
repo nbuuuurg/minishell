@@ -110,7 +110,7 @@ typedef struct	s_redir
 	int			from_fd;
 	char		*redir;
 	char		*file;
-	int			heredoc_fd;
+	int			hd_fd;
 	int			order;
 }				t_redir;
 
@@ -205,7 +205,7 @@ void	exec_exprs(t_expr *exprs, char **path ,t_line *line);
 pid_t	exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd);
 int	ft_redir(t_redir *redirect, char *cmd);
-int	here_doc_content(char *limiter, t_line *line);
+int	hd_c(char *limiter, t_line *line);
 t_cmd	get_cmd(t_pipeline pipeline, char **path);
 void	free_exec_cmd(t_line *line);
 
@@ -245,8 +245,8 @@ int     init_subshell(t_line *line, t_token *subinput);
 
 int		lexer_input(t_line *line);
 int		lexer_token(t_line *line);
-int		lexer_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
-int		lexer_single_expr(t_line *line, t_expr *new, t_expr *expr);
+int		l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
+int		l_single_expr(t_line *line, t_expr *new, t_expr *expr);
 
 /* lexer2.c */
 
@@ -273,7 +273,7 @@ char    *lexer_special_char3(t_line *line, char **s, char **start, char **end);
 /* parser.c */
 
 t_expr  *parse_new_expr(t_line *line, t_token_type op_ctrl);
-t_token *parse_pipeline(t_line *line, t_token *temp, t_expr *new, int (*len)[3], int *i);
+t_token *p_pipe(t_line *line, t_token *temp, t_expr *new, int (*len)[3], int *i);
 int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j);
 int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j);
 int    parse_assignment(t_line *line, t_expr *new, t_token *temp, int i, int *j);
@@ -346,6 +346,7 @@ char	**ft_strdup2(char **env);
 char	*find_env_var(t_line *line, char *var);
 int		ft_isdigit_str(char *s);
 int	has_equal(char *s);
+void	recup_save(t_line *line, t_save *save);
 
 /* wildcards.c */
 

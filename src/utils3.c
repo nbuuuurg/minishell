@@ -164,3 +164,12 @@ int	has_equal(char *s)
 	}
 	return (0);
 }
+
+void	recup_save(t_line *line, t_save *save)
+{
+	if (line->envp)
+		save->envp = ft_strdup2(line->envp);
+	else
+		save->envp = NULL;
+	save->exit = line->prev_exit;
+}

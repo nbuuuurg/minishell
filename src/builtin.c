@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   buildin.c                                          :+:      :+:    :+:   */
+/*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 21:08:20 by adeflers          #+#    #+#             */
-/*   Updated: 2025/10/10 21:08:20 by adeflers         ###   ########.fr       */
+/*   Updated: 2025/11/05 07:54:38 by nburgevi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 int	is_builtin(char *cmd)
 {
-	// builtin qui n ont pas d effet sur l env 
 	if (!cmd)
 		return (0);
 	if (ft_strncmp(cmd, "pwd", 4) == 0)
@@ -23,9 +22,6 @@ int	is_builtin(char *cmd)
 		return (1);
 	if (ft_strncmp(cmd, "env", 4) == 0)
 		return (1);
-
-	// builtin qui ont un effet sur l env
-
 	if (ft_strncmp(cmd, "export", 7) == 0)
 		return (2);
 	if (ft_strncmp(cmd, "unset", 6) == 0)
@@ -76,21 +72,21 @@ int	is_option_n(char *s)
 
 int ft_echo(t_cmd cmd, t_line *line)
 {
-    char *str;
-    int   i;
-    int   n_flag;
-    int   need_free;
+	char *str;
+	int   i;
+	int   n_flag;
+	int   need_free;
 
-    if (!cmd.cmd[1])
-        return (write(STDOUT_FILENO, "\n", 1), 0);
-    n_flag = 0;
-    i = 1;
-    while (is_option_n(cmd.cmd[i]) == 1)
+	if (!cmd.cmd[1])
+		return (write(STDOUT_FILENO, "\n", 1), 0);
+	n_flag = 0;
+	i = 1;
+	while (is_option_n(cmd.cmd[i]) == 1)
 	{
 		n_flag = 1; 
 		i++; 
 	}
-    need_free = 0;
+	need_free = 0;
 	str = cmd.cmd[i];
 	while(cmd.cmd[i])
 	{
@@ -107,11 +103,11 @@ int ft_echo(t_cmd cmd, t_line *line)
 		if (cmd.cmd[i])
 			ft_putchar_fd(' ', STDOUT_FILENO);
 	}
-    if (n_flag == 0)
-        write(STDOUT_FILENO, "\n", 1);
-    if (need_free)
-        free(str);
-    return (0);
+	if (n_flag == 0)
+		write(STDOUT_FILENO, "\n", 1);
+	if (need_free)
+		free(str);
+	return (0);
 }
 
 int	ft_env(t_line *line)
@@ -133,19 +129,19 @@ int	ft_pwd(void)
 	char *cwd;
 
 	cwd = getcwd(NULL, 0);
-    if (!cwd)
-        return (perror("getcwd"), 1);
-    ft_putstr_fd(cwd, STDOUT_FILENO);
-    write(STDOUT_FILENO, "\n", 1);
-    free(cwd);
-    return (0);
+	if (!cwd)
+		return (perror("getcwd"), 1);
+	ft_putstr_fd(cwd, STDOUT_FILENO);
+	write(STDOUT_FILENO, "\n", 1);
+	free(cwd);
+	return (0);
 }
 
 int	var_exists(t_line *line, char *name)
 {
 	int		i;
 	int		j;
-	
+
 	i = 0;
 	while (name[i] && name[i] != '=')
 		i++;
@@ -270,7 +266,7 @@ int	ft_unset(t_cmd cmd, t_line *line)
 	if (!line->envp)
 		return (perror("malloc"), free_split(new_env), 1);
 	free_split(new_env);
-    return (0);
+	return (0);
 }
 
 void	update_env_cd(t_line *line, char *oldpwd, char *newpwd)

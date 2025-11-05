@@ -213,6 +213,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
     pid_t	id;
 	int		exit_code;
+	struct stat	sb;
 
     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2)
         exit_code = exec_builtin(*cmd, line);
@@ -237,26 +238,44 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			}
 			else if (cmd->cmd && cmd->cmd[0])
 			{
+				if (stat(cmd->full_path, &sb) == 0)
+				{
+					if (S_ISDIR(sb.st_mode))
+					{
+						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+						ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
+						free_exec_cmd(line);
+						_exit(126);
+					}
+				}
 				if (execve(cmd->full_path, cmd->cmd, line->envp) == -1)
 				{
 					if (errno == ENOENT)
 					{
-					   ft_putstr_fd(cmd->cmd[0], 2);
-					   ft_putstr_fd(": command not found\n", 2);
-					   free_exec_cmd(line);
-					   _exit(127);
+						if (ft_strchr(cmd->cmd[0], '/') == 0)
+						{
+							ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+							ft_putstr_fd(": command not found\n", STDERR_FILENO);
+						}
+						else
+						{
+							ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+							ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);							
+						}
+						free_exec_cmd(line);
+						_exit(127);
 					}
 					else if (errno == EACCES)
 					{
-					   ft_putstr_fd(cmd->cmd[0], 2);
-					   ft_putstr_fd(": Permission denied\n", 2);
+					   ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+					   ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
 					   free_exec_cmd(line);
 					   _exit(126);
 					}
 					else if (errno == EISDIR)
 					{
-					   ft_putstr_fd(cmd->cmd[0], 2);
-					   ft_putstr_fd(": Is a directory\n", 2);
+					   ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+					   ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
 					   free_exec_cmd(line);
 					   _exit(126);
 					}
@@ -369,9 +388,9 @@ int	ft_redir(t_redir *redirect, char *cmd)
 		}
 		else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0)
 		{
-			fd = redirect->heredoc_fd;
+			fd = redirect->hd_fd;
 			if (fd == -1)
-				return (1); // errror here_doc_content
+				return (1); // errror hd_c
 			dup2(fd, STDIN_FILENO);
 			close(fd);
 		}
@@ -380,7 +399,7 @@ int	ft_redir(t_redir *redirect, char *cmd)
 	return (0);
 }
 
-int	here_doc_content(char *limiter, t_line *line)
+int	hd_c(char *limiter, t_line *line)
 {
 	int		here_tube[2];
 	char	*content;

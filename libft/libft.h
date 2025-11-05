@@ -105,5 +105,6 @@ char	*ft_get_line(char *save);
 char	*ft_save(char *save);
 char	*ft_strjoin_gnl(char *save, char *buff);
 void	ft_free_static(char *s);
+char	*ft_strchr_gnl(const char *s, int c);
 
 #endif
