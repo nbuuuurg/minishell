@@ -21,8 +21,8 @@ int	main(int ac, char **av, char **envp)
 	char	**env;
 	int		start_flag;
 
-	if (!isatty(STDIN_FILENO))
-		return (1);
+	/* if (!isatty(STDIN_FILENO)) */
+	/* 	return (1); */
 	setup_signals();
 	start_flag = 0;
 	env = ft_strdup2(envp);
