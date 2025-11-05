@@ -50,7 +50,7 @@ void sigquit_handler_child(int sig)
 {
     (void)sig;
     g_sig = 1;
-    write(STDERR_FILENO, "Quit (core dumped)\n", 19);
+    write(STDERR_FILENO, "^\\Quit (core dumped)\n", 21);
     rl_replace_line("", 0);
     rl_on_new_line();
 }
