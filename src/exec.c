@@ -513,10 +513,19 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path)
 	}
 	if (!cmd.full_path)
 	{
-		cmd.no_path = 1;
-		cmd.full_path = ft_strdup(cmd.cmd[0]);
-		if (!cmd.full_path)
-			return (cmd); // error malloc
+		if (cmd.cmd[0] && (ft_strncmp(cmd.cmd[0], "./", 2) == 0 || ft_strncmp(cmd.cmd[0], "/", 1) == 0))
+		{
+			cmd.full_path = ft_strdup(cmd.cmd[0]);
+			if (!cmd.full_path)
+				return (cmd); // error malloc
+		}
+		else
+		{
+			cmd.full_path = ft_strdup("");
+			if (!cmd.full_path)
+				return (cmd); // error malloc
+		}
+
 	}
 	return (cmd);
 }
