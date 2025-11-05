@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   utils2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nburgevi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 04:38:54 by nburgevi          #+#    #+#             */
-/*   Updated: 2025/08/26 04:38:58 by nburgevi         ###   ########.fr       */
+/*   Updated: 2025/11/05 09:07:41 by nburgevi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,25 +87,25 @@ char	*dup_assign_value(char *s)
 	return (value);
 }
 
-int     len_whitespace(t_line *line)
+int	len_whitespace(t_line *line)
 {
-    size_t i;
-    size_t j;
+	size_t	i;
+	size_t	j;
 
-    i = 0;
-    j = 0;
-    while (line->input[i] && is_whitespace(line->input[i]))
-    {
-        i++;
-        j++;
-    }
-    while (line->input[i])
-        i++;
-    i--;
-    while(i > 0 && is_whitespace(line->input[i]))
-    {
-        i--;
-        j++;
-    }
-    return (j);
+	i = 0;
+	j = 0;
+	while (line->input[i] && is_whitespace(line->input[i]))
+	{
+		i++;
+		j++;
+	}
+	while (line->input[i])
+		i++;
+	i--;
+	while (i > 0 && is_whitespace(line->input[i]))
+	{
+		i--;
+		j++;
+	}
+	return (j);
 }

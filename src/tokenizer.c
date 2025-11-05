@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   manage_tokens.c                                    :+:      :+:    :+:   */
+/*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nburgevi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -19,7 +19,7 @@ t_token	*create_token(t_line *line, char *s, int len)
 	(void)line;
 	(void)s;
 	if (len <= 0)
-		return (NULL); // ok
+		return (NULL);
 	token = ft_calloc(1, sizeof(t_token));
 	if (!token)
 		return (line->last_exit = EX_GEN, NULL);
@@ -50,13 +50,13 @@ t_token	*create_token(t_line *line, char *s, int len)
 t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 {
 	t_token	*token;
-	int	i;
-	int	multiple_quote;
+	int		i;
+	int		multiple_quote;
 
 	(void)line;
 	(void)s;
 	if (len <= 0)
-		return (NULL); // c'est ok
+		return (NULL);
 	token = ft_calloc(1, sizeof(t_token));
 	if (!token)
 		return (line->last_exit = EX_GEN, NULL);
@@ -84,7 +84,7 @@ t_token	*last_elem(t_line *line)
 	temp = NULL;
 	if (line->tokens)
 	{
-		temp  = line->tokens;
+		temp = line->tokens;
 		while (temp->next)
 			temp = temp->next;
 	}

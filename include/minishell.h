@@ -196,8 +196,6 @@ int		is_builtin(char *cmd);
 
 char	**get_path(char **env);
 
-/* error.c */
-
 /* exec.c */
 
 void	exec_minishell(t_line *line);
@@ -287,7 +285,7 @@ char	*parse_expand(t_line *line, t_token *token);
 
 /* parser3.c */
 
-char	*new_expanded_content(t_line *line, size_t j, char *s, char *ex_var, size_t old_len);
+char	*n_exp_c(t_line *line, size_t j, char *s, char *ex_var, size_t old_len);
 char	*expanded_content(char *s, t_line *line);
 
 /* print.c */

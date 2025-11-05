@@ -6,31 +6,30 @@
 /*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 01:15:21 by adeflers          #+#    #+#             */
-/*   Updated: 2025/11/05 01:15:21 by adeflers         ###   ########.fr       */
+/*   Updated: 2025/11/05 09:08:09 by nburgevi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-int count_subshell(char *s)
+int	count_subshell(char *s)
 {
-    int open;
-    int i;
+	int	open;
+	int	i;
 
-    open = 0;
-    i = 0;
-    while (s[i])
-    {
-        if (s[i] == '(')
-            open++;
-        i++;
-    }
-    return (open);
+	open = 0;
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == '(')
+			open++;
+		i++;
+	}
+	return (open);
 }
 
-t_quoted	def_quote(int	multiple_quote, int quote)
+t_quoted	def_quote(int multiple_quote, int quote)
 {
-    
 	if (multiple_quote == 2)
 	{
 		if (quote == 39)
@@ -38,20 +37,20 @@ t_quoted	def_quote(int	multiple_quote, int quote)
 		else
 			return (DOUBLE);
 	}
-	else	
-			return (MULTIPLE);
+	else
+		return (MULTIPLE);
 }	
 
-int     is_something(char c)
+int	is_something(char c)
 {
-    if (is_special(c) || is_whitespace(c) || is_quote(c) || is_subshell(c))
-        return (1);
-    return (0);
+	if (is_special(c) || is_whitespace(c) || is_quote(c) || is_subshell(c))
+		return (1);
+	return (0);
 }
 
-int		need_expand(char *s)
+int	need_expand(char *s)
 {
-	int		i;
+	int	i;
 
 	if (!s)
 		return (0);
@@ -65,9 +64,9 @@ int		need_expand(char *s)
 	return (0);
 }
 
-int		has_wildcards(char *s)
+int	has_wildcards(char *s)
 {
-	int		i;
+	int	i;
 
 	if (!s)
 		return (0);
@@ -108,9 +107,9 @@ char	**ft_strdup2(char **env)
 
 char	*find_env_var(t_line *line, char *var)
 {
-	int     i;
-	int     len_var;
-	char    *the_env;
+	int		i;
+	int		len_var;
+	char	*the_env;
 
 	if (!line->envp || !var)
 		return (NULL);
@@ -122,8 +121,6 @@ char	*find_env_var(t_line *line, char *var)
 			&& line->envp[i][len_var] == '=')
 		{
 			the_env = line->envp[i] + len_var + 1;
-			// pour l instant on retourne le pointeur vers la valeur dans envp
-			// si pb de gestion de memoire, on pourra faire un strdup ici
 			return (the_env);
 		}
 		i++;
@@ -133,7 +130,7 @@ char	*find_env_var(t_line *line, char *var)
 
 int	ft_isdigit_str(char *s)
 {
-	int i;
+	int	i;
 
 	if (!s || !s[0])
 		return (0);

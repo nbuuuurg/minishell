@@ -6,7 +6,7 @@
 /*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/05 01:36:29 by adeflers          #+#    #+#             */
-/*   Updated: 2025/11/05 01:36:29 by adeflers         ###   ########.fr       */
+/*   Updated: 2025/11/05 09:10:17 by nburgevi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,14 +49,14 @@ t_token	*last_elem_w(t_token *token)
 	temp = NULL;
 	if (token)
 	{
-		temp  = token;
+		temp = token;
 		while (temp->next)
 			temp = temp->next;
 	}
 	return (temp);
 }
 
-t_token *add_back_w(t_token *old, t_token *new)
+t_token	*add_back_w(t_token *old, t_token *new)
 {
 	t_token	*temp;
 
@@ -115,7 +115,10 @@ int	match_tab(const char **pattern, char c)
 	if (*p == ']')
 		p++;
 	*pattern = p;
-	return (neg ? !ok : ok);
+	if (neg != 0)
+		return (1);
+	else
+		return (0);
 }
 
 int	ft_fnmatch(const char *pattern, const char *str)
@@ -173,30 +176,34 @@ int	ft_fnmatch(const char *pattern, const char *str)
 	return (*p == '\0');
 }
 
-t_token     *parse_wildcards(t_line *line, t_token *token)
+t_token	*parse_wildcards(t_line *line, t_token *token)
 {
-    t_token *temp2 = NULL;
-    DIR *dir;
-    struct dirent   *entry;
+	t_token			*temp2;
+	t_token			*temp;
+	DIR				*dir;
+	struct dirent	*entry;
 
-    dir = opendir(".");
-    if (!dir)
-        return (line->last_exit = 1, NULL);
-    while((entry = readdir(dir)) != NULL)
-    {
-        if (ft_fnmatch(token->s, entry->d_name) == 1)
+	temp2 = NULL;
+	dir = opendir(".");
+	if (!dir)
+		return (line->last_exit = 1, NULL);
+	entry = readdir(dir);
+	while (entry != NULL)
+	{
+		if (ft_fnmatch(token->s, entry->d_name) == 1)
 		{
-            t_token *temp = ft_calloc(1, sizeof(t_token));
-            if (!temp)
-                return (line->last_exit = 1, NULL);
-            temp->s = ft_strdup(entry->d_name);
-            if (!temp->s)
-                return (free(temp), line->last_exit = 1, NULL);
-            temp2 = add_back_w(temp2, temp);
+			temp = ft_calloc(1, sizeof(t_token));
+			if (!temp)
+				return (line->last_exit = 1, NULL);
+			temp->s = ft_strdup(entry->d_name);
+			if (!temp->s)
+				return (free(temp), line->last_exit = 1, NULL);
+			temp2 = add_back_w(temp2, temp);
 		}
-    }
+		entry = readdir(dir);
+	}
 	if (temp2)
-    	token = lst_join(token, temp2);
-    closedir(dir);
-    return (token);
+		token = lst_join(token, temp2);
+	closedir(dir);
+	return (token);
 }

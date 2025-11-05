@@ -9,7 +9,6 @@ SRC_DIR = src/
 SRC_OBJ = obj/
 SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)env.c \
-	  $(SRC_DIR)error.c \
 	  $(SRC_DIR)exec.c \
 	  $(SRC_DIR)exit.c \
       $(SRC_DIR)free.c \

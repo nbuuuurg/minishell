@@ -17,11 +17,12 @@ void	count_token(t_token *temp, int (*len)[3], t_token_type op_ctrl)
 	t_token	*temp2;
 
 	temp2 = temp;
-	while(temp2 && temp2->type != PIPE && temp2->type != op_ctrl)
+	while (temp2 && temp2->type != PIPE && temp2->type != op_ctrl)
 	{
 		if (temp2->type == WORD)
 			(*len)[0]++;
-		if (temp2->type == REDIR_IN || temp2->type == REDIR_APPEND || temp2->type == REDIR_OUT || temp2->type == HEREDOC)
+		if (temp2->type == REDIR_IN || temp2->type == REDIR_APPEND
+			|| temp2->type == REDIR_OUT || temp2->type == HEREDOC)
 			(*len)[1]++;
 		if (temp2->type == ASSIGNMENT)
 			(*len)[2]++;
@@ -76,7 +77,7 @@ char	*expanded_var(t_line *line, char *var)
 		if (!expanded_var)
 			return (NULL);
 	}
-	else if (ft_strncmp(var,"$", 1) == 0)
+	else if (ft_strncmp(var, "$", 1) == 0)
 	{
 		expanded_var = ft_strdup("$");
 		free(var);
@@ -102,17 +103,10 @@ char	*expanded_var(t_line *line, char *var)
 		}
 	}
 	return (expanded_var);
-
 }
 
-int	expanded_token(t_line *line, t_token *token, char *var, size_t start, size_t end)
+int	expand_t(t_line *line, t_token *token, char *var, size_t start, size_t end)
 {
-	(void)line;
-	(void)token;
-	(void)var;
-	(void)start;
-	(void)end;
-
 	char	*s;
 	size_t	len_var;
 	size_t	len_old_var;
@@ -132,7 +126,7 @@ int	expanded_token(t_line *line, t_token *token, char *var, size_t start, size_t
 		return (line->last_exit = EX_GEN, -1);
 	i = 0;
 	k = 0;
-	while(i < len_s && len_s != 0)
+	while (i < len_s && len_s != 0)
 	{
 		if (i == start)
 		{
@@ -160,13 +154,12 @@ int	expanded_token(t_line *line, t_token *token, char *var, size_t start, size_t
 
 char	*parse_quoted_token(t_line *line, t_token *token)
 {
-    //ici
-	char    *s;
-	int     d_quote;
-	int     s_quote;
-	int     i;
-	int     j;
-	int     len;
+	char	*s;
+	int		d_quote;
+	int		s_quote;
+	int		i;
+	int		j;
+	int		len;
 
 	i = 0;
 	j = 0;
@@ -204,7 +197,7 @@ char	*parse_quoted_token(t_line *line, t_token *token)
 				len++;
 				d_quote++;
 				if (d_quote == 2)
-					d_quote = 0;     
+					d_quote = 0;
 			}
 			i++;
 		}
@@ -240,21 +233,19 @@ char	*parse_quoted_token(t_line *line, t_token *token)
 
 char	*parse_expand(t_line *line, t_token *token)
 {
-	int     i;
-	int     start;
-	int     end;
-	int     len;
-	int     s_quote;
-	int     d_quote;
-	char    *var;
+	int		i;
+	int		start;
+	int		end;
+	int		len;
+	int		s_quote;
+	int		d_quote;
+	char	*var;
 
 	i = 0;
 	start = 0;
 	end = 0;
 	s_quote = 0;
 	d_quote = 0;
-	// printf("token->s : %s\n", token->s);
-	// print_token(line);
 	while (token->s[i])
 	{
 		start = i;
@@ -321,7 +312,7 @@ char	*parse_expand(t_line *line, t_token *token)
 			var = expanded_var(line, var);
 			if (!var)
 				return (line->last_exit = EX_GEN, NULL);
-			i = expanded_token(line, token, var, start, end);
+			i = expand_t(line, token, var, start, end);
 			if (i == -1 && line->last_exit != 0)
 				return (NULL);
 			free(var);
