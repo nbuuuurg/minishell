@@ -18,22 +18,22 @@
 
 volatile sig_atomic_t g_sig = 0;
 
-void	restore_terminal(void)
-{
-	struct termios	term;
-
-	if (!isatty(STDIN_FILENO))
-	{
-		/* write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66); */
-		if (tcgetattr(STDIN_FILENO, &term) == 0)
-		{
-			term.c_lflag |= (ICANON | ECHO);
-			tcsetattr(STDIN_FILENO, TCSANOW, &term);
-		}
-		return ;
-		// attention aux leaks si tu sors d'ici
-	}
-}
+/* void	restore_terminal(void) */
+/* { */
+/* 	struct termios	term; */
+/**/
+/* 	if (!isatty(STDIN_FILENO)) */
+/* 	{ */
+/* 		write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66); */
+/* 		if (tcgetattr(STDIN_FILENO, &term) == 0) */
+/* 		{ */
+/* 			term.c_lflag |= (ICANON | ECHO); */
+/* 			tcsetattr(STDIN_FILENO, TCSANOW, &term); */
+/* 		} */
+/* 		return ; */
+/* 		// attention aux leaks si tu sors d'ici */
+/* 	} */
+/* } */
 
 void	recup_save(t_line *line, t_save *save)
 {
@@ -51,6 +51,11 @@ int	main(int ac, char **av, char **envp)
 	char	**env;
 	int		start_flag;
 
+	/* if (!isatty(STDIN_FILENO)) */
+	/* { */
+	/* 	write(STDERR_FILENO, "sois plus sympa avec tes tests et suis la fiche de correction stp\n", 66); */
+	/* 	return (EX_USAGE); */
+	/* } */
 	setup_signals(); 	
 	start_flag = 0;
 	// pour faire un env avec que 3 lignes comme env -i bash --posix (si on a le temps)

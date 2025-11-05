@@ -170,6 +170,8 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 	}
 	if (WIFEXITED(cmd[i - 1].status))
 		line->prev_exit = WEXITSTATUS(cmd[i - 1].status);
+	else if (WIFSIGNALED(cmd[i - 1].status))
+    	line->prev_exit = 128 + WTERMSIG(cmd[i - 1].status);
 	free(cmd);
 }
 
