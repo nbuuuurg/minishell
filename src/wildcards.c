@@ -12,16 +12,23 @@
 
 #include "../include/minishell.h"
 
-t_token	*lst_join(t_token *at, t_token *nw)
+t_token	*lst_join(t_token *at, t_token *nw, t_line *line)
 {
 	t_token	*left;
 	t_token	*right;
 	t_token	*tail;
 
+	(void)line;
 	if (!at || !nw)
 		return (at);
 	left = at->previous;
 	right = at->next;
+	if (!left && !right)
+	{
+			free(at->s);
+			free(at);
+			return (line->tokens = nw); //ici probleme *
+	}
 	free(at->s);
 	free(at);
 	while (nw->previous)
@@ -203,7 +210,7 @@ t_token	*parse_wildcards(t_line *line, t_token *token)
 		entry = readdir(dir);
 	}
 	if (temp2)
-		token = lst_join(token, temp2);
+		token = lst_join(token, temp2, line);
 	closedir(dir);
 	return (token);
 }

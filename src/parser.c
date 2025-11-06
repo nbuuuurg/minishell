@@ -92,11 +92,12 @@ int	parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 		temp->s = parse_quoted_token(line, temp);
 	if (line->last_exit == EX_GEN)
 		return (EX_GEN);
-	if (temp->s[0] == 0)
-	{
-		new->pipeline[i].args[*j] = NULL;
-		return (0);
-	}
+	//ici il faut gerer ""
+	// if (temp->s[0] == 0)
+	// {
+	// 	new->pipeline[i].args[*j] = NULL;
+	// 	return (0);
+	// }
 	else
 		new->pipeline[i].args[*j] = ft_strdup(temp->s);
 	if (!new->pipeline[i].args[*j])

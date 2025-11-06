@@ -26,24 +26,26 @@ int		last_parse_err(t_line *line)
 	// printf("temp->s = %s\n", temp2->s);
 	if (temp && temp->type == PIPE)
 	{
-		printf("fini par un pipe\n");
+		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
 		return (line->lexer_err = -1, line->prev_exit = 2, 1);
 	}
 	if (temp2 && temp2->type == PIPE)
 	{
-		printf("commence par un pipe\n");
+		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
 		return (line->lexer_err = -2, line->prev_exit = 2, 1);
 	}
-	if (line->lexer_err == -3) // erreur subshell
+	if (line->lexer_err == -3)
 		return (1);
 	if (line->lexer_err == -4)
 	{
-		printf("fini ou commence par && ou ||\n");
+		ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+		ft_putstr_fd(last_elem(line)->s, STDERR_FILENO);
+		ft_putstr_fd("\'\n", STDERR_FILENO);
 		return (line->lexer_err = -3, line->prev_exit = 2, 1);
 	}
 	if (line->lexer_err == -5)
 	{
-		printf("erreur redirect.file = NULL\n");
+		ft_putstr_fd("mini: syntax error near unexpected token `newline'\n", STDERR_FILENO);
 		return (line->lexer_err = -4, line->prev_exit = 2, 1);
 	}
 	return (0);
@@ -240,6 +242,13 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			{
 				if (stat(cmd->full_path, &sb) == 0)
 				{
+					if (cmd->cmd[0][0] == '\0')
+					{
+						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+						ft_putstr_fd(": command not found\n", STDERR_FILENO);
+						free_exec_cmd(line);
+						_exit(127);
+					}
 					if (S_ISDIR(sb.st_mode))
 					{
 						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
@@ -272,13 +281,13 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 					   free_exec_cmd(line);
 					   _exit(126);
 					}
-					else if (errno == EISDIR)
-					{
-					   ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
-					   ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
-					   free_exec_cmd(line);
-					   _exit(126);
-					}
+					// else if (errno == EISDIR)
+					// {
+					//    ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+					//    ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
+					//    free_exec_cmd(line);
+					//    _exit(126);
+					// }
 					else
 					{
 					   perror(cmd->cmd[0]);
@@ -452,7 +461,6 @@ int	hd_c(char *limiter, t_line *line)
 				ft_putstr_fd(limiter, STDERR_FILENO);
 			ft_putstr_fd("')\n", STDERR_FILENO);
 			break;
-				// return (free(res), perror("malloc"), -1);  // a differencier avec EOF (CTRL D) et erreur malloc
 		}
 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
 			&& content[ft_strlen(limiter)] == '\n')

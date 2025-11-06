@@ -14,6 +14,11 @@
 
 volatile sig_atomic_t	g_sig = 0;
 
+// export x=y && echo $x env pas a jour
+// split apres export a="ls -l" -> expand dans quote pas de split mais expand sans quote = split
+// << e puis fleche du haut
+// tab dans l'historique
+
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;

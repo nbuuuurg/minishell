@@ -348,7 +348,7 @@ void	recup_save(t_line *line, t_save *save);
 
 /* wildcards.c */
 
-t_token	*lst_join(t_token *at, t_token *nw);
+t_token	*lst_join(t_token *at, t_token *nw, t_line *line);
 t_token	*last_elem_w(t_token *token);
 t_token *add_back_w(t_token *old, t_token *new);
 int	match_tab(const char **pattern, char c);

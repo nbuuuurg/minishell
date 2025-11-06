@@ -246,6 +246,8 @@ char	*parse_expand(t_line *line, t_token *token)
 	end = 0;
 	s_quote = 0;
 	d_quote = 0;
+	// si c'est quote, on laisse dans un seul token, sinon on split entre les whitespace
+	// la ca marche que pour les expand dans quote mais ne zap pas les whitespace
 	while (token->s[i])
 	{
 		start = i;

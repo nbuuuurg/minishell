@@ -88,9 +88,7 @@ void	free_tokens(t_token *tokens)
 	while (tokens)
 	{
 		if (tokens->s)
-		{
 			free(tokens->s);
-		}
 		tokens = tokens->next;
 		free(temp);
 		temp = tokens;
