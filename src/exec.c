@@ -398,6 +398,7 @@ int	hd_c(char *limiter, t_line *line)
 {
 	int		here_tube[2];
 	char	*content;
+	char	*content_nl;
 	char	*res;
 	char	*tmp;
 	char	*temp = NULL;
@@ -449,11 +450,11 @@ int	hd_c(char *limiter, t_line *line)
 			ft_putstr_fd("')\n", STDERR_FILENO);
 			break;
 		}
-		tmp = ft_strjoin(content, "\n");
-		if (!tmp)
-			return (free(res), free(content), perror("malloc"), -1);
+		content_nl = ft_strjoin(content, "\n");
 		free(content);
-		content = tmp;
+		if (!content_nl)
+			return (free(res), perror("malloc"), -1);
+		content = content_nl;
 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
 			&& content[ft_strlen(limiter)] == '\n')
 		{

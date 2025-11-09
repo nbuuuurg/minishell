@@ -32,7 +32,7 @@ char	*n_exp_c(t_line *line, size_t j, char *s, char *ex_var, size_t old_len)
 		len_ex_var = 0;
 	else
 		len_ex_var = ft_strlen(ex_var);
-	new_len = len_s + len_ex_var - old_len;
+	new_len = len_s + len_ex_var - old_len + 1;
 	if (new_len == 1)
 	{
 		if (len_ex_var == 2 && ft_strncmp(ex_var, "$?", 2) == 0)
