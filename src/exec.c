@@ -437,7 +437,8 @@ int	hd_c(char *limiter, t_line *line)
 		{
 			g_sig = 0;
 			flag = 1;
-			free(content);
+			if (content)
+				free(content);
 			break ;
 		}
 		if (!content)
@@ -448,8 +449,13 @@ int	hd_c(char *limiter, t_line *line)
 			ft_putstr_fd("')\n", STDERR_FILENO);
 			break;
 		}
+		tmp = ft_strjoin(content, "\n");
+		if (!tmp)
+			return (free(res), free(content), perror("malloc"), -1);
+		free(content);
+		content = tmp;
 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
-			&& content[ft_strlen(limiter)] == '\0')
+			&& content[ft_strlen(limiter)] == '\n')
 		{
 			free(content);
 			break ;
@@ -469,11 +475,6 @@ int	hd_c(char *limiter, t_line *line)
 		if (!res)
 			return (free(content), free(tmp), perror("malloc"), -1);
 		free(content);
-		free(tmp);
-		tmp = res;
-		res = ft_strjoin(tmp, "\n");
-		if (!res)
-			return (free(tmp), perror("malloc"), -1);
 		free(tmp);
 	}
 	if (flag == 1)

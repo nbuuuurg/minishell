@@ -104,14 +104,11 @@ char	*expanded_content(char *s, t_line *line)
 			ft_memcpy(var, start, len);
 			ex_var = expanded_var(line, var);
 			if (!ex_var)
-				return (free(var), NULL);
+				return (NULL);
 			new_s = n_exp_c(line, (size_t)j, s, ex_var, (size_t)len + 1);
 			if (!new_s)
-				return (free(var), free(ex_var), NULL);
-			if (ex_var)
-				free(ex_var);
-			if (var)
-				free(var);
+				return (free(ex_var), NULL);
+			free(ex_var);
 			return (new_s);
 		}
 		i++;
