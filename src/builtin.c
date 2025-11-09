@@ -40,7 +40,7 @@ int	exec_builtin(t_cmd cmd, t_line *line)
 	if (ft_strncmp(cmd.cmd[0], "echo", 5) == 0)
 		return (ft_echo(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "env", 4) == 0)
-		return (ft_env(line));
+		return (ft_env(line, cmd));
 	if (ft_strncmp(cmd.cmd[0], "exit", 5) == 0)
 		return (ft_exit(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "export", 7) == 0)
@@ -110,10 +110,15 @@ int ft_echo(t_cmd cmd, t_line *line)
 	return (0);
 }
 
-int	ft_env(t_line *line)
+int	ft_env(t_line *line, t_cmd cmd)
 {
 	int	i;
 
+	if (cmd.cmd[1])
+	{
+		write(STDERR_FILENO, "env: too many arguments\n", 24);
+		return (1);
+	}
 	i = 0;
 	while (line->envp && line->envp[i])
 	{

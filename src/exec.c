@@ -281,13 +281,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 					   free_exec_cmd(line);
 					   _exit(126);
 					}
-					// else if (errno == EISDIR)
-					// {
-					//    ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
-					//    ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
-					//    free_exec_cmd(line);
-					//    _exit(126);
-					// }
 					else
 					{
 					   perror(cmd->cmd[0]);
@@ -322,13 +315,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				_exit(1);
 		}
     }
-	/**/
-	/* // APRÈS l'exécution (TOUJOURS, même en cas d'erreur) */
-	/* dup2(saved_stdout, STDOUT_FILENO);      // Restaurer STDOUT */
-	/* dup2(saved_stdin, STDIN_FILENO);        // Restaurer STDIN */
-	/* close(saved_stdout); */
-	/* close(saved_stdin); */
-	/**/
     return (id);
 }
 
@@ -451,6 +437,7 @@ int	hd_c(char *limiter, t_line *line)
 		{
 			g_sig = 0;
 			flag = 1;
+			free(content);
 			break ;
 		}
 		if (!content)
