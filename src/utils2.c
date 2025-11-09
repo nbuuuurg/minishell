@@ -99,8 +99,12 @@ int	len_whitespace(t_line *line)
 		i++;
 		j++;
 	}
+	if (line->input[i] == '\0')
+		return (j);
 	while (line->input[i])
 		i++;
+	if (i == 0)
+		return (j);
 	i--;
 	while (i > 0 && is_whitespace(line->input[i]))
 	{
