@@ -446,8 +446,7 @@ int	hd_c(char *limiter, t_line *line)
 	flag = 0;
 	while (1)
 	{
-		write(STDOUT_FILENO, "heredoc> ", 9);
-		content = get_next_line(STDIN_FILENO);
+		content = readline("> ");
 		if (g_sig == 1)
 		{
 			g_sig = 0;
@@ -463,13 +462,11 @@ int	hd_c(char *limiter, t_line *line)
 			break;
 		}
 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
-			&& content[ft_strlen(limiter)] == '\n')
+			&& content[ft_strlen(limiter)] == '\0')
 		{
 			free(content);
 			break ;
 		}
-		(void)line;
-		/*ici*/
 		while (content && need_expand(content) != 0)
 		{
 			temp = expanded_content(content, line);
@@ -485,6 +482,11 @@ int	hd_c(char *limiter, t_line *line)
 		if (!res)
 			return (free(content), free(tmp), perror("malloc"), -1);
 		free(content);
+		free(tmp);
+		tmp = res;
+		res = ft_strjoin(tmp, "\n");
+		if (!res)
+			return (free(tmp), perror("malloc"), -1);
 		free(tmp);
 	}
 	if (flag == 1)

@@ -16,7 +16,7 @@ volatile sig_atomic_t	g_sig = 0;
 
 // export x=y && echo $x env pas a jour
 // split apres export a="ls -l" -> expand dans quote pas de split mais expand sans quote = split
-// << e puis fleche du haut
+// << e puis fleche du haut ->> ok mais double free content
 // tab dans l'historique
 // norme
 
