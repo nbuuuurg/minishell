@@ -408,6 +408,105 @@ int	ft_redir(t_redir *redirect, char *cmd)
 	return (0);
 }
 
+// int	hd_c(char *limiter, t_line *line)
+// {
+// 	int		here_tube[2];
+// 	char	*content;
+// 	char	*res;
+// 	char	*tmp;
+// 	char	*temp = NULL;
+// 	int		flag;
+
+// 	struct sigaction old_int;
+// 	struct sigaction old_quit;
+// 	struct sigaction sa_int;
+// 	struct sigaction sa_quit;
+
+// 	sigemptyset(&sa_int.sa_mask);
+// 	sigemptyset(&sa_quit.sa_mask);
+// 	sa_int.sa_flags = 0;
+// 	sa_quit.sa_flags = 0;
+// 	sa_int.sa_handler = sigint_handler_hd;
+// 	sa_quit.sa_handler = SIG_IGN;
+// 	sigaction(SIGINT, &sa_int, &old_int);
+// 	sigaction(SIGQUIT, &sa_quit, &old_quit);
+// 	//empeche ^\ avec CTRL '\'
+// 	struct termios 	t;
+// 	struct termios	old;
+// 	tcgetattr(STDIN_FILENO, &old);
+// 	t = old;
+// 	t.c_lflag &= ~ECHOCTL; // désactive le bit ECHOCTL -> n'affiche plus ^/, ^C, etc
+// 	tcsetattr(STDIN_FILENO, TCSANOW, &t);
+// 	res = ft_strdup("");
+// 	if (!res)
+// 		return (perror("malloc"), -1);
+// 	if (pipe(here_tube) == -1)
+// 		return (perror("pipe"), -1);
+// 	flag = 0;
+// 	while (1)
+// 	{
+// 		write(STDOUT_FILENO, "heredoc> ", 9);
+// 		content = get_next_line(STDIN_FILENO);
+// 		if (g_sig == 1)
+// 		{
+// 			g_sig = 0;
+// 			flag = 1;
+// 			break ;
+// 		}
+// 		if (!content)
+// 		{
+// 			ft_putstr_fd("\nmini: warning: here-document delimited by end-of-file (wanted `", STDERR_FILENO);
+// 			if (limiter)
+// 				ft_putstr_fd(limiter, STDERR_FILENO);
+// 			ft_putstr_fd("')\n", STDERR_FILENO);
+// 			break;
+// 		}
+// 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
+// 			&& content[ft_strlen(limiter)] == '\n')
+// 		{
+// 			free(content);
+// 			break ;
+// 		}
+// 		(void)line;
+// 		/*ici*/
+// 		while (content && need_expand(content) != 0)
+// 		{
+// 			temp = expanded_content(content, line);
+// 			if (!temp)
+// 				return (free(res), free(content), perror("malloc"), -1);
+// 			free(content);
+// 			content = temp;
+// 		}
+// 		tmp = res;
+// 		if (!tmp)
+// 			return (free(content), free(res), perror("malloc"), -1);
+// 		res = ft_strjoin(tmp, content);
+// 		if (!res)
+// 			return (free(content), free(tmp), perror("malloc"), -1);
+// 		free(content);
+// 		free(tmp);
+// 	}
+// 	if (flag == 1)
+// 	{
+// 		close(here_tube[1]);
+// 		close(here_tube[0]);
+// 		free(res);
+// 		sigaction(SIGINT, &old_int, NULL);
+// 		sigaction(SIGQUIT, &old_quit, NULL);
+// 		tcsetattr(STDIN_FILENO, TCSANOW, &old);
+// 		line->heredoc_flag = 1;
+// 		line->prev_exit = 130;
+// 		return (-2);
+// 	}
+// 	write(here_tube[1], res, ft_strlen(res));
+// 	free(res);
+// 	close(here_tube[1]);
+// 	sigaction(SIGINT, &old_int, NULL);
+// 	sigaction(SIGQUIT, &old_quit, NULL);
+// 	tcsetattr(STDIN_FILENO, TCSANOW, &old);
+// 	return (here_tube[0]);
+// }
+
 int	hd_c(char *limiter, t_line *line)
 {
 	int		here_tube[2];
@@ -430,28 +529,30 @@ int	hd_c(char *limiter, t_line *line)
 	sa_quit.sa_handler = SIG_IGN;
 	sigaction(SIGINT, &sa_int, &old_int);
 	sigaction(SIGQUIT, &sa_quit, &old_quit);
-	//empeche ^\ avec CTRL '\'
-	struct termios 	t;
-	struct termios	old;
-	tcgetattr(STDIN_FILENO, &old);
-	t = old;
-	t.c_lflag &= ~ECHOCTL; // désactive le bit ECHOCTL -> n'affiche plus ^/, ^C, etc
-	tcsetattr(STDIN_FILENO, TCSANOW, &t);
+
+	// empêche l’affichage ^\ avec CTRL '\'
+	// struct termios 	t;
+	// struct termios	old;
+	// tcgetattr(STDIN_FILENO, &old);
+	// t = old;
+	// t.c_lflag &= ~ECHOCTL; // n'affiche plus ^/, ^C, etc.
+	// tcsetattr(STDIN_FILENO, TCSANOW, &t);
 
 	res = ft_strdup("");
 	if (!res)
 		return (perror("malloc"), -1);
 	if (pipe(here_tube) == -1)
-		return (perror("pipe"), -1);
+		return (perror("pipe"), free(res), -1);
+
 	flag = 0;
 	while (1)
 	{
-		write(STDOUT_FILENO, "heredoc> ", 9);
-		content = get_next_line(STDIN_FILENO);
+		content = readline("heredoc> ");
 		if (g_sig == 1)
 		{
 			g_sig = 0;
 			flag = 1;
+			free(content);
 			break ;
 		}
 		if (!content)
@@ -460,16 +561,17 @@ int	hd_c(char *limiter, t_line *line)
 			if (limiter)
 				ft_putstr_fd(limiter, STDERR_FILENO);
 			ft_putstr_fd("')\n", STDERR_FILENO);
-			break;
+			break ;
 		}
+		/* arrêt sur le limiteur (readline ne renvoie pas le '\n') */
 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
-			&& content[ft_strlen(limiter)] == '\n')
+			&& content[ft_strlen(limiter)] == '\0')
 		{
 			free(content);
 			break ;
 		}
-		(void)line;
-		/*ici*/
+
+		/* expansions éventuelles */
 		while (content && need_expand(content) != 0)
 		{
 			temp = expanded_content(content, line);
@@ -478,6 +580,15 @@ int	hd_c(char *limiter, t_line *line)
 			free(content);
 			content = temp;
 		}
+
+		/* ajouter le '\n' que readline n’inclut pas, pour mimer gnl */
+		tmp = ft_strjoin(content, "\n");
+		if (!tmp)
+			return (free(res), free(content), perror("malloc"), -1);
+		free(content);
+		content = tmp;
+
+		/* concaténer au buffer résultat */
 		tmp = res;
 		if (!tmp)
 			return (free(content), free(res), perror("malloc"), -1);
@@ -487,6 +598,7 @@ int	hd_c(char *limiter, t_line *line)
 		free(content);
 		free(tmp);
 	}
+
 	if (flag == 1)
 	{
 		close(here_tube[1]);
@@ -494,17 +606,20 @@ int	hd_c(char *limiter, t_line *line)
 		free(res);
 		sigaction(SIGINT, &old_int, NULL);
 		sigaction(SIGQUIT, &old_quit, NULL);
-		tcsetattr(STDIN_FILENO, TCSANOW, &old);
+		// tcsetattr(STDIN_FILENO, TCSANOW, &old);
 		line->heredoc_flag = 1;
 		line->prev_exit = 130;
 		return (-2);
 	}
+
 	write(here_tube[1], res, ft_strlen(res));
 	free(res);
 	close(here_tube[1]);
+
 	sigaction(SIGINT, &old_int, NULL);
 	sigaction(SIGQUIT, &old_quit, NULL);
-	tcsetattr(STDIN_FILENO, TCSANOW, &old);
+	// tcsetattr(STDIN_FILENO, TCSANOW, &old);
+
 	return (here_tube[0]);
 }
 

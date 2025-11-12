@@ -23,6 +23,7 @@ t_pipeline	init_pipeline(t_line *line, int (*len)[3])
 {
 	t_pipeline	pipeline;
 
+	// printf("len[0] = %d\n", (*len)[0]);
 	ft_bzero(&pipeline, sizeof(pipeline));
 	pipeline.args = init_pipeline_args(line, (*len)[0]);
 	if (line->last_exit != 0)

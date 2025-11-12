@@ -26,7 +26,8 @@ void	sigint_handler_hd(int sig)
 {
 	(void)sig;
 	g_sig = 1;
-	write(STDERR_FILENO, "^C\n", 3);
+	write(STDERR_FILENO, "^C\nminishell> ", 14);
+	rl_done = 1;
 }
 
 void	sigquit_handler_hd(int sig)
@@ -56,7 +57,6 @@ void	sigquit_handler_child(int sig)
 void	setup_signals(void)
 {
 	extern int	rl_catch_signals;
-
 	rl_catch_signals = 0;
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, SIG_IGN);

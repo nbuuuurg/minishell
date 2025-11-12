@@ -94,6 +94,7 @@ int	match_tab(const char **pattern, char c)
 	char		start;
 	char		end;
 
+	(void)ok;
 	p = *pattern;
 	neg = 0;
 	ok = 0;

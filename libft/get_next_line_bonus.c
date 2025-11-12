@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "libft.h"
+#include "../include/minishell.h"
 
 void	ft_free_static(char *s)
 {
@@ -61,11 +62,15 @@ char	*ft_read_and_save(int fd, char *save)
 			return (free(buff), save = NULL);
 		}
 		if (read_bytes == 0 && save)
+		{
 			return (free(buff), save);
+		}
 		buff[read_bytes] = 0;
 		save = ft_strjoin_gnl(save, buff);
 		if (!save)
+		{
 			return (free(buff), NULL);
+		}
 	}
 	free(buff);
 	return (save);
