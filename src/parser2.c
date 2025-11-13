@@ -60,6 +60,7 @@ char	*expanded_var(t_line *line, char *var)
 	char	*expanded_var;
 	char	*the_env;
 
+	/* printf("var to find: %s\n", var); */
 	if (!var)
 		return (NULL);
 	if (ft_strncmp(var, "$$", 3) == 0 && ft_strlen(var) == 2)
@@ -85,7 +86,6 @@ char	*expanded_var(t_line *line, char *var)
 	}
 	else
 	{
-		/* printf("var to find: %s\n", var); */
 		the_env = find_env_var(line, var);
 		if (!the_env)
 		{
