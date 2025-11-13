@@ -572,7 +572,7 @@ int	hd_c(char *limiter, t_line *line)
 		}
 
 		/* expansions éventuelles */
-		while (content && need_expand(content) != 0)
+		if (content && need_expand(content) != 0)
 		{
 			temp = expanded_content(content, line);
 			if (!temp)

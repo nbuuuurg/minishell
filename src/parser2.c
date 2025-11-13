@@ -60,24 +60,23 @@ char	*expanded_var(t_line *line, char *var)
 	char	*expanded_var;
 	char	*the_env;
 
-	(void)line;
 	if (!var)
 		return (NULL);
-	if (ft_strncmp(var, "$$", 2) == 0)
+	if (ft_strncmp(var, "$$", 3) == 0 && ft_strlen(var) == 2)
 	{
 		expanded_var = ft_itoa(getpid());
 		free(var);
 		if (!expanded_var)
 			return (NULL);
 	}
-	else if (ft_strncmp(var, "$?", 2) == 0)
+	else if (ft_strncmp(var, "$?", 3) == 0 && ft_strlen(var) == 2)
 	{
 		expanded_var = ft_itoa(line->prev_exit);
 		free(var);
 		if (!expanded_var)
 			return (NULL);
 	}
-	else if (ft_strncmp(var, "$", 1) == 0)
+	else if (ft_strncmp(var, "$", 2) == 0 && ft_strlen(var) == 1)
 	{
 		expanded_var = ft_strdup("$");
 		free(var);
@@ -86,10 +85,11 @@ char	*expanded_var(t_line *line, char *var)
 	}
 	else
 	{
+		/* printf("var to find: %s\n", var); */
 		the_env = find_env_var(line, var);
 		if (!the_env)
 		{
-			expanded_var = ft_strdup("\0");
+			expanded_var = ft_strdup("");
 			free(var);
 			if (!expanded_var)
 				return (NULL);
