@@ -312,6 +312,8 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	char	*new_env_pwd;
 	char	*temp;
 
+	// a fix le cas de merde qd on suprime le dossier dans lequel on est 
+
 	if (cd_too_many_args(cmd) > 2)
 		return (ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO), 1);
 	if (!cmd.cmd[1])
@@ -325,9 +327,11 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	temp = getcwd(NULL, 0);
 	if (!temp)
 		return (perror("getcwd"), 1);
+		/* perror("getcwd"); // on vire le return pour qd meme arriver au chdir pour le cas de merde  */
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
+		/* perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde  */
 	free(temp);
 	if (chdir(path) == -1)
 	{

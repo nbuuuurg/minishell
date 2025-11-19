@@ -90,6 +90,7 @@ char	*expanded_var(t_line *line, char *var)
 		if (!the_env)
 		{
 			expanded_var = ft_strdup("");
+			/* expanded_var = NULL; */
 			free(var);
 			if (!expanded_var)
 				return (NULL);

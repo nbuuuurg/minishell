@@ -14,7 +14,16 @@
 
 volatile sig_atomic_t	g_sig = 0;
 
-// << e puis fleche du haut
+// expand : si $[not found in env] faire comme si ca n existait pas au lieu de remplacer par ""
+//			(pas dramatique dans le heredoc mais relou en dehors)
+//
+//			a deplacer au niveau de exec_exprs pour que marche export A=123 && echo $A 
+//			(parser l'expand de exprs 2 apres avoir executer exprs 1)
+//
+// heredoc : << e cat << r va cat e au lieu de r --> pourquoi ? idk man
+//
+// Signaux : ^C ne met pas tjr exit code a 130
+//			 ^D leaks si il y a eu des commandes avant 
 
 int	main(int ac, char **av, char **envp)
 {

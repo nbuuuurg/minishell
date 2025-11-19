@@ -55,6 +55,8 @@ static size_t	sft_count_words(const char *s, char c)
 {
 	size_t	word;
 
+	/* if (!s) */
+	/* 	return (0); */
 	word = 1;
 	while (*s && *s == c)
 		s++;
@@ -180,7 +182,6 @@ t_token	*p_pipe(t_line *line, t_token *temp, t_expr *new, int (*len)[3], int *i)
 
 int	parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 {
-	(void)line;
 	if (temp->previous
 		&& (temp->previous->type == REDIR_IN
 			|| temp->previous->type == REDIR_APPEND
@@ -190,6 +191,7 @@ int	parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 	if (temp->has_expand != 0)
 	{
 		temp->s = parse_expand(line, temp);
+		// si c est NULL voir que passo 
 		if (line->last_exit == EX_GEN)
 			return (EX_GEN);
 	}
