@@ -40,7 +40,7 @@ int	exec_builtin(t_cmd cmd, t_line *line)
 	if (ft_strncmp(cmd.cmd[0], "echo", 5) == 0)
 		return (ft_echo(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "env", 4) == 0)
-		return (ft_env(line));
+		return (ft_env(line, cmd));
 	if (ft_strncmp(cmd.cmd[0], "exit", 5) == 0)
 		return (ft_exit(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "export", 7) == 0)
@@ -110,10 +110,15 @@ int ft_echo(t_cmd cmd, t_line *line)
 	return (0);
 }
 
-int	ft_env(t_line *line)
+int	ft_env(t_line *line, t_cmd cmd)
 {
 	int	i;
 
+	if (cmd.cmd[1] != NULL)
+	{
+		ft_putstr_fd("env: too many arguments\n", STDERR_FILENO);
+		return (1);
+	}
 	i = 0;
 	while (line->envp && line->envp[i])
 	{
@@ -290,6 +295,16 @@ void	update_env_cd(t_line *line, char *oldpwd, char *newpwd)
 	}
 }
 
+int	cd_too_many_args(t_cmd cmd)
+{
+	int	i;
+
+	i = 0;
+	while (cmd.cmd[i] != NULL)
+		i++;
+	return (i);
+}
+
 int	ft_cd(t_cmd cmd, t_line *line)
 {
 	char	*path;
@@ -297,7 +312,9 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	char	*new_env_pwd;
 	char	*temp;
 
-	if (cmd.cmd[2])
+	// a fix le cas de merde qd on suprime le dossier dans lequel on est 
+
+	if (cd_too_many_args(cmd) > 2)
 		return (ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO), 1);
 	if (!cmd.cmd[1])
 	{
@@ -310,9 +327,11 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	temp = getcwd(NULL, 0);
 	if (!temp)
 		return (perror("getcwd"), 1);
+		/* perror("getcwd"); // on vire le return pour qd meme arriver au chdir pour le cas de merde  */
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
+		/* perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde  */
 	free(temp);
 	if (chdir(path) == -1)
 	{
@@ -324,7 +343,7 @@ int	ft_cd(t_cmd cmd, t_line *line)
 			ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
 		else
 			ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
-		return (1);
+		return (free(oldpwd), 1);
 	}
 	temp = getcwd(NULL, 0);
 	if (!temp)
