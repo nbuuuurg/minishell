@@ -201,14 +201,16 @@ void	free_exec_cmd(t_line *line)
 {
 	free_cmd_path(line);
 	free(line->cmd);
-	if (line->envp)
-		free_split(line->envp);
 	if (line->subline)
 	{
 		free_line_fork(line, 0);
 	}
 	else
+	{
+		if (line->envp)
+			free_split(line->envp);
 		free_line(line);
+	}
 }
 
 pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)

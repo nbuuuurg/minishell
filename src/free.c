@@ -26,7 +26,7 @@ void	free_line_fork(t_line *line, int i)
 		free_exprs(line->exprs);
 	if (line->path)
 		free_split(line->path);
-	if (line->envp && i != 0)
+	if (line->envp)
 		free_split(line->envp);
 	free(line->input);
 	if (line->subline)

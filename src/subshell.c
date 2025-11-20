@@ -109,6 +109,6 @@ t_line	*dup_line(t_line *line, t_token *subinput)
 	subline->lexer_err = 0;
 	subline->num_expr = 0;
 	subline->heredoc_flag = line->heredoc_flag;
-	subline->path = get_path(line->envp);
+	subline->path = get_path(subline->envp);
 	return (subline);
 }
