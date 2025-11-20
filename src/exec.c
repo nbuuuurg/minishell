@@ -397,7 +397,7 @@ int	ft_redir(t_redir *redirect, char *cmd)
 		}
 		else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0)
 		{
-			fd = redirect->hd_fd;
+			fd = redirect[i].hd_fd;
 			if (fd == -1)
 				return (1); // errror hd_c
 			dup2(fd, STDIN_FILENO);
