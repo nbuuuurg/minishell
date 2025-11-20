@@ -243,7 +243,7 @@ int     init_subshell(t_line *line, t_token *subinput);
 
 int		lexer_input(t_line *line);
 int		lexer_token(t_line *line);
-int		l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i);
+int		l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i, int exec);
 int		l_single_expr(t_line *line, t_expr *new, t_expr *expr);
 
 /* lexer2.c */

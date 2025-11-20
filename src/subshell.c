@@ -96,7 +96,9 @@ t_line	*dup_line(t_line *line, t_token *subinput)
 	if (!subline->input)
 		return (line->last_exit = EX_GEN, NULL);
 	subline->clean = subline->input;
-	subline->envp = line->envp;
+	subline->envp = ft_strdup2(line->envp);
+	if (!subline->envp)
+		return (line->last_exit = EX_GEN, NULL); 
 	subline->tokens = NULL;
 	subline->exprs = NULL;
 	subline->cmd = NULL;

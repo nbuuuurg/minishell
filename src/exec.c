@@ -55,7 +55,7 @@ void	exec_minishell(t_line *line)
 {
 	/*ici*/
 	/* print_expr(line); */
-	/* print_token(line); */
+	// print_token(line);
 	t_expr	*temp;
 	temp = line->exprs;
 	while(line->tokens->previous)
@@ -200,9 +200,9 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 void	free_exec_cmd(t_line *line)
 {
 	free_cmd_path(line);
+	free(line->cmd);
 	if (line->envp)
 		free_split(line->envp);
-	free(line->cmd);
 	if (line->subline)
 	{
 		free_line_fork(line, 0);
@@ -231,11 +231,15 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			{
                 exit_code = exec_builtin(*cmd, line);
 				free_exec_cmd(line);
+				// if (line->envp && !line->subline)
+					// free_split(line->envp);
                 _exit(exit_code);
 			}
 			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
 			{
 				free_exec_cmd(line);
+				// if (line->envp && !line->subline)
+					// free_split(line->envp);
                 _exit(exit_code);
 			}
 			else if (cmd->cmd && cmd->cmd[0])
@@ -247,6 +251,8 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
 						ft_putstr_fd(": command not found\n", STDERR_FILENO);
 						free_exec_cmd(line);
+						// if (line->envp && !line->subline)
+							// free_split(line->envp);
 						_exit(127);
 					}
 					if (S_ISDIR(sb.st_mode))
@@ -254,6 +260,8 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
 						ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
 						free_exec_cmd(line);
+						// if (line->envp && !line->subline)
+							// free_split(line->envp);
 						_exit(126);
 					}
 				}
@@ -272,6 +280,8 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 							ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);							
 						}
 						free_exec_cmd(line);
+						// if (line->envp && !line->subline)
+							// free_split(line->envp);
 						_exit(127);
 					}
 					else if (errno == EACCES)
@@ -279,6 +289,8 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 					   ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
 					   ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
 					   free_exec_cmd(line);
+						// if (line->envp && !line->subline)
+							// free_split(line->envp);
 					   _exit(126);
 					}
 					// else if (errno == EISDIR)
@@ -292,6 +304,8 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 					{
 					   perror(cmd->cmd[0]);
 					   free_exec_cmd(line);
+						// if (line->envp && !line->subline)
+							// free_split(line->envp);
 					   _exit(126);
 					}
 				}
@@ -299,12 +313,16 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				{
 					perror(cmd->cmd[0]);
 					free_exec_cmd(line);
+					// if (line->envp && !line->subline)
+						// free_split(line->envp);
 					_exit(127);
 				}
 			}
 			else if (!cmd->cmd[0])
 			{
 				free_exec_cmd(line);
+				// if (line->envp && !line->subline)
+					// free_split(line->envp);
 				/* printf("exit child no cmd\n"); */
 				_exit(0);
 			}
@@ -312,12 +330,16 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			{
 				//pour etre sur
 				free_exec_cmd(line);
+				// if (line->envp && !line->subline)
+					// free_split(line->envp);
 				_exit(0);
 			}
         }
 		else
 		{
 			free_exec_cmd(line);
+			// if (line->envp && !line->subline)
+				// free_split(line->envp);
 			if (!g_sig)
 				_exit(1);
 		}

@@ -28,11 +28,11 @@ int	init_subshell(t_line *line, t_token *subinput)
 		free(subline);
 		return (-1);
 	}
-	if (subline->exprs)
-		exec_minishell(subline);
 	if (subline->lexer_err != 0)
 		line->lexer_err = -3;
 	line->prev_exit = subline->prev_exit;
+	if (subline->envp)
+		free_split(subline->envp);
 	free_line(subline);
 	free(subline);
 	return (0);

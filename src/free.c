@@ -26,6 +26,8 @@ void	free_line_fork(t_line *line, int i)
 		free_exprs(line->exprs);
 	if (line->path)
 		free_split(line->path);
+	if (line->envp && i != 0)
+		free_split(line->envp);
 	free(line->input);
 	if (line->subline)
 	{
@@ -34,8 +36,6 @@ void	free_line_fork(t_line *line, int i)
 		else
 			free_line_fork(line->subline, 1);
 	}
-	else
-		free_line_fork(line->subline, 1);
 	if (i == 0)
 		free(line);
 }
@@ -45,7 +45,11 @@ void	free_line(t_line *line)
 	if (!line)
 		return ;
 	if (line->tokens)
+	{
+		while (line->tokens->previous)
+			line->tokens = line->tokens->previous;
 		free_tokens(line->tokens);
+	}
 	if (line->exprs)
 		free_exprs(line->exprs);
 	if (line->path)

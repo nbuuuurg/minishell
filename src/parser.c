@@ -108,9 +108,10 @@ char	**deal_with_that(t_line *line, t_token *temp, t_expr *new, int *w, int k)
 	{
 		if (!tempo[i + 1])
 		{
-			while(split[m])
+			int	l = 0;
+			while(split[l])
 			{
-				new_args[m] = ft_strdup(split[m]);
+				new_args[m] = ft_strdup(split[l]);
 				if (!new_args[m])
 				{
 					while (--m >= 0)
@@ -120,6 +121,7 @@ char	**deal_with_that(t_line *line, t_token *temp, t_expr *new, int *w, int k)
 					return (NULL);
 				}
 				m++;
+				l++;
 			}
 		}
 		else
@@ -200,7 +202,12 @@ int	parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j)
 	if (line->last_exit == EX_GEN)
 		return (EX_GEN);
 	else
-		new->pipeline[i].args[*j] = ft_strdup(temp->s);
+	{
+		if (temp->s[0] == '\0')
+			return (0);
+		else
+			new->pipeline[i].args[*j] = ft_strdup(temp->s);
+	}
 	if (!new->pipeline[i].args[*j])
 		return (EX_GEN);
 	(*j)++;

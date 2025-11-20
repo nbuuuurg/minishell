@@ -327,11 +327,11 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	temp = getcwd(NULL, 0);
 	if (!temp)
 		return (perror("getcwd"), 1);
-		/* perror("getcwd"); // on vire le return pour qd meme arriver au chdir pour le cas de merde  */
+		// perror("getcwd"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
-		/* perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde  */
+		// perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
 	free(temp);
 	if (chdir(path) == -1)
 	{

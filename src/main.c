@@ -47,6 +47,11 @@ int	main(int ac, char **av, char **envp)
 	while (1)
 	{
 		line.input = readline("minishell> ");
+		if (g_sig == 1)
+		{
+			g_sig = 0;
+			save.exit = 130;
+		}
 		if (!line.input)
 		{
 			write(STDOUT_FILENO, "exit\n", 5);
@@ -57,13 +62,11 @@ int	main(int ac, char **av, char **envp)
 				free_split(line.envp);
 			return (EX_OK);
 		}
-		if (g_sig == 1)
-			g_sig = 0;
 		if (line.input)
 			add_history(line.input);
 		init_minishell(&line, env, start_flag, &save);
-		if (line.exprs)
-			exec_minishell(&line);
+		// if (line.exprs)
+			// exec_minishell(&line);
 		recup_save(&line, &save);
 		free_line(&line);
 		start_flag = 1;

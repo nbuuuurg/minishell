@@ -55,12 +55,14 @@ int	lexer_token(t_line *line)
 	t_expr	*expr;
 	t_expr	*new;
 	int		flag;
+	int		flag_2;
 
 	temp = line->tokens;
 	expr = NULL;
 	new = NULL;
 	i = 0;
 	flag = 0;
+	flag_2 = 0;
 	temp = line->tokens;
 	while (temp)
 	{
@@ -102,11 +104,17 @@ int	lexer_token(t_line *line)
 				return (line->last_exit);
 		}
 		if ((temp->type == AND || temp->type == OR) && flag == 0)
-			line->last_exit = l_split_expr(line, temp, new, expr, i);
+		{
+			line->last_exit = l_split_expr(line, temp, new, expr, i, flag_2);
+			if (temp->type == OR && line->prev_exit == 0)
+				flag_2 = 1;
+			else
+				flag_2 = 0;
+		}
 		if (line->last_exit != 0)
 			return (line->last_exit);
 		temp = temp->next;
-		if (!temp && flag == 0)
+		if (!temp && flag == 0 && flag_2 == 0)
 			line->last_exit = l_single_expr(line, new, expr);
 		i++;
 		if (line->last_exit != 0)
@@ -116,7 +124,7 @@ int	lexer_token(t_line *line)
 	return (0);
 }
 
-int	l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)
+int	l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i, int exec)
 {
 	if (temp->type == AND || temp->type == OR)
 	{
@@ -135,6 +143,8 @@ int	l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i)
 		}
 		line->tokens = temp->next;
 	}
+	if (exec == 0)
+		exec_exprs(new, line->path, line);
 	return (0);
 }
 
@@ -152,5 +162,6 @@ int	l_single_expr(t_line *line, t_expr *new, t_expr *expr)
 		expr->next = new;
 		new->next = NULL;
 	}
+	exec_exprs(new, line->path, line);
 	return (0);
 }
