@@ -51,7 +51,10 @@ int	main(int ac, char **av, char **envp)
 		{
 			write(STDOUT_FILENO, "exit\n", 5);
 			clear_history();
-			free_split(env);
+			if (save.envp)
+				free_split(save.envp);
+			if (line.envp)
+				free_split(line.envp);
 			return (EX_OK);
 		}
 		if (g_sig == 1)

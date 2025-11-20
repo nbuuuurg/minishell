@@ -458,7 +458,7 @@ int	hd_c(char *limiter, t_line *line)
 		}
 		if (!content)
 		{
-			ft_putstr_fd("\nmini: warning: here-document delimited by end-of-file (wanted `", STDERR_FILENO);
+			ft_putstr_fd("mini: warning: here-document delimited by end-of-file (wanted `", STDERR_FILENO);
 			if (limiter)
 				ft_putstr_fd(limiter, STDERR_FILENO);
 			ft_putstr_fd("')\n", STDERR_FILENO);
