@@ -62,7 +62,11 @@ void	exec_minishell(t_line *line)
 		line->tokens = line->tokens->previous;
 	// printf("err : %d\n", line->lexer_err);
 	if (last_parse_err(line))
+	{
+
+		printf("%d\n", line->lexer_err);
 		return ;
+	}
 	while (temp != NULL)
 	{
 		if (temp)
