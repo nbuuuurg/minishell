@@ -60,6 +60,8 @@ int	main(int ac, char **av, char **envp)
 				free_split(save.envp);
 			if (line.envp)
 				free_split(line.envp);
+			else if (env)
+				free_split(env);
 			return (EX_OK);
 		}
 		if (line.input)

@@ -12,44 +12,43 @@
 
 #include "../include/minishell.h"
 
-int		last_parse_err(t_line *line)
-{
-	t_token	*temp;
-	t_token *temp2;
+// int		last_parse_err(t_line *line)
+// {
+// 	t_token	*temp;
+// 	t_token *temp2;
 
-	temp = line->tokens;
-	temp2 = line->tokens;
-	while (temp && temp->next)
-		temp = temp->next;
-	while (temp2 && temp2->previous)
-		temp2 = temp2->previous;
-	// printf("temp->s = %s\n", temp2->s);
-	if (temp && temp->type == PIPE)
-	{
-		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
-		return (line->lexer_err = -1, line->prev_exit = 2, 1);
-	}
-	if (temp2 && temp2->type == PIPE)
-	{
-		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
-		return (line->lexer_err = -2, line->prev_exit = 2, 1);
-	}
-	if (line->lexer_err == -3)
-		return (1);
-	if (line->lexer_err == -4)
-	{
-		ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
-		ft_putstr_fd(last_elem(line)->s, STDERR_FILENO);
-		ft_putstr_fd("\'\n", STDERR_FILENO);
-		return (line->lexer_err = -3, line->prev_exit = 2, 1);
-	}
-	if (line->lexer_err == -5)
-	{
-		ft_putstr_fd("mini: syntax error near unexpected token `newline'\n", STDERR_FILENO);
-		return (line->lexer_err = -4, line->prev_exit = 2, 1);
-	}
-	return (0);
-}
+// 	temp = line->tokens;
+// 	temp2 = line->tokens;
+// 	while (temp && temp->next)
+// 		temp = temp->next;
+// 	while (temp2 && temp2->previous)
+// 		temp2 = temp2->previous;
+// 	if (temp && temp->type == PIPE)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
+// 		return (line->lexer_err = -1, line->prev_exit = 2, 1);
+// 	}
+// 	if (temp2 && temp2->type == PIPE)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
+// 		return (line->lexer_err = -2, line->prev_exit = 2, 1);
+// 	}
+// 	if (line->lexer_err == -3)
+// 		return (1);
+// 	if (line->lexer_err == -4)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+// 		ft_putstr_fd(last_elem(line)->s, STDERR_FILENO);
+// 		ft_putstr_fd("\'\n", STDERR_FILENO);
+// 		return (line->prev_exit = 2, 1);
+// 	}
+// 	if (line->lexer_err == -5)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `newline'\n", STDERR_FILENO);
+// 		return (line->prev_exit = 2, 1);
+// 	}
+// 	return (0);
+// }
 
 void	exec_minishell(t_line *line)
 {
@@ -61,8 +60,6 @@ void	exec_minishell(t_line *line)
 	while(line->tokens->previous)
 		line->tokens = line->tokens->previous;
 	// printf("err : %d\n", line->lexer_err);
-	if (last_parse_err(line))
-		return ;
 	while (temp != NULL)
 	{
 		if (temp)
@@ -540,11 +537,9 @@ int	hd_c(char *limiter, t_line *line)
 	write(here_tube[1], res, ft_strlen(res));
 	free(res);
 	close(here_tube[1]);
-
 	sigaction(SIGINT, &old_int, NULL);
 	sigaction(SIGQUIT, &old_quit, NULL);
 	// tcsetattr(STDIN_FILENO, TCSANOW, &old);
-
 	return (here_tube[0]);
 }
 

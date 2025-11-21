@@ -12,14 +12,16 @@
 
 #include "../include/minishell.h"
 
-void	init_minishell(t_line *line, char **envp, int start_flag, t_save *save)
+int	init_minishell(t_line *line, char **envp, int start_flag, t_save *save)
 {
 	init_line(line, envp, start_flag, save);
 	if (line->last_exit != 0)
-		return ;
+		return (1);
 	if (line->len == 0)
-		return ;
+		return (1);
 	line->last_exit = lexer_input(line);
+	if (line->last_exit != 0)
+		return (0);
 	if (line->heredoc_flag == 1)
 	{
 		if (line->exprs)
@@ -28,7 +30,7 @@ void	init_minishell(t_line *line, char **envp, int start_flag, t_save *save)
 			line->exprs = NULL;
 		}
 	}
-	return ;
+	return (0);
 }
 
 int	init_clean_input(t_line *line)

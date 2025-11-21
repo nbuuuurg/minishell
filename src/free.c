@@ -29,6 +29,14 @@ void	free_line_fork(t_line *line, int i)
 	if (line->envp)
 		free_split(line->envp);
 	free(line->input);
+	// if (line->subline)
+	// {
+	// 	if (line->subline->tokens)
+	// 	{
+	// 		while (line->subline->tokens)
+	// 			line->subline->tokens = line->subline->tokens->previous;
+	// 	}
+	// }
 	if (line->subline)
 	{
 		if (line->subline->subline)

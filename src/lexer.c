@@ -12,6 +12,116 @@
 
 #include "../include/minishell.h"
 
+int	err_mini_parse(t_line *line)
+{
+	t_token	*begin;
+	t_token	*end;
+	int		fd;
+
+	(void)fd;
+	// print_token(line);
+	begin = line->tokens;
+	end = last_elem(line);
+	// printf("err : %d\n", line->lexer_err);
+	if (!line->tokens)
+		return (1);
+	if (!end || !begin)
+		return (1);
+	while (begin)
+	{
+		if (begin->in_subshell != 0)
+			(void)fd;
+		else if (begin->type == REDIR_APPEND || begin->type == REDIR_IN || begin->type == REDIR_OUT || begin->type == HEREDOC)
+		{
+			if (!begin->next)
+			{
+				ft_putstr_fd("mini: syntax error near unexpected token `newline'\n", STDERR_FILENO);
+				return (line->prev_exit = 2, 1);
+			}
+			else
+			{
+				if (begin->next->type != WORD)
+				{
+					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+					ft_putstr_fd(begin->next->s, STDERR_FILENO);
+					ft_putstr_fd("\'\n", STDERR_FILENO);
+					return (line->prev_exit = 2, 1);
+				}
+				else
+				{
+					if (begin->type == HEREDOC)
+					{
+						fd = hd_c(begin->next->s, line);
+					}
+				}
+			}
+		}
+		else if (begin->type == PIPE)
+		{
+			if (!begin->next)
+			{
+				ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
+				return (line->prev_exit = 2, 1);
+			}
+			else
+			{
+				if (begin->next->type == AND || begin->next->type == PIPE || begin->next->type == OR)
+				{
+					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+					ft_putstr_fd(begin->next->s, STDERR_FILENO);
+					ft_putstr_fd("\'\n", STDERR_FILENO);
+					return (line->prev_exit = 2, 1);
+				}
+			}
+		}
+		else if (begin->type == OR)
+		{
+			if (!begin->next)
+			{
+				ft_putstr_fd("mini: syntax error near unexpected token `||'\n", STDERR_FILENO);
+				return (line->prev_exit = 2, 1);
+			}
+			else
+			{
+				if (begin->next->type == AND || begin->next->type == PIPE || begin->next->type == OR)
+				{
+					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+					ft_putstr_fd(begin->next->s, STDERR_FILENO);
+					ft_putstr_fd("\'\n", STDERR_FILENO);
+					return (line->prev_exit = 2, 1);
+				}
+			}
+		}
+		else if (begin->type == AND)
+		{
+			if (!begin->next)
+			{
+				ft_putstr_fd("mini: syntax error near unexpected token `||'\n", STDERR_FILENO);
+				return (line->prev_exit = 2, 1);
+			}
+			else
+			{
+				if (begin->next->type == AND || begin->next->type == PIPE || begin->next->type == OR)
+				{
+					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+					ft_putstr_fd(begin->next->s, STDERR_FILENO);
+					ft_putstr_fd("\'\n", STDERR_FILENO);
+					return (line->prev_exit = 2, 1);
+				}
+			}
+		}
+		begin = begin->next;
+	}
+	if (line->lexer_err == -2)
+	{
+		ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+		ft_putstr_fd(begin->s, STDERR_FILENO);
+		ft_putstr_fd("\'\n", STDERR_FILENO);
+		return (line->prev_exit = 2, 1);
+	}
+	return (0);
+}
+
 int	lexer_input(t_line *line)
 {
 	char	*s;
@@ -45,6 +155,8 @@ int	lexer_input(t_line *line)
 		if (line->last_exit != 0)
 			return (line->last_exit);
 	}
+	if (err_mini_parse(line) == 1)
+		return (1);
 	return (lexer_token(line));
 }
 
@@ -67,7 +179,7 @@ int	lexer_token(t_line *line)
 	while (temp)
 	{
 		expr = line->exprs;
-		if (temp->in_subshell > 0)
+		if (temp->in_subshell > 0 && flag_2 == 0)
 		{
 			if (line->lexer_err == -2)
 				return (line->last_exit);

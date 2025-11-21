@@ -222,7 +222,7 @@ void    free_cmd_path(t_line *line);
 
 /* init.c */
 
-void    init_minishell(t_line *line, char **envp, int start_flag, t_save *save);
+int    init_minishell(t_line *line, char **envp, int start_flag, t_save *save);
 int    init_clean_input(t_line *line);
 void    init_line(t_line *line, char **envp, int start_flag, t_save *save);
 void	init_token(t_token *token, int multiple_quote, int quote, int i);
