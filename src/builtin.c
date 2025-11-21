@@ -135,7 +135,7 @@ int	ft_pwd(void)
 
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
-		return (perror("getcwd"), 1);
+		return (perror("pwd: error retrieving current directory: getcwd: cannot access parent directories"), 1);
 	ft_putstr_fd(cwd, STDOUT_FILENO);
 	write(STDOUT_FILENO, "\n", 1);
 	free(cwd);
@@ -312,8 +312,6 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	char	*new_env_pwd;
 	char	*temp;
 
-	// a fix le cas de merde qd on suprime le dossier dans lequel on est 
-
 	if (cd_too_many_args(cmd) > 2)
 		return (ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO), 1);
 	if (!cmd.cmd[1])
@@ -326,12 +324,31 @@ int	ft_cd(t_cmd cmd, t_line *line)
 		path = cmd.cmd[1];
 	temp = getcwd(NULL, 0);
 	if (!temp)
-		return (perror("getcwd"), 1);
-		// perror("getcwd"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
+	{
+		if (chdir(path) == -1)
+		{
+			ft_putstr_fd("cd: ", STDERR_FILENO);
+			ft_putstr_fd(path, STDERR_FILENO);
+			if (errno == ENOTDIR)
+				ft_putstr_fd(": Not a directory\n", STDERR_FILENO);
+			else if (errno == EACCES)
+				ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+			else
+				ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
+			return (1);
+		}
+		oldpwd = ft_strdup("OLDPWD= do not exist anymore");
+		if (!oldpwd)
+			return (perror("malloc"), 1);
+		new_env_pwd = ft_strdup("PWD=..");
+		if (!new_env_pwd)
+			return (perror("malloc"), free(oldpwd), 1);
+		update_env_cd(line, oldpwd, new_env_pwd);
+		return (perror("chdir: error retrieving current directory: getcwd: cannot access parent directories"), 1);
+	}
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
-		// perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
 	free(temp);
 	if (chdir(path) == -1)
 	{
