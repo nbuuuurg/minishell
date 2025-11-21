@@ -227,7 +227,7 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
     if (id == 0)
 	{
 		setup_signals_child();	
-        if (get_fd(fd_in, fd_out, cmd->redirect, cmd->cmd[0]) == 0) 
+        if (get_fd(fd_in, fd_out, cmd->redirect, cmd->cmd[0]) == 0)
 		{
             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
 			{

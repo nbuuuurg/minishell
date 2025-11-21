@@ -169,62 +169,66 @@ int	ft_export(t_cmd cmd, t_line *line)
 	int		exist_pos;
 	int		src;
 	int		dest;
+	int		i;
 
-	if (cmd.cmd[1] && has_equal(cmd.cmd[1]) == 0)
-		return (0);
-	if (!cmd.cmd[1])
-		return (1);
-	if (is_assignment(cmd.cmd[1]) == 0)
+	i = 1;
+	while (cmd.cmd[i])
 	{
-		ft_putstr_fd("export: `", STDERR_FILENO);
-		ft_putstr_fd(cmd.cmd[1], STDERR_FILENO);
-		ft_putstr_fd("\': not a valid identifier\n", STDERR_FILENO);
-		return (1);
-	}
-	exist_pos = var_exists(line, cmd.cmd[1]);
-	old_size = 0;
-	while (line->envp && line->envp[old_size])
-		old_size++;
-	if (exist_pos >= 0)
-		new_size = old_size;
-	else
-		new_size = old_size + 1;
-	new_env = malloc(sizeof(char *) * (new_size + 1));
-	if (!new_env)
-		return (perror("malloc"), 1);
-	src = 0;
-	dest = 0;
-	while (src < old_size)
-	{
-		if (src == exist_pos)
+		if (has_equal(cmd.cmd[i]) == 0)
+			return (0);
+		if (is_assignment(cmd.cmd[i]) == 0)
 		{
-			new_env[dest] = ft_strdup(cmd.cmd[1]);
-			if (!new_env[dest])
-				return (perror("malloc"), free_split(new_env), 1);
+			ft_putstr_fd("export: `", STDERR_FILENO);
+			ft_putstr_fd(cmd.cmd[i], STDERR_FILENO);
+			ft_putstr_fd("\': not a valid identifier\n", STDERR_FILENO);
+			return (1);
 		}
+		exist_pos = var_exists(line, cmd.cmd[i]);
+		old_size = 0;
+		while (line->envp && line->envp[old_size])
+			old_size++;
+		if (exist_pos >= 0)
+			new_size = old_size;
 		else
+			new_size = old_size + 1;
+		new_env = malloc(sizeof(char *) * (new_size + 1));
+		if (!new_env)
+			return (perror("malloc"), 1);
+		src = 0;
+		dest = 0;
+		while (src < old_size)
 		{
-			new_env[dest] = ft_strdup(line->envp[src]);
+			if (src == exist_pos)
+			{
+				new_env[dest] = ft_strdup(cmd.cmd[i]);
+				if (!new_env[dest])
+					return (perror("malloc"), free_split(new_env), 1);
+			}
+			else
+			{
+				new_env[dest] = ft_strdup(line->envp[src]);
+				if (!new_env[dest])
+					return (perror("malloc"), free_split(new_env), 1);
+			}
+			src++;
+			dest++;
+		}
+		if (exist_pos < 0)
+		{
+			new_env[dest] = ft_strdup(cmd.cmd[i]);
 			if (!new_env[dest])
 				return (perror("malloc"), free_split(new_env), 1);
+			dest++;
 		}
-		src++;
-		dest++;
-	}
-	if (exist_pos < 0)
-	{
-		new_env[dest] = ft_strdup(cmd.cmd[1]);
-		if (!new_env[dest])
+		new_env[dest] = NULL;
+		if (line->envp)
+			free_split(line->envp);
+		line->envp = ft_strdup2(new_env);
+		if (!line->envp)
 			return (perror("malloc"), free_split(new_env), 1);
-		dest++;
+		free_split(new_env);
+		i++;
 	}
-	new_env[dest] = NULL;
-	if (line->envp)
-		free_split(line->envp);
-	line->envp = ft_strdup2(new_env);
-	if (!line->envp)
-		return (perror("malloc"), free_split(new_env), 1);
-	free_split(new_env);
 	return (0);
 }
 
@@ -236,41 +240,47 @@ int	ft_unset(t_cmd cmd, t_line *line)
 	int		new_size;
 	int		src;
 	int		dest;
+	int		i;
 
-	if (!cmd.cmd[1])
-		return (0);
-	old_size = 0;
-	while (line->envp && line->envp[old_size])
-		old_size++;
-	exist_pos = var_exists(line, cmd.cmd[1]);
-	if (exist_pos < 0)
-		return (0);
-	new_size = old_size - 1;
-	new_env = malloc(sizeof(char *) * (new_size + 1));
-	if (!new_env)
-		return (perror("malloc"), 1);
-	src = 0;
-	dest = 0;
-	while (src < old_size)
+	i = 1;
+	while (cmd.cmd[i])
 	{
-		if (src == exist_pos)
-			src++;
-		else
+		if (!cmd.cmd[i])
+			return (0);
+		old_size = 0;
+		while (line->envp && line->envp[old_size])
+			old_size++;
+		exist_pos = var_exists(line, cmd.cmd[i]);
+		if (exist_pos < 0)
+			return (0);
+		new_size = old_size - 1;
+		new_env = malloc(sizeof(char *) * (new_size + 1));
+		if (!new_env)
+			return (perror("malloc"), 1);
+		src = 0;
+		dest = 0;
+		while (src < old_size)
 		{
-			new_env[dest] = ft_strdup(line->envp[src]);
-			if (!new_env[dest])
-				return (perror("malloc"), free_split(new_env), 1);
-			src++;
-			dest++;
+			if (src == exist_pos)
+				src++;
+			else
+			{
+				new_env[dest] = ft_strdup(line->envp[src]);
+				if (!new_env[dest])
+					return (perror("malloc"), free_split(new_env), 1);
+				src++;
+				dest++;
+			}
 		}
+		new_env[dest] = NULL;
+		if (line->envp)
+			free_split(line->envp);
+		line->envp = ft_strdup2(new_env);
+		if (!line->envp)
+			return (perror("malloc"), free_split(new_env), 1);
+		free_split(new_env);
+		i++;
 	}
-	new_env[dest] = NULL;
-	if (line->envp)
-		free_split(line->envp);
-	line->envp = ft_strdup2(new_env);
-	if (!line->envp)
-		return (perror("malloc"), free_split(new_env), 1);
-	free_split(new_env);
 	return (0);
 }
 
