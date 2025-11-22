@@ -524,14 +524,13 @@ int	hd_c(char *limiter, t_line *line)
 	if (flag == 1)
 	{
 		close(here_tube[1]);
-		close(here_tube[0]);
 		free(res);
 		sigaction(SIGINT, &old_int, NULL);
 		sigaction(SIGQUIT, &old_quit, NULL);
 		// tcsetattr(STDIN_FILENO, TCSANOW, &old);
 		line->heredoc_flag = 1;
 		line->prev_exit = 130;
-		return (-2);
+		return (here_tube[0]);
 	}
 
 	write(here_tube[1], res, ft_strlen(res));

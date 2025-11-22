@@ -18,6 +18,7 @@ volatile sig_atomic_t	g_sig = 0;
 // ls | cat << eof -> leak fd non ferme
 // ls | exit -> ne doit pas exit
 // (exit) -> doit exit le subshell
+// export A="          " && $A -> erreur sortie
 
 int	main(int ac, char **av, char **envp)
 {

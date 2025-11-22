@@ -30,7 +30,10 @@ int	err_open_heredoc(t_line *line)
 			else
 			{
 				if (begin->next->type == WORD)
+				{
 					fd = hd_c(begin->next->s, line);
+					close(fd);
+				}
 			}
 		}
 		begin = begin->next;

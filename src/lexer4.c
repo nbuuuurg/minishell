@@ -29,7 +29,10 @@ char	*lexer_special_char4(t_line *line, char **s, char **start, char **end)
 				add_back(line, create_token(line, *end, 1));
 			if (line->last_exit != 0)
 				return (NULL);
-			return (*s = *end + 1);
+			if (*(*end + 1) == 0)
+				return (*s = *end + 1);
+			else
+				return (*s = *end);
 		}
 		if (**end == '|')
 		{
