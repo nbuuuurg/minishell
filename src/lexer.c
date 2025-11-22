@@ -12,6 +12,32 @@
 
 #include "../include/minishell.h"
 
+int	err_open_heredoc(t_line *line)
+{
+	t_token	*begin;
+	int		fd;
+
+	(void)line;
+	begin = line->tokens;
+	while (begin)
+	{
+		if (begin->in_subshell != 0)
+			(void)fd;
+		else if (begin->type == HEREDOC)
+		{
+			if (!begin->next)
+				(void)fd;
+			else
+			{
+				if (begin->next->type == WORD)
+					fd = hd_c(begin->next->s, line);
+			}
+		}
+		begin = begin->next;
+	}
+	return (0);
+}
+
 int	err_mini_parse(t_line *line)
 {
 	t_token	*begin;
@@ -36,7 +62,7 @@ int	err_mini_parse(t_line *line)
 			else if (begin->in_subshell == -1)
 				ft_putstr_fd("mini: syntax error near unexpected token `)'\n", STDERR_FILENO);
 			else
-				ft_putstr_fd("mini: syntax error near unexpected token `)cat '\n", STDERR_FILENO);
+				ft_putstr_fd("mini: syntax error near unexpected token `)'\n", STDERR_FILENO);
 			return (line->prev_exit = 2, 1);
 		}
 		else if (begin->type == REDIR_APPEND || begin->type == REDIR_IN || begin->type == REDIR_OUT || begin->type == HEREDOC)
@@ -59,7 +85,7 @@ int	err_mini_parse(t_line *line)
 				{
 					if (begin->type == HEREDOC)
 					{
-						fd = hd_c(begin->next->s, line);
+						(void)fd;
 					}
 				}
 			}
@@ -167,7 +193,10 @@ int	lexer_input(t_line *line)
 			return (line->last_exit);
 	}
 	if (err_mini_parse(line) == 1)
+	{
+		err_open_heredoc(line);
 		return (1);
+	}
 	return (lexer_token(line));
 }
 
@@ -180,7 +209,6 @@ int	lexer_token(t_line *line)
 	int		flag;
 	int		flag_2;
 
-	temp = line->tokens;
 	expr = NULL;
 	new = NULL;
 	i = 0;

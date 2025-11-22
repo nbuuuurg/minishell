@@ -14,18 +14,10 @@
 
 volatile sig_atomic_t	g_sig = 0;
 
-// expand : si $[not found in env] faire comme si ca n existait pas au lieu de remplacer par ""
-//			(pas dramatique dans le heredoc mais relou en dehors)
-//
-//			a deplacer au niveau de exec_exprs pour que marche export A=123 && echo $A 
-//			(parser l'expand de exprs 2 apres avoir executer exprs 1)
-//
-// heredoc : << e cat << r va cat e au lieu de r --> pourquoi ? idk man
-//
-// Signaux : ^C ne met pas tjr exit code a 130
-//			 ^D leaks si il y a eu des commandes avant 
-
 // s | (echo a) -> leak
+// ls | cat << eof -> leak fd non ferme
+// ls | exit -> ne doit pas exit
+// (exit) -> doit exit le subshell
 
 int	main(int ac, char **av, char **envp)
 {
@@ -66,7 +58,7 @@ int	main(int ac, char **av, char **envp)
 				free_split(env);
 			return (EX_OK);
 		}
-		if (line.input)
+		if (line.input && line.input[0] != '\0')
 			add_history(line.input);
 		init_minishell(&line, env, start_flag, &save);
 		// if (line.exprs)
