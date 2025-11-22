@@ -69,28 +69,26 @@ char	*lexer_quoted_char(t_line *line, char *s, char *start, char *end)
 	return (s);
 }
 
-char	*lexer_subchell_char(t_line *line, char *s, char *start, char *end)
+char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end)
 {
-	int	open;
-	int	close;
-	int	temp_last_exit;
+        int     open;
+        int     close;
+        int     temp_last_exit;
 
-	open = 1;
-	close = 0;
-	temp_last_exit = 0;
-	while (*s && open != close)
-	{
-		s++;
-		if (*s == '(')
-			open++;
-		if (*s == ')')
-			close++;
-	}
-	if (*s == 0 && open != close)
-		temp_last_exit = -2;
-	end = s;
-	add_back(line, create_token(line, start, (end - start) + 1));
-	if (line->last_exit != 0)
-		return (NULL);
-	return (line->lexer_err = temp_last_exit, s);
+        open = 1;
+        close = 0;
+        temp_last_exit = 0;
+        while (*s && open != close)
+        {
+                s++;
+                if (*s == '(')
+                        open++;
+                if (*s == ')')
+                        close++;
+        }
+        end = s;
+        add_back(line, create_token(line, start, (end - start) + 1));
+        if (line->last_exit != 0)
+                return (NULL);
+        return (line->lexer_err = temp_last_exit, s);
 }

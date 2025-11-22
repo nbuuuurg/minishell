@@ -30,12 +30,7 @@ t_token	*create_token(t_line *line, char *s, int len)
 	token->s[len] = 0;
 	token->next = NULL;
 	token->quoted = NO_QUOTE;
-	if (token->s[len - 1] == ')')
-	{
-		token->in_subshell = count_subshell(token->s);
-	}
-	else
-		token->in_subshell = 0;
+	token->in_subshell = count_subshell(token->s);
 	token->in_heredoc = 0;
 	token = token_type(token);
 	token = has_expand(token);

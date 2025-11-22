@@ -135,7 +135,7 @@ int	ft_pwd(void)
 
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
-		return (perror("getcwd"), 1);
+		return (perror("pwd: error retrieving current directory: getcwd: cannot access parent directories"), 1);
 	ft_putstr_fd(cwd, STDOUT_FILENO);
 	write(STDOUT_FILENO, "\n", 1);
 	free(cwd);
@@ -160,118 +160,127 @@ int	var_exists(t_line *line, char *name)
 	}
 	return (-1);
 }
-
-int	ft_export(t_cmd cmd, t_line *line)
+int    ft_export(t_cmd cmd, t_line *line)
 {
-	char	**new_env;
-	int		old_size;
-	int		new_size;
-	int		exist_pos;
-	int		src;
-	int		dest;
+    char    **new_env;
+    int        old_size;
+    int        new_size;
+    int        exist_pos;
+    int        src;
+    int        dest;
+    int        i;
 
-	if (cmd.cmd[1] && has_equal(cmd.cmd[1]) == 0)
-		return (0);
-	if (!cmd.cmd[1])
-		return (1);
-	if (is_assignment(cmd.cmd[1]) == 0)
-	{
-		ft_putstr_fd("export: `", STDERR_FILENO);
-		ft_putstr_fd(cmd.cmd[1], STDERR_FILENO);
-		ft_putstr_fd("\': not a valid identifier\n", STDERR_FILENO);
-		return (1);
-	}
-	exist_pos = var_exists(line, cmd.cmd[1]);
-	old_size = 0;
-	while (line->envp && line->envp[old_size])
-		old_size++;
-	if (exist_pos >= 0)
-		new_size = old_size;
-	else
-		new_size = old_size + 1;
-	new_env = malloc(sizeof(char *) * (new_size + 1));
-	if (!new_env)
-		return (perror("malloc"), 1);
-	src = 0;
-	dest = 0;
-	while (src < old_size)
-	{
-		if (src == exist_pos)
-		{
-			new_env[dest] = ft_strdup(cmd.cmd[1]);
-			if (!new_env[dest])
-				return (perror("malloc"), free_split(new_env), 1);
-		}
-		else
-		{
-			new_env[dest] = ft_strdup(line->envp[src]);
-			if (!new_env[dest])
-				return (perror("malloc"), free_split(new_env), 1);
-		}
-		src++;
-		dest++;
-	}
-	if (exist_pos < 0)
-	{
-		new_env[dest] = ft_strdup(cmd.cmd[1]);
-		if (!new_env[dest])
-			return (perror("malloc"), free_split(new_env), 1);
-		dest++;
-	}
-	new_env[dest] = NULL;
-	if (line->envp)
-		free_split(line->envp);
-	line->envp = ft_strdup2(new_env);
-	if (!line->envp)
-		return (perror("malloc"), free_split(new_env), 1);
-	free_split(new_env);
-	return (0);
+    i = 1;
+    while (cmd.cmd[i])
+    {
+        if (has_equal(cmd.cmd[i]) == 0)
+            return (0);
+        if (is_assignment(cmd.cmd[i]) == 0)
+        {
+            ft_putstr_fd("export: `", STDERR_FILENO);
+            ft_putstr_fd(cmd.cmd[i], STDERR_FILENO);
+            ft_putstr_fd("\': not a valid identifier\n", STDERR_FILENO);
+            return (1);
+        }
+        exist_pos = var_exists(line, cmd.cmd[i]);
+        old_size = 0;
+        while (line->envp && line->envp[old_size])
+            old_size++;
+        if (exist_pos >= 0)
+            new_size = old_size;
+        else
+            new_size = old_size + 1;
+        new_env = malloc(sizeof(char *) * (new_size + 1));
+        if (!new_env)
+            return (perror("malloc"), 1);
+        src = 0;
+        dest = 0;
+        while (src < old_size)
+        {
+            if (src == exist_pos)
+            {
+                new_env[dest] = ft_strdup(cmd.cmd[i]);
+                if (!new_env[dest])
+                    return (perror("malloc"), free_split(new_env), 1);
+            }
+            else
+            {
+                new_env[dest] = ft_strdup(line->envp[src]);
+                if (!new_env[dest])
+                    return (perror("malloc"), free_split(new_env), 1);
+            }
+            src++;
+            dest++;
+        }
+        if (exist_pos < 0)
+        {
+            new_env[dest] = ft_strdup(cmd.cmd[i]);
+            if (!new_env[dest])
+                return (perror("malloc"), free_split(new_env), 1);
+            dest++;
+        }
+        new_env[dest] = NULL;
+		 if (line->envp)
+            free_split(line->envp);
+        line->envp = ft_strdup2(new_env);
+        if (!line->envp)
+            return (perror("malloc"), free_split(new_env), 1);
+        free_split(new_env);
+        i++;
+    }
+    return (0);
 }
 
-int	ft_unset(t_cmd cmd, t_line *line)
+int    ft_unset(t_cmd cmd, t_line *line)
 {
-	char	**new_env;
-	int		exist_pos;
-	int		old_size;
-	int		new_size;
-	int		src;
-	int		dest;
+    char    **new_env;
+    int        exist_pos;
+    int        old_size;
+    int        new_size;
+    int        src;
+    int        dest;
+    int        i;
 
-	if (!cmd.cmd[1])
-		return (0);
-	old_size = 0;
-	while (line->envp && line->envp[old_size])
-		old_size++;
-	exist_pos = var_exists(line, cmd.cmd[1]);
-	if (exist_pos < 0)
-		return (0);
-	new_size = old_size - 1;
-	new_env = malloc(sizeof(char *) * (new_size + 1));
-	if (!new_env)
-		return (perror("malloc"), 1);
-	src = 0;
-	dest = 0;
-	while (src < old_size)
-	{
-		if (src == exist_pos)
-			src++;
-		else
-		{
-			new_env[dest] = ft_strdup(line->envp[src]);
-			if (!new_env[dest])
-				return (perror("malloc"), free_split(new_env), 1);
-			src++;
-			dest++;
-		}
-	}
-	new_env[dest] = NULL;
-	if (line->envp)
-		free_split(line->envp);
-	line->envp = ft_strdup2(new_env);
-	if (!line->envp)
-		return (perror("malloc"), free_split(new_env), 1);
-	free_split(new_env);
-	return (0);
+    i = 1;
+    while (cmd.cmd[i])
+    {
+        if (!cmd.cmd[i])
+            return (0);
+        old_size = 0;
+        while (line->envp && line->envp[old_size])
+            old_size++;
+        exist_pos = var_exists(line, cmd.cmd[i]);
+        if (exist_pos < 0)
+            return (0);
+        new_size = old_size - 1;
+        new_env = malloc(sizeof(char *) * (new_size + 1));
+        if (!new_env)
+            return (perror("malloc"), 1);
+        src = 0;
+        dest = 0;
+        while (src < old_size)
+        {
+            if (src == exist_pos)
+                src++;
+            else
+            {
+                new_env[dest] = ft_strdup(line->envp[src]);
+                if (!new_env[dest])
+                    return (perror("malloc"), free_split(new_env), 1);
+                src++;
+                dest++;
+            }
+        }
+        new_env[dest] = NULL;
+        if (line->envp)
+            free_split(line->envp);
+        line->envp = ft_strdup2(new_env);
+        if (!line->envp)
+            return (perror("malloc"), free_split(new_env), 1);
+        free_split(new_env);
+        i++;
+    }
+    return (0);
 }
 
 void	update_env_cd(t_line *line, char *oldpwd, char *newpwd)
@@ -326,8 +335,28 @@ int	ft_cd(t_cmd cmd, t_line *line)
 		path = cmd.cmd[1];
 	temp = getcwd(NULL, 0);
 	if (!temp)
-		return (perror("getcwd"), 1);
-		// perror("getcwd"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
+	{
+		if (chdir(path) == -1)
+		{
+			ft_putstr_fd("cd: ", STDERR_FILENO);
+			ft_putstr_fd(path, STDERR_FILENO);
+			if (errno == ENOTDIR)
+				ft_putstr_fd(": Not a directory\n", STDERR_FILENO);
+			else if (errno == EACCES)
+				ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+			else
+				ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
+			return (1);
+		}
+		oldpwd = ft_strdup("OLDPWD= do not exist anymore");
+		if (!oldpwd)
+			return (perror("malloc"), 1);
+		new_env_pwd = ft_strdup("PWD=..");
+		if (!new_env_pwd)
+			return (perror("malloc"), free(oldpwd), 1);
+		update_env_cd(line, oldpwd, new_env_pwd);
+		return (perror("chdir: error retrieving current directory: getcwd: cannot access parent directories"), 1);
+	}
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);

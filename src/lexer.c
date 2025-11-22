@@ -29,8 +29,16 @@ int	err_mini_parse(t_line *line)
 		return (1);
 	while (begin)
 	{
-		if (begin->in_subshell != 0)
-			(void)fd;
+		if (begin->in_subshell % 2 != 0)
+		{
+			if (begin->in_subshell == -3)
+				ft_putstr_fd("mini: syntax error near unexpected token `('\n", STDERR_FILENO);
+			else if (begin->in_subshell == -1)
+				ft_putstr_fd("mini: syntax error near unexpected token `)'\n", STDERR_FILENO);
+			else
+				ft_putstr_fd("mini: syntax error near unexpected token `)cat '\n", STDERR_FILENO);
+			return (line->prev_exit = 2, 1);
+		}
 		else if (begin->type == REDIR_APPEND || begin->type == REDIR_IN || begin->type == REDIR_OUT || begin->type == HEREDOC)
 		{
 			if (!begin->next)
@@ -112,11 +120,14 @@ int	err_mini_parse(t_line *line)
 		}
 		begin = begin->next;
 	}
-	if (line->lexer_err == -2)
+	if (line->lexer_err == -8)
 	{
-		ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
-		ft_putstr_fd(begin->s, STDERR_FILENO);
-		ft_putstr_fd("\'\n", STDERR_FILENO);
+		ft_putstr_fd("mini: syntax error near unexpected token `('\n", STDERR_FILENO);
+		return (line->prev_exit = 2, 1);
+	}
+	if (line->lexer_err == -9)
+	{
+		ft_putstr_fd("mini: syntax error near unexpected token `)'\n", STDERR_FILENO);
 		return (line->prev_exit = 2, 1);
 	}
 	return (0);

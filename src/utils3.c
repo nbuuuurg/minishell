@@ -15,17 +15,27 @@
 int	count_subshell(char *s)
 {
 	int	open;
+	int	close;
 	int	i;
 
 	open = 0;
+	close = 0;
 	i = 0;
 	while (s[i])
 	{
 		if (s[i] == '(')
 			open++;
+		if (s[i] == ')')
+			close++;
 		i++;
 	}
-	return (open);
+	if (open > close)	
+		return (-1);
+	if (open < close)
+		return (-3);
+	if (i == open + close)
+		return (1);
+	return (open + close);
 }
 
 t_quoted	def_quote(int multiple_quote, int quote)

@@ -25,6 +25,8 @@ volatile sig_atomic_t	g_sig = 0;
 // Signaux : ^C ne met pas tjr exit code a 130
 //			 ^D leaks si il y a eu des commandes avant 
 
+// s | (echo a) -> leak
+
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;

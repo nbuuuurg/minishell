@@ -29,14 +29,14 @@ void	free_line_fork(t_line *line, int i)
 	if (line->envp)
 		free_split(line->envp);
 	free(line->input);
-	// if (line->subline)
-	// {
-	// 	if (line->subline->tokens)
-	// 	{
-	// 		while (line->subline->tokens)
-	// 			line->subline->tokens = line->subline->tokens->previous;
-	// 	}
-	// }
+	if (line->subline)
+	{
+		if (line->subline->tokens)
+		{
+			while (line->subline->tokens)
+				line->subline->tokens = line->subline->tokens->previous;
+		}
+	}
 	if (line->subline)
 	{
 		if (line->subline->subline)
@@ -100,7 +100,10 @@ void	free_tokens(t_token *tokens)
 	while (tokens)
 	{
 		if (tokens->s)
+		{
+			printf("tokens->s = %s\n", tokens->s);
 			free(tokens->s);
+		}
 		tokens = tokens->next;
 		free(temp);
 		temp = tokens;
