@@ -14,7 +14,7 @@
 
 volatile sig_atomic_t	g_sig = 0;
 
-// s | (echo a) -> leak
+// ls | (echo a) -> leak
 // ls | cat << eof -> leak fd non ferme
 // ls | exit -> ne doit pas exit
 // (exit) -> doit exit le subshell

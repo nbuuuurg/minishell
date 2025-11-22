@@ -178,7 +178,7 @@ typedef struct	s_line
 
 /* builtin.c */
 
-int		ft_exit(t_cmd cmd, t_line *line);
+int		ft_exit(t_cmd cmd, t_line *line, int flag);
 long	ft_atol(char *s);
 int		ft_cd(t_cmd cmd, t_line *line);
 void	update_env_cd(t_line *line, char *oldpwd, char *newpwd);
@@ -189,7 +189,7 @@ int		ft_echo(t_cmd cmd, t_line *line);
 int		is_option_n(char *s);
 int		ft_export(t_cmd cmd, t_line *line);
 int		var_exists(t_line *line, char *name);
-int		exec_builtin(t_cmd cmd, t_line *line);
+int		exec_builtin(t_cmd cmd, t_line *line, int flag);
 int		is_builtin(char *cmd);
 
 /* env.c */

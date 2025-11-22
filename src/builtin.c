@@ -29,11 +29,11 @@ int	is_builtin(char *cmd)
 	if (ft_strncmp(cmd, "cd", 3) == 0)
 		return (2);
 	if (ft_strncmp(cmd, "exit", 5) == 0)
-		return (2);
+		return (3);
 	return (0);
 } 
 
-int	exec_builtin(t_cmd cmd, t_line *line)
+int	exec_builtin(t_cmd cmd, t_line *line, int flag)
 {
 	if (ft_strncmp(cmd.cmd[0], "pwd", 4) == 0)
 		return (ft_pwd());
@@ -42,7 +42,7 @@ int	exec_builtin(t_cmd cmd, t_line *line)
 	if (ft_strncmp(cmd.cmd[0], "env", 4) == 0)
 		return (ft_env(line, cmd));
 	if (ft_strncmp(cmd.cmd[0], "exit", 5) == 0)
-		return (ft_exit(cmd, line));
+		return (ft_exit(cmd, line, flag));
 	if (ft_strncmp(cmd.cmd[0], "export", 7) == 0)
 		return (ft_export(cmd, line));
 	if (ft_strncmp(cmd.cmd[0], "unset", 6) == 0)
@@ -416,7 +416,7 @@ long	ft_atol(char *s)
 	return ((result * sign) % 256);
 }
 
-int	ft_exit(t_cmd cmd, t_line *line)
+int	ft_exit(t_cmd cmd, t_line *line, int flag)
 {
 	long	exit_code;
 	int		last_exit;
@@ -424,14 +424,16 @@ int	ft_exit(t_cmd cmd, t_line *line)
 	if (!cmd.cmd[1])
 	{
 		last_exit = line->prev_exit;
-		write(STDOUT_FILENO, "exit\n", 5);
+		if (flag)
+			write(STDOUT_FILENO, "exit\n", 5);
 		free_exec_cmd(line);
 		clear_history();
 		exit(last_exit);
 	}
 	else if (ft_isdigit_str(cmd.cmd[1]) == 0)
 	{
-		write(STDOUT_FILENO, "exit\n", 5);
+		if (flag)
+			write(STDOUT_FILENO, "exit\n", 5);
 		ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
 		free_exec_cmd(line);
 		clear_history();
@@ -439,14 +441,16 @@ int	ft_exit(t_cmd cmd, t_line *line)
 	}
 	else if (cmd.cmd[1] && cmd.cmd[2])
 	{
-		write(STDOUT_FILENO, "exit\n", 5);
+		if (flag)
+			write(STDOUT_FILENO, "exit\n", 5);
 		ft_putstr_fd("exit: too many arguments\n", STDERR_FILENO);
 		return (1);
 	}
 	else if (cmd.cmd[1])
 	{
 		exit_code = ft_atol(cmd.cmd[1]);
-		write(STDOUT_FILENO, "exit\n", 5);
+		if (flag)
+			write(STDOUT_FILENO, "exit\n", 5);
 		free_exec_cmd(line);
 		clear_history();
 		if (exit_code == 555)
