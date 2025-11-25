@@ -15,10 +15,8 @@
 volatile sig_atomic_t	g_sig = 0;
 
 // ls | (echo a) -> leak
-// ls | cat << eof -> leak fd non ferme
-// ls | exit -> ne doit pas exit
-// (exit) -> doit exit le subshell
 // export A="          " && $A -> erreur sortie
+// plusieurs heredoc + signal -> fds non fermes
 
 int	main(int ac, char **av, char **envp)
 {
@@ -27,8 +25,8 @@ int	main(int ac, char **av, char **envp)
 	char	**env;
 	int		start_flag;
 
-	// if (!isatty(STDIN_FILENO))
-	// 	return (1);
+	if (!isatty(STDIN_FILENO))
+		return (1);
 	setup_signals();
 	start_flag = 0;
 	env = ft_strdup2(envp);

@@ -97,9 +97,11 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 {
 
 	int		i;
+	/* int		j; */
 	t_cmd	*cmd;
 	int		fd[2];
 	int		fd_next[2];
+	/* int		fd_hd_temp; */
 
 	struct sigaction old_int;
 	struct sigaction old_quit;
@@ -122,6 +124,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 		{
 			cmd[i] = get_cmd(exprs->pipeline[i], path);
 			cmd[i].pipe_count = exprs->pipe_count;
+			
 		}
 		i++;
 	}
@@ -264,6 +267,28 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 						_exit(126);
 					}
 				}
+
+				int	i;
+				int	j;
+
+				i = line->exprs->pipe_count;
+				while (i >= 0)
+				{
+					j = 0;
+					while (j < line->exprs->pipeline[i].redir_count)
+					{
+						if (ft_strncmp(line->exprs->pipeline[i].redirect[j].redir, "<<", 2) == 0)
+						{
+							if (line->exprs->pipeline[i].redirect[j].hd_fd != -1)
+							{
+								close(line->exprs->pipeline[i].redirect[j].hd_fd);
+								line->exprs->pipeline[i].redirect[j].hd_fd = -1;
+							}
+						}
+						j++;
+					}
+					i--;
+				}
 				if (execve(cmd->full_path, cmd->cmd, line->envp) == -1)
 				{
 					if (errno == ENOENT)
@@ -320,6 +345,25 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 				_exit(1);
 		}
     }
+	else
+	{
+		if (cmd->redirect)
+		{
+			int	i = 0;
+			while (cmd->redirect[i].redir)
+			{
+				if (ft_strncmp(cmd->redirect[i].redir, "<<", 3) == 0)
+				{
+					if (cmd->redirect[i].hd_fd != -1)
+					{
+						close(cmd->redirect[i].hd_fd);
+						cmd->redirect[i].hd_fd = -1;
+					}
+				}
+				i++;
+			}
+		}
+	}
     return (id);
 }
 
@@ -386,13 +430,14 @@ int	ft_redir(t_redir *redirect, char *cmd)
 			dup2(fd, STDIN_FILENO);
 			close(fd);
 		}
-		else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0)
+		else if (ft_strncmp(redirect[i].redir, "<<", ft_strlen(redirect[i].redir)) == 0)
 		{
 			fd = redirect[i].hd_fd;
 			if (fd == -1)
 				return (1); // errror hd_c
 			dup2(fd, STDIN_FILENO);
 			close(fd);
+			redirect[i].hd_fd = -1;
 		}
 		i++;
 	}
