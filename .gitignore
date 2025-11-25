@@ -1,0 +1,16 @@
+# Build artifacts
+*.o
+*.a
+minishell
+
+# Object directories
+obj/
+
+# Valgrind suppression file
+readline.supp
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/

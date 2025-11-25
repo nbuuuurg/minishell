@@ -12,6 +12,27 @@
 
 #include "../include/minishell.h"
 
+static void	close_heredoc_fds(t_pipeline *pipeline)
+{
+	int	j;
+
+	if (!pipeline || !pipeline->redirect)
+		return ;
+	j = 0;
+	while (j < pipeline->redir_count)
+	{
+		if (pipeline->redirect[j].redir
+			&& pipeline->redirect[j].redir[0] == '<'
+			&& pipeline->redirect[j].redir[1] == '<'
+			&& pipeline->redirect[j].hd_fd >= 0)
+		{
+			close(pipeline->redirect[j].hd_fd);
+			pipeline->redirect[j].hd_fd = -1;
+		}
+		j++;
+	}
+}
+
 // int		last_parse_err(t_line *line)
 // {
 // 	t_token	*temp;
@@ -141,7 +162,10 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 		if (exprs->has_subshell == 0)
 		{
 			if (exprs->pipe_count == 0)
+			{
 				cmd[i].id = exec_cmd(&cmd[i], NULL, NULL, line);
+				close_heredoc_fds(&exprs->pipeline[i]);
+			}
 			else
 			{
 				if (exprs->pipeline[i].position != 3)
@@ -155,6 +179,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 					cmd[i].id = exec_cmd(&cmd[i], fd, fd_next, line);
 				else if (exprs->pipeline[i].position == 3)
 					cmd[i].id = exec_cmd(&cmd[i], fd, NULL, line);
+				close_heredoc_fds(&exprs->pipeline[i]);
 				if (i > 0)
 				{
 					close(fd[0]);
