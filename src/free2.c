@@ -38,7 +38,7 @@ void	free_e(t_expr *exprs)
 void	free_redirect(t_pipeline *pipe)
 {
 	int	i;
-	
+
 	i = 0;
 	while (i < pipe->redir_count)
 	{

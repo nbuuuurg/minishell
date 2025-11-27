@@ -208,6 +208,18 @@ typedef struct	s_parse2
 
 }				t_parse2;
 
+typedef struct	s_sub1
+{
+	size_t	len;
+	char	*subinput;
+	size_t	i;
+	size_t	j;
+	int		subshell;
+	int		subshell2;
+	char	*temp;
+	t_token	*ttemp;
+}				t_sub1;
+
 /* ************************************************************************** */
 /*                               PROTOTYPES                                   */
 /* ************************************************************************** */
@@ -279,6 +291,7 @@ t_pipeline  init_pipeline(t_line *line, int (*len)[3]);
 /* init3.c */
 
 int     init_subshell(t_line *line, t_token *subinput);
+t_line  *dup_line(t_line *line, t_token *subinput);
 
 /* init4.c */
 
@@ -415,16 +428,21 @@ void    print_error(char *s, t_exit code);
 void sigint_handler(int sig);
 void setup_signals(void);
 void setup_signals_child(void);
-void sigint_handler_child(int sig);
-void sigint_handler_hd(int sig);
-void sigquit_handler_child(int sig);
-void sigquit_handler_hd(int sig);
 
+/* signals2.c */
+
+void sigint_handler_hd(int sig);
+void sigquit_handler_hd(int sig);
+void sigint_handler_child(int sig);
+void sigquit_handler_child(int sig);
 
 /* subshell.c */
 
 char    *new_subinput(t_line *line, t_token *token);
-t_line  *dup_line(t_line *line, t_token *subinput);
+int	init_sub1(t_sub1 *d, t_token *token);
+void	fill_subinput(t_sub1 *d, t_token *token);
+void	add_previous_pipes(t_sub1 *d, t_token *token);
+void	add_next_pipes(t_sub1 *d, t_token *token);
 
 /* tokenizer.c */
 
@@ -456,6 +474,9 @@ t_quoted	def_quote(int	multiple_quote, int quote);
 int     is_something(char c);
 int		need_expand(char *s);
 int		has_wildcards(char *s);
+
+/* utils4.c */
+
 char	**ft_strdup2(char **env);
 char	*find_env_var(t_line *line, char *var);
 int		ft_isdigit_str(char *s);
@@ -464,11 +485,22 @@ void	recup_save(t_line *line, t_save *save);
 
 /* wildcards.c */
 
+int	ft_fnmatch(char *pattern, char *str);
+t_token     *parse_wildcards(t_line *line, t_token *token);
+
+/* wildcards2.c */
+
+void	match_tab_advance(char **p, char c, int *ok);
+int	match_tab_class(char **pattern, char c, int *neg_out);
+int	match_tab(char **pattern, char c);
+
+/* wildcards3.c */
+
+t_token	*lst_join_single(t_token *at, t_token *nw, t_line *line);
+t_token	*lst_join_between(t_token *left, t_token *nw, t_token *right);
 t_token	*lst_join(t_token *at, t_token *nw, t_line *line);
 t_token	*last_elem_w(t_token *token);
 t_token *add_back_w(t_token *old, t_token *new);
-int	match_tab(const char **pattern, char c);
-int	ft_fnmatch(const char *pattern, const char *str);
-t_token     *parse_wildcards(t_line *line, t_token *token);
+
 
 #endif

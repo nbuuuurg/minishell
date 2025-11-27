@@ -16,8 +16,6 @@ t_token	*create_token(t_line *line, char *s, int len)
 {
 	t_token	*token;
 
-	(void)line;
-	(void)s;
 	if (len <= 0)
 		return (NULL);
 	token = ft_calloc(1, sizeof(t_token));
@@ -48,8 +46,6 @@ t_token	*create_quoted_token(t_line *line, char *s, int len, int quote)
 	int		i;
 	int		multiple_quote;
 
-	(void)line;
-	(void)s;
 	if (len <= 0)
 		return (NULL);
 	token = ft_calloc(1, sizeof(t_token));

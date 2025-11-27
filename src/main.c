@@ -14,10 +14,6 @@
 
 volatile sig_atomic_t	g_sig = 0;
 
-// ls | (echo a) -> leak
-// export A="          " && $A -> erreur sortie
-// plusieurs heredoc + signal -> fds non fermes
-
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;

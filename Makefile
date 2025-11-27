@@ -35,12 +35,16 @@ SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)print.c \
 	  $(SRC_DIR)print_err.c \
 	  $(SRC_DIR)signals.c \
+	  $(SRC_DIR)signals2.c \
 	  $(SRC_DIR)subshell.c \
 	  $(SRC_DIR)tokenizer.c \
 	  $(SRC_DIR)utils.c \
 	  $(SRC_DIR)utils2.c \
 	  $(SRC_DIR)utils3.c \
-	  $(SRC_DIR)wildcards.c
+	  $(SRC_DIR)utils4.c \
+	  $(SRC_DIR)wildcards.c \
+	  $(SRC_DIR)wildcards2.c \
+	  $(SRC_DIR)wildcards3.c
 
 OBJ= $(SRC:$(SRC_DIR)%.c=$(SRC_OBJ)%.o)
 

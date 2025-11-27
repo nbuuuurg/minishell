@@ -29,7 +29,7 @@ int	is_assignment(char *s)
 		return (0);
 	i = 1;
 	while (s[i])
-	{		
+	{
 		if (s[i] == '=')
 			return (1);
 		if (!(ft_isalnum(s[i]) || s[i] == '_'))

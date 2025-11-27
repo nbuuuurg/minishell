@@ -94,7 +94,7 @@ int	l_handle_token(t_line *line, t_lexer1 *lexer)
 int	lexer_token(t_line *line)
 {
 	t_lexer1	lexer;
-	int		ret;
+	int			ret;
 
 	l_init_lexer1(&lexer, line);
 	while (lexer.temp)
