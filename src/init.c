@@ -26,7 +26,7 @@ int	init_minishell(t_line *line, char **envp, int start_flag, t_save *save)
 	{
 		if (line->exprs)
 		{
-			free_exprs(line->exprs);
+			free_e(line->exprs);
 			line->exprs = NULL;
 		}
 	}
@@ -55,54 +55,54 @@ int	init_clean_input(t_line *line)
 
 void	init_line2(t_line *line, char **envp)
 {
-		line->tokens = NULL;
-		line->exprs = NULL;
-		line->cmd = NULL;
-		line->subline = NULL;
-		line->num_expr = 0;
-		line->lexer_err = 0;
-		line->heredoc_flag = 0;
-		line->prev_exit = 0;
-		line->len = ft_strlen(line->input);
-		if (envp)
-			line->envp = envp;
-		else
-			line->envp = NULL;
-		if (envp)
-			line->path = get_path(envp);
-		else
-			line->path = NULL;
-		line->last_exit = init_clean_input(line);
-		if (line->last_exit != 0)
-			return ;
+	line->tokens = NULL;
+	line->exprs = NULL;
+	line->cmd = NULL;
+	line->subline = NULL;
+	line->num_expr = 0;
+	line->lexer_err = 0;
+	line->heredoc_flag = 0;
+	line->prev_exit = 0;
+	line->len = ft_strlen(line->input);
+	if (envp)
+		line->envp = envp;
+	else
+		line->envp = NULL;
+	if (envp)
+		line->path = get_path(envp);
+	else
+		line->path = NULL;
+	line->last_exit = init_clean_input(line);
+	if (line->last_exit != 0)
+		return ;
 }
 
 void	init_line3(t_line *line, char **envp, t_save *save)
 {
-		line->tokens = NULL;
-		line->exprs = NULL;
-		line->cmd = NULL;
-		line->subline = NULL;
-		line->num_expr = 0;
-		line->lexer_err = 0;
-		line->heredoc_flag = 0;
-		line->len = ft_strlen(line->input);
-		if (line->envp)
-			free_split(line->envp);
-		if (envp)
-			line->envp = ft_strdup2(save->envp);
-		else
-			line->envp = NULL;
-		if (save->envp)
-			line->path = get_path(save->envp);
-		else
-			line->path = NULL;
-		line->last_exit = init_clean_input(line);
-		if (line->last_exit != 0)
-			return ;
-		if (save->envp)
-			free_split(save->envp);
-		line->prev_exit = save->exit;
+	line->tokens = NULL;
+	line->exprs = NULL;
+	line->cmd = NULL;
+	line->subline = NULL;
+	line->num_expr = 0;
+	line->lexer_err = 0;
+	line->heredoc_flag = 0;
+	line->len = ft_strlen(line->input);
+	if (line->envp)
+		free_split(line->envp);
+	if (envp)
+		line->envp = ft_strdup2(save->envp);
+	else
+		line->envp = NULL;
+	if (save->envp)
+		line->path = get_path(save->envp);
+	else
+		line->path = NULL;
+	line->last_exit = init_clean_input(line);
+	if (line->last_exit != 0)
+		return ;
+	if (save->envp)
+		free_split(save->envp);
+	line->prev_exit = save->exit;
 }
 
 void	init_line(t_line *line, char **envp, int start_flag, t_save *save)
@@ -111,43 +111,4 @@ void	init_line(t_line *line, char **envp, int start_flag, t_save *save)
 		init_line2(line, envp);
 	else
 		init_line3(line, envp, save);
-}
-
-void	init_token(t_token *token, int multiple_quote, int quote, int i)
-{
-	token->s[i] = 0;
-	token->quoted = def_quote(multiple_quote, quote);
-	token->previous = NULL;
-	token->next = NULL;
-	token = token_type(token);
-	token = has_expand(token);
-}
-
-t_expr	*init_new_expr(t_line *line, t_token_type op_ctrl)
-{
-	t_expr	*new;
-	t_token	*temp;
-	int		pipe;
-	int		i;
-
-	new = ft_calloc(1, sizeof(t_expr));
-	if (!new)
-		return (NULL);
-	new->op_after = op_ctrl;
-	temp = line->tokens;
-	pipe = 0;
-	i = 0;
-	while (temp && temp->type != op_ctrl)
-	{
-		if (temp->type == PIPE)
-			pipe++;
-		i++;
-		temp = temp->next;
-	}
-	new->pipe_count = pipe;
-	new->has_subshell = 0;
-	new->pipeline = ft_calloc(new->pipe_count + 1, sizeof(t_pipeline));
-	if (!new->pipeline)
-		return (free(new), NULL);
-	return (new);
 }

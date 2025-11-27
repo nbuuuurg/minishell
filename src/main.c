@@ -60,8 +60,6 @@ int	main(int ac, char **av, char **envp)
 		if (line.input && line.input[0] != '\0')
 			add_history(line.input);
 		init_minishell(&line, env, start_flag, &save);
-		// if (line.exprs)
-			// exec_minishell(&line);
 		recup_save(&line, &save);
 		free_line(&line);
 		start_flag = 1;
