@@ -53,10 +53,8 @@ int	init_clean_input(t_line *line)
 	return (0);
 }
 
-void	init_line(t_line *line, char **envp, int start_flag, t_save *save)
+void	init_line2(t_line *line, char **envp)
 {
-	if (start_flag == 0)
-	{
 		line->tokens = NULL;
 		line->exprs = NULL;
 		line->cmd = NULL;
@@ -77,9 +75,10 @@ void	init_line(t_line *line, char **envp, int start_flag, t_save *save)
 		line->last_exit = init_clean_input(line);
 		if (line->last_exit != 0)
 			return ;
-	}
-	else
-	{
+}
+
+void	init_line3(t_line *line, char **envp, t_save *save)
+{
 		line->tokens = NULL;
 		line->exprs = NULL;
 		line->cmd = NULL;
@@ -104,7 +103,14 @@ void	init_line(t_line *line, char **envp, int start_flag, t_save *save)
 		if (save->envp)
 			free_split(save->envp);
 		line->prev_exit = save->exit;
-	}
+}
+
+void	init_line(t_line *line, char **envp, int start_flag, t_save *save)
+{
+	if (start_flag == 0)
+		init_line2(line, envp);
+	else
+		init_line3(line, envp, save);
 }
 
 void	init_token(t_token *token, int multiple_quote, int quote, int i)

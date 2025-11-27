@@ -224,6 +224,8 @@ void    free_cmd_path(t_line *line);
 
 int    init_minishell(t_line *line, char **envp, int start_flag, t_save *save);
 int    init_clean_input(t_line *line);
+void	init_line2(t_line *line, char **envp);
+void	init_line3(t_line *line, char **envp, t_save *save);
 void    init_line(t_line *line, char **envp, int start_flag, t_save *save);
 void	init_token(t_token *token, int multiple_quote, int quote, int i);
 t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
@@ -241,6 +243,12 @@ int     init_subshell(t_line *line, t_token *subinput);
 
 /* lexer.c */
 
+int		err_open_heredoc(t_line *line);
+int		lex_err(t_line *line);
+int		err_mini_parse(t_line *line);
+int		lexer_process_char(t_line *line, char **s, char **start, char **end);
+int		lexer_handle_last_char(t_line *line, char **s, char **start, char **end);
+int		lexer_finish(t_line *line);
 int		lexer_input(t_line *line);
 int		lexer_token(t_line *line);
 int		l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i, int exec);
@@ -287,6 +295,14 @@ char	*parse_expand(t_line *line, t_token *token);
 
 char	*n_exp_c(t_line *line, size_t j, char *s, char *ex_var, size_t old_len);
 char	*expanded_content(char *s, t_line *line);
+
+/* print_err.c */
+
+void    print_err_1(t_token *begin);
+void    print_err_2(t_token *begin);
+void    print_err_3(t_token *begin);
+void    print_err_4(t_token *begin);
+void    print_err_5(t_token *begin);
 
 /* print.c */
 

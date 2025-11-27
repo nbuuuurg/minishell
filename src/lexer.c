@@ -41,125 +41,84 @@ int	err_open_heredoc(t_line *line)
 	return (0);
 }
 
-int	err_mini_parse(t_line *line)
+int	lex_err(t_line *line)
 {
-	t_token	*begin;
-	t_token	*end;
-	int		fd;
-
-	(void)fd;
-	// print_token(line);
-	begin = line->tokens;
-	end = last_elem(line);
-	// printf("err : %d\n", line->lexer_err);
-	if (!line->tokens)
-		return (1);
-	if (!end || !begin)
-		return (1);
-	while (begin)
-	{
-		if (begin->in_subshell % 2 != 0)
-		{
-			if (begin->in_subshell == -3)
-				ft_putstr_fd("mini: syntax error near unexpected token `('\n", STDERR_FILENO);
-			else if (begin->in_subshell == -1)
-				ft_putstr_fd("mini: syntax error near unexpected token `)'\n", STDERR_FILENO);
-			else
-				ft_putstr_fd("mini: syntax error near unexpected token `)'\n", STDERR_FILENO);
-			return (line->prev_exit = 2, 1);
-		}
-		else if (begin->type == REDIR_APPEND || begin->type == REDIR_IN || begin->type == REDIR_OUT || begin->type == HEREDOC)
-		{
-			if (!begin->next)
-			{
-				ft_putstr_fd("mini: syntax error near unexpected token `newline'\n", STDERR_FILENO);
-				return (line->prev_exit = 2, 1);
-			}
-			else
-			{
-				if (begin->next->type != WORD)
-				{
-					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
-					ft_putstr_fd(begin->next->s, STDERR_FILENO);
-					ft_putstr_fd("\'\n", STDERR_FILENO);
-					return (line->prev_exit = 2, 1);
-				}
-				else
-				{
-					if (begin->type == HEREDOC)
-					{
-						(void)fd;
-					}
-				}
-			}
-		}
-		else if (begin->type == PIPE)
-		{
-			if (!begin->next)
-			{
-				ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
-				return (line->prev_exit = 2, 1);
-			}
-			else
-			{
-				if (begin->next->type == AND || begin->next->type == PIPE || begin->next->type == OR)
-				{
-					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
-					ft_putstr_fd(begin->next->s, STDERR_FILENO);
-					ft_putstr_fd("\'\n", STDERR_FILENO);
-					return (line->prev_exit = 2, 1);
-				}
-			}
-		}
-		else if (begin->type == OR)
-		{
-			if (!begin->next)
-			{
-				ft_putstr_fd("mini: syntax error near unexpected token `||'\n", STDERR_FILENO);
-				return (line->prev_exit = 2, 1);
-			}
-			else
-			{
-				if (begin->next->type == AND || begin->next->type == PIPE || begin->next->type == OR)
-				{
-					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
-					ft_putstr_fd(begin->next->s, STDERR_FILENO);
-					ft_putstr_fd("\'\n", STDERR_FILENO);
-					return (line->prev_exit = 2, 1);
-				}
-			}
-		}
-		else if (begin->type == AND)
-		{
-			if (!begin->next)
-			{
-				ft_putstr_fd("mini: syntax error near unexpected token `||'\n", STDERR_FILENO);
-				return (line->prev_exit = 2, 1);
-			}
-			else
-			{
-				if (begin->next->type == AND || begin->next->type == PIPE || begin->next->type == OR)
-				{
-					ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
-					ft_putstr_fd(begin->next->s, STDERR_FILENO);
-					ft_putstr_fd("\'\n", STDERR_FILENO);
-					return (line->prev_exit = 2, 1);
-				}
-			}
-		}
-		begin = begin->next;
-	}
 	if (line->lexer_err == -8)
 	{
 		ft_putstr_fd("mini: syntax error near unexpected token `('\n", STDERR_FILENO);
-		return (line->prev_exit = 2, 1);
+		return (1);
 	}
 	if (line->lexer_err == -9)
 	{
 		ft_putstr_fd("mini: syntax error near unexpected token `)'\n", STDERR_FILENO);
-		return (line->prev_exit = 2, 1);
+		return (1);
 	}
 	return (0);
+}
+
+int	err_mini_parse(t_line *line)
+{
+	t_token	*begin;
+
+	begin = line->tokens;
+	if (!line->tokens || !begin)
+		return (1);
+	while (begin)
+	{
+		if (begin->in_subshell % 2 != 0)
+			return (print_err_1(begin), line->prev_exit = 2, 1);
+		else if (begin->type == REDIR_APPEND || begin->type == REDIR_IN || begin->type == REDIR_OUT || begin->type == HEREDOC)
+			return (print_err_2(begin), line->prev_exit = 2, 1);
+		else if (begin->type == PIPE)
+			return (print_err_3(begin), line->prev_exit = 2, 1);
+		else if (begin->type == OR)
+			return (print_err_4(begin), line->prev_exit = 2, 1);
+		else if (begin->type == AND)
+			return (print_err_5(begin), line->prev_exit = 2, 1);
+		begin = begin->next;
+	}
+	if (lex_err(line) == 1)
+		return (line->prev_exit = 2, 1);
+	return (0);
+}
+
+int	lexer_process_char(t_line *line, char **s, char **start, char **end)
+{
+	if (**s && is_something(**s))
+	{
+		*s = lexer_input_something(line, *s, *start, *end);
+		if (line->last_exit != 0)
+			return (line->last_exit);
+		if (**s && *(*s + 1))
+			*start = *s + 1;
+		else
+			*start = *s;
+	}
+	if (**s)
+		(*s)++;
+	*end = *s;
+	return (0);
+}
+
+int	lexer_handle_last_char(t_line *line, char **s, char **start, char **end)
+{
+	if (**s == 0 && **start != 0)
+	{
+		*s = lexer_last_char(line, *s, *start, *end);
+		if (line->last_exit != 0)
+			return (line->last_exit);
+	}
+	return (0);
+}
+
+int	lexer_finish(t_line *line)
+{
+	if (err_mini_parse(line) == 1)
+	{
+		err_open_heredoc(line);
+		return (1);
+	}
+	return (lexer_token(line));
 }
 
 int	lexer_input(t_line *line)
@@ -167,6 +126,7 @@ int	lexer_input(t_line *line)
 	char	*s;
 	char	*start;
 	char	*end;
+	int		ret;
 
 	s = line->input;
 	start = s;
@@ -175,32 +135,14 @@ int	lexer_input(t_line *line)
 		return (line->last_exit);
 	while (*s)
 	{
-		if (*s && is_something(*s))
-		{
-			s = lexer_input_something(line, s, start, end);
-			if (line->last_exit != 0)
-				return (line->last_exit);
-			if (*s && *(s + 1))
-				start = s + 1;
-			else
-				start = s;
-		}
-		if (*s)
-			s++;
-		end = s;
+		ret = lexer_process_char(line, &s, &start, &end);
+		if (ret != 0)
+			return (ret);
 	}
-	if (*s == 0 && *start != 0)
-	{
-		s = lexer_last_char(line, s, start, end);
-		if (line->last_exit != 0)
-			return (line->last_exit);
-	}
-	if (err_mini_parse(line) == 1)
-	{
-		err_open_heredoc(line);
-		return (1);
-	}
-	return (lexer_token(line));
+	ret = lexer_handle_last_char(line, &s, &start, &end);
+	if (ret != 0)
+		return (ret);
+	return (lexer_finish(line));
 }
 
 int	lexer_token(t_line *line)
