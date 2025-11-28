@@ -6,7 +6,7 @@
 /*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 20:45:16 by adeflers          #+#    #+#             */
-/*   Updated: 2025/10/29 20:45:16 by adeflers         ###   ########.fr       */
+/*   Updated: 2025/11/28 09:01:34 by adeflers         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -489,6 +489,29 @@ int	hd_c(char *limiter, t_line *line)
 		{
 			g_sig = 0;
 			flag = 1;
+
+			/* int	i; */
+			/* int	j; */
+			/**/
+			/* i = line->exprs->pipe_count; */
+			/* while (i >= 0) */
+			/* { */
+			/* 	j = 0; */
+			/* 	while (j < line->exprs->pipeline[i].redir_count) */
+			/* 	{ */
+			/* 		if (ft_strncmp(line->exprs->pipeline[i].redirect[j].redir, "<<", 2) == 0) */
+			/* 		{ */
+			/* 			if (line->exprs->pipeline[i].redirect[j].hd_fd != -1) */
+			/* 			{ */
+			/* 				close(line->exprs->pipeline[i].redirect[j].hd_fd); */
+			/* 				line->exprs->pipeline[i].redirect[j].hd_fd = -1; */
+			/* 			} */
+			/* 		} */
+			/* 		j++; */
+			/* 	} */
+			/* 	i--; */
+			/* } */
+
 			free(content);
 			break ;
 		}
@@ -557,54 +580,50 @@ int	hd_c(char *limiter, t_line *line)
 	return (here_tube[0]);
 }
 
-t_cmd	get_cmd(t_pipeline pipeline, char **path)
-{
-	int		i;
-	t_cmd	cmd;
-	char	*path_cmd;
-
-	ft_bzero(&cmd, sizeof(t_cmd));
-	cmd.id = -2;
-	cmd.redirect = pipeline.redirect;
-	cmd.cmd = pipeline.args;
-	i = 0;
-	if (!cmd.cmd)
-	{
-		/* printf("cmd.cmd NULL\n"); */
-		return (cmd);
-	}
-	/* printf("cmd.cmd[0] = %s\n", cmd.cmd[0]); */
-	while (path && path[i])
-	{
-		path_cmd = ft_strjoin(path[i], cmd.cmd[0]);
-		if (!path_cmd)
-			return (cmd); // errro malloc
-		if (access(path_cmd, F_OK) != -1)
-		{
-			if (access(path_cmd, X_OK) != -1)
-			{
-				cmd.full_path = path_cmd;
-				break ;
-			}
-		}
-		free(path_cmd);
-		i++;
-	}
-	if (!cmd.full_path)
-	{
-		if (cmd.cmd[0] && (ft_strncmp(cmd.cmd[0], "./", 2) == 0 || ft_strncmp(cmd.cmd[0], "/", 1) == 0))
-		{
-			cmd.full_path = ft_strdup(cmd.cmd[0]);
-			if (!cmd.full_path)
-				return (cmd); // error malloc
-		}
-		else
-		{
-			cmd.full_path = ft_strdup("");
-			if (!cmd.full_path)
-				return (cmd); // error malloc
-		}
-
-	}
-	return (cmd);
-}
+/* t_cmd	get_cmd(t_pipeline pipeline, char **path) */
+/* { */
+/* 	int		i; */
+/* 	t_cmd	cmd; */
+/* 	char	*path_cmd; */
+/**/
+/* 	ft_bzero(&cmd, sizeof(t_cmd)); */
+/* 	cmd.id = -2; */
+/* 	cmd.redirect = pipeline.redirect; */
+/* 	cmd.cmd = pipeline.args; */
+/* 	i = 0; */
+/* 	if (!cmd.cmd) */
+/* 		return (cmd); */
+/* 	while (path && path[i]) */
+/* 	{ */
+/* 		path_cmd = ft_strjoin(path[i], cmd.cmd[0]); */
+/* 		if (!path_cmd) */
+/* 			return (cmd); // errro malloc */
+/* 		if (access(path_cmd, F_OK) != -1) */
+/* 		{ */
+/* 			if (access(path_cmd, X_OK) != -1) */
+/* 			{ */
+/* 				cmd.full_path = path_cmd; */
+/* 				break ; */
+/* 			} */
+/* 		} */
+/* 		free(path_cmd); */
+/* 		i++; */
+/* 	} */
+/* 	if (!cmd.full_path) */
+/* 	{ */
+/* 		if (cmd.cmd[0] && (ft_strncmp(cmd.cmd[0], "./", 2) == 0 || ft_strncmp(cmd.cmd[0], "/", 1) == 0)) */
+/* 		{ */
+/* 			cmd.full_path = ft_strdup(cmd.cmd[0]); */
+/* 			if (!cmd.full_path) */
+/* 				return (cmd); // error malloc */
+/* 		} */
+/* 		else */
+/* 		{ */
+/* 			cmd.full_path = ft_strdup(""); */
+/* 			if (!cmd.full_path) */
+/* 				return (cmd); // error malloc */
+/* 		} */
+/**/
+/* 	} */
+/* 	return (cmd); */
+/* } */

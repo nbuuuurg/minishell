@@ -10,6 +10,7 @@ SRC_OBJ = obj/
 SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)env.c \
 	  $(SRC_DIR)exec.c \
+	  $(SRC_DIR)exec2.c \
 	  $(SRC_DIR)exit.c \
       $(SRC_DIR)free.c \
 	  $(SRC_DIR)init.c \
