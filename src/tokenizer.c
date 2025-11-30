@@ -16,8 +16,6 @@ t_token	*create_token(t_line *line, char *s, int len)
 {
 	t_token	*token;
 
-	(void)line;
-	(void)s;
 	if (len <= 0)
 		return (NULL);
 	token = ft_calloc(1, sizeof(t_token));
@@ -27,6 +25,9 @@ t_token	*create_token(t_line *line, char *s, int len)
 	if (!token->s)
 		return (free(token), line->last_exit = EX_GEN, NULL);
 	ft_memcpy(token->s, s, len);
+
+	printf("create : %p tok : %s\n", token, token->s);
+
 	token->s[len] = 0;
 	token->next = NULL;
 	token->quoted = NO_QUOTE;
