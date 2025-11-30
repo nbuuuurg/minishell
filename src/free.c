@@ -91,7 +91,7 @@ void	free_tokens(t_token *tokens)
 	}
 	while (tokens)
 	{
-		printf("free : %p tok : %s\n", tokens, tokens->s);
+		/* printf("free : %p tok : %s\n", tokens, tokens->s); */
 		temp = tokens->next;
 		if (tokens->s)
 			free(tokens->s);
