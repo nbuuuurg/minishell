@@ -6,7 +6,7 @@
 /*   By: nburgevi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 15:07:17 by nburgevi          #+#    #+#             */
-/*   Updated: 2025/11/05 08:10:25 by nburgevi         ###   ########.fr       */
+/*   Updated: 2025/12/02 19:04:49 by nburgevi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ int	main(int ac, char **av, char **envp)
 	char	**env;
 	int		start_flag;
 
-	if (!isatty(STDIN_FILENO))
-		return (1);
+	//if (!isatty(STDIN_FILENO))
+	//	return (1);
 	setup_signals();
 	start_flag = 0;
 	env = ft_strdup2(envp);

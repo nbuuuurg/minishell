@@ -20,6 +20,7 @@ void	sigint_handler_hd(int sig)
 	write(STDERR_FILENO, "^C", 2);
 	close(STDIN_FILENO);
 }
+
 void	sigquit_handler_hd(int sig)
 {
 	(void)sig;

@@ -6,22 +6,65 @@
 /*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 20:45:16 by adeflers          #+#    #+#             */
-/*   Updated: 2025/11/28 09:01:34 by adeflers         ###   ########.fr       */
+/*   Updated: 2025/10/29 20:45:16 by adeflers         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
+// int		last_parse_err(t_line *line)
+// {
+// 	t_token	*temp;
+// 	t_token *temp2;
+
+// 	temp = line->tokens;
+// 	temp2 = line->tokens;
+// 	while (temp && temp->next)
+// 		temp = temp->next;
+// 	while (temp2 && temp2->previous)
+// 		temp2 = temp2->previous;
+// 	if (temp && temp->type == PIPE)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
+// 		return (line->lexer_err = -1, line->prev_exit = 2, 1);
+// 	}
+// 	if (temp2 && temp2->type == PIPE)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
+// 		return (line->lexer_err = -2, line->prev_exit = 2, 1);
+// 	}
+// 	if (line->lexer_err == -3)
+// 		return (1);
+// 	if (line->lexer_err == -4)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
+// 		ft_putstr_fd(last_elem(line)->s, STDERR_FILENO);
+// 		ft_putstr_fd("\'\n", STDERR_FILENO);
+// 		return (line->prev_exit = 2, 1);
+// 	}
+// 	if (line->lexer_err == -5)
+// 	{
+// 		ft_putstr_fd("mini: syntax error near unexpected token `newline'\n", STDERR_FILENO);
+// 		return (line->prev_exit = 2, 1);
+// 	}
+// 	return (0);
+// }
+
 void	exec_minishell(t_line *line)
 {
+	/*ici*/
+	/* print_expr(line); */
+	// print_token(line);
 	t_expr	*temp;
 	temp = line->exprs;
 	while(line->tokens->previous)
 		line->tokens = line->tokens->previous;
+	// printf("err : %d\n", line->lexer_err);
 	while (temp != NULL)
 	{
 		if (temp)
 			exec_exprs(temp, line->path, line);
+		// printf("exit : %d\n", line->prev_exit);
 		if (temp)
 		{
 			if (line->prev_exit == 2) // error redirection
@@ -54,11 +97,9 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 {
 
 	int		i;
-	/* int		j; */
 	t_cmd	*cmd;
 	int		fd[2];
 	int		fd_next[2];
-	/* int		fd_hd_temp; */
 
 	struct sigaction old_int;
 	struct sigaction old_quit;
@@ -81,7 +122,6 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 		{
 			cmd[i] = get_cmd(exprs->pipeline[i], path);
 			cmd[i].pipe_count = exprs->pipe_count;
-			
 		}
 		i++;
 	}
@@ -108,7 +148,6 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 				{
 					if (pipe(fd_next) == -1)
 						return (perror("pipe"));
-					printf("pipe created\n");
 				}
 				if (exprs->pipeline[i].position == 1)
 					cmd[i].id = exec_cmd(&cmd[i], NULL, fd_next, line);
@@ -170,180 +209,158 @@ void	free_exec_cmd(t_line *line)
 		free_line(line);
 	}
 }
-/**/
-/* pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line) */
-/* { */
-/*     pid_t	id; */
-/* 	int		exit_code; */
-/* 	struct stat	sb; */
-/**/
-/* 	if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 3 && line->subline == NULL && cmd->pipe_count == 0) */
-/* 		exit_code = exec_builtin(*cmd, line, 1); */
-/*     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2) */
-/*         exit_code = exec_builtin(*cmd, line, 0); */
-/*     id = fork(); */
-/*     if (id == -1) */
-/*         return (perror("fork"), id); */
-/*     if (id == 0) */
-/* 	{ */
-/* 		setup_signals_child();	 */
-/*         if (get_fd(fd_in, fd_out, cmd->redirect, cmd->cmd[0]) == 0)  */
-/* 		{ */
-/*             if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1)  */
-/* 			{ */
-/*                 exit_code = exec_builtin(*cmd, line, 0); */
-/* 				free_exec_cmd(line); */
-/*                 _exit(exit_code); */
-/* 			} */
-/* 			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2) */
-/* 			{ */
-/* 				free_exec_cmd(line); */
-/*                 _exit(exit_code); */
-/* 			} */
-/* 			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 3) */
-/* 			{ */
-/* 				exit_code = exec_builtin(*cmd, line, 0); */
-/* 				free_exec_cmd(line); */
-/* 				_exit(exit_code); */
-/* 			} */
-/* 			else if (cmd->cmd && cmd->cmd[0]) */
-/* 			{ */
-/* 				if (stat(cmd->full_path, &sb) == 0) */
-/* 				{ */
-/* 					if (cmd->cmd[0][0] == '\0') */
-/* 					{ */
-/* 						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO); */
-/* 						ft_putstr_fd(": command not found\n", STDERR_FILENO); */
-/* 						free_exec_cmd(line); */
-/* 						_exit(127); */
-/* 					} */
-/* 					if (S_ISDIR(sb.st_mode)) */
-/* 					{ */
-/* 						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO); */
-/* 						ft_putstr_fd(": Is a directory\n", STDERR_FILENO); */
-/* 						free_exec_cmd(line); */
-/* 						_exit(126); */
-/* 					} */
-/* 				} */
-/**/
-/* 				int	i; */
-/* 				int	j; */
-/**/
-/* 				i = line->exprs->pipe_count; */
-/* 				while (i >= 0) */
-/* 				{ */
-/* 					j = 0; */
-/* 					while (j < line->exprs->pipeline[i].redir_count) */
-/* 					{ */
-/* 						if (ft_strncmp(line->exprs->pipeline[i].redirect[j].redir, "<<", 2) == 0) */
-/* 						{ */
-/* 							if (line->exprs->pipeline[i].redirect[j].hd_fd != -1) */
-/* 							{ */
-/* 								close(line->exprs->pipeline[i].redirect[j].hd_fd); */
-/* 								line->exprs->pipeline[i].redirect[j].hd_fd = -1; */
-/* 							} */
-/* 						} */
-/* 						j++; */
-/* 					} */
-/* 					i--; */
-/* 				} */
-/* 				if (execve(cmd->full_path, cmd->cmd, line->envp) == -1) */
-/* 				{ */
-/* 					if (errno == ENOENT) */
-/* 					{ */
-/* 						if (ft_strchr(cmd->cmd[0], '/') == 0) */
-/* 						{ */
-/* 							ft_putstr_fd(cmd->cmd[0], STDERR_FILENO); */
-/* 							ft_putstr_fd(": command not found\n", STDERR_FILENO); */
-/* 						} */
-/* 						else */
-/* 						{ */
-/* 							ft_putstr_fd(cmd->cmd[0], STDERR_FILENO); */
-/* 							ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);							 */
-/* 						} */
-/* 						free_exec_cmd(line); */
-/* 						_exit(127); */
-/* 					} */
-/* 					else if (errno == EACCES) */
-/* 					{ */
-/* 					   ft_putstr_fd(cmd->cmd[0], STDERR_FILENO); */
-/* 					   ft_putstr_fd(": Permission denied\n", STDERR_FILENO); */
-/* 					   free_exec_cmd(line); */
-/* 					   _exit(126); */
-/* 					} */
-/* 					else */
-/* 					{ */
-/* 					   perror(cmd->cmd[0]); */
-/* 					   free_exec_cmd(line); */
-/* 					   _exit(126); */
-/* 					} */
-/* 				} */
-/* 				else */
-/* 				{ */
-/* 					perror(cmd->cmd[0]); */
-/* 					free_exec_cmd(line); */
-/* 					_exit(127); */
-/* 				} */
-/* 			} */
-/* 			else if (!cmd->cmd[0]) */
-/* 			{ */
-/* 				free_exec_cmd(line); */
-/* 				_exit(0); */
-/* 			} */
-/* 			else */
-/* 			{ */
-/* 				free_exec_cmd(line); */
-/* 				_exit(0); */
-/* 			} */
-/*         } */
-/* 		else */
-/* 		{ */
-/* 			free_exec_cmd(line); */
-/* 			if (!g_sig) */			/* int	i; */
-			/* int	j; */
-			/**/
-			/* i = line->exprs->pipe_count; */
-			/* while (i >= 0) */
-			/* { */
-			/* 	j = 0; */
-			/* 	while (j < line->exprs->pipeline[i].redir_count) */
-			/* 	{ */
-			/* 		if (ft_strncmp(line->exprs->pipeline[i].redirect[j].redir, "<<", 2) == 0) */
-			/* 		{ */
-			/* 			if (line->exprs->pipeline[i].redirect[j].hd_fd != -1) */
-			/* 			{ */
-			/* 				close(line->exprs->pipeline[i].redirect[j].hd_fd); */
-			/* 				line->exprs->pipeline[i].redirect[j].hd_fd = -1; */
-			/* 			} */
-			/* 		} */
-			/* 		j++; */
-			/* 	} */
-			/* 	i--; */
-			/* } */
-/* 				_exit(1); */
-/* 		} */
-/*     } */
-/* 	else */
-/* 	{ */
-/* 		if (cmd->redirect) */
-/* 		{ */
-/* 			int	i = 0; */
-/* 			while (cmd->redirect[i].redir) */
-/* 			{ */
-/* 				if (ft_strncmp(cmd->redirect[i].redir, "<<", 3) == 0) */
-/* 				{ */
-/* 					if (cmd->redirect[i].hd_fd != -1) */
-/* 					{ */
-/* 						close(cmd->redirect[i].hd_fd); */
-/* 						cmd->redirect[i].hd_fd = -1; */
-/* 					} */
-/* 				} */
-/* 				i++; */
-/* 			} */
-/* 		} */
-/* 	} */
-/*     return (id); */
-/* } */
+
+pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
+{
+    pid_t	id;
+	int		exit_code;
+	struct stat	sb;
+
+	if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 3 && line->subline == NULL && cmd->pipe_count == 0)
+		exit_code = exec_builtin(*cmd, line, 1);
+    if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2)
+        exit_code = exec_builtin(*cmd, line, 0);
+    id = fork();
+    if (id == -1)
+        return (perror("fork"), id);
+    if (id == 0)
+	{
+		setup_signals_child();	
+        if (get_fd(fd_in, fd_out, cmd->redirect, cmd->cmd[0]) == 0) 
+		{
+            if (cmd->cmd && is_builtin(cmd->cmd[0]) == 1) 
+			{
+                exit_code = exec_builtin(*cmd, line, 0);
+				free_exec_cmd(line);
+                _exit(exit_code);
+			}
+			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 2)
+			{
+				free_exec_cmd(line);
+                _exit(exit_code);
+			}
+			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 3)
+			{
+				exit_code = exec_builtin(*cmd, line, 0);
+				free_exec_cmd(line);
+				_exit(exit_code);
+			}
+			else if (cmd->cmd && cmd->cmd[0])
+			{
+				if (stat(cmd->full_path, &sb) == 0)
+				{
+					if (cmd->cmd[0][0] == '\0')
+					{
+						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+						ft_putstr_fd(": command not found\n", STDERR_FILENO);
+						free_exec_cmd(line);
+						_exit(127);
+					}
+					if (S_ISDIR(sb.st_mode))
+					{
+						ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+						ft_putstr_fd(": Is a directory\n", STDERR_FILENO);
+						free_exec_cmd(line);
+						_exit(126);
+					}
+				}
+				int	i;
+				int	j;
+				i = line->exprs->pipe_count;
+				while (i >= 0)
+				{
+					j = 0;
+					while (j < line->exprs->pipeline[i].redir_count)
+					{
+						if (ft_strncmp(line->exprs->pipeline[i].redirect[j].redir, "<<", 2) == 0)
+						{
+							if (line->exprs->pipeline[i].redirect[j].hd_fd != -1)
+							{
+								close(line->exprs->pipeline[i].redirect[j].hd_fd);
+								line->exprs->pipeline[i].redirect[j].hd_fd = -1;
+							}
+						}
+						j++;
+					}
+					i--;
+				}
+				if (execve(cmd->full_path, cmd->cmd, line->envp) == -1)
+				{
+					if (errno == ENOENT)
+					{
+						if (ft_strchr(cmd->cmd[0], '/') == 0)
+						{
+							ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+							ft_putstr_fd(": command not found\n", STDERR_FILENO);
+						}
+						else
+						{
+							ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+							ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);							
+						}
+						free_exec_cmd(line);
+						_exit(127);
+					}
+					else if (errno == EACCES)
+					{
+					   ft_putstr_fd(cmd->cmd[0], STDERR_FILENO);
+					   ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+					   free_exec_cmd(line);
+					   _exit(126);
+					}
+					else
+					{
+					   perror(cmd->cmd[0]);
+					   free_exec_cmd(line);
+					   _exit(126);
+					}
+				}
+				else
+				{
+					perror(cmd->cmd[0]);
+					free_exec_cmd(line);
+					_exit(127);
+				}
+			}
+			else if (!cmd->cmd[0])
+			{
+				free_exec_cmd(line);
+				_exit(0);
+			}
+			else
+			{
+				free_exec_cmd(line);
+				_exit(0);
+			}
+        }
+		else
+		{
+			free_exec_cmd(line);
+			if (!g_sig)
+				_exit(1);
+		}
+    }
+	else
+	{
+		if (cmd->redirect)
+		{
+			int	i = 0;
+			while (cmd->redirect[i].redir)
+			{
+				if (ft_strncmp(cmd->redirect[i].redir, "<<", 3) == 0)
+				{
+					if (cmd->redirect[i].hd_fd != -1)
+					{
+						close(cmd->redirect[i].hd_fd);
+						cmd->redirect[i].hd_fd = -1;
+					}
+				}
+				i++;
+			}
+		}
+	}
+    return (id);
+}
 
 int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
 {
@@ -366,6 +383,59 @@ int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
 	}
 	if (redirect)
 		return (ft_redir(redirect, cmd));
+	return (0);
+}
+
+int	ft_redir(t_redir *redirect, char *cmd)
+{
+	int	i;
+	int	fd;
+
+	// Il faut sortir avec la bonne erreur si redirect[i].file == NULL mais ca ne segault plus
+
+	(void)cmd;
+	i = 0;
+	if (redirect[i].file == NULL)
+		return(1);
+	while (redirect[i].file)
+	{
+		if (ft_strncmp(redirect[i].redir, ">", ft_strlen(redirect[i].redir)) == 0)
+		{
+			fd = open(redirect[i].file, O_WRONLY | O_TRUNC | O_CREAT, 0644); 
+			if (fd == -1)
+				return (perror(redirect[i].file), 1);
+			if (cmd != NULL)
+				dup2(fd, STDOUT_FILENO);
+			close(fd);
+		}
+		else if (ft_strncmp(redirect[i].redir, ">>", ft_strlen(redirect[i].redir)) == 0)
+		{
+			fd = open(redirect[i].file, O_WRONLY | O_APPEND | O_CREAT, 0644); 
+			if (fd == -1)
+				return (perror(redirect[i].file), 1);
+			if (cmd != NULL)
+				dup2(fd, STDOUT_FILENO);
+			close(fd);
+		}
+		else if (ft_strncmp(redirect[i].redir, "<", ft_strlen(redirect[i].redir)) == 0)
+		{
+			fd = open(redirect[i].file, O_RDONLY, 0644);
+			if (fd == -1)
+				return (perror(redirect[i].file), 1);
+			dup2(fd, STDIN_FILENO);
+			close(fd);
+		}
+		else if (ft_strncmp(redirect[i].redir, "<<", ft_strlen(redirect[i].redir)) == 0)
+		{
+			fd = redirect[i].hd_fd;
+			if (fd == -1)
+				return (1); // errror hd_c
+			dup2(fd, STDIN_FILENO);
+			close(fd);
+			redirect[i].hd_fd = -1;
+		}
+		i++;
+	}
 	return (0);
 }
 
@@ -398,7 +468,7 @@ int	hd_c(char *limiter, t_line *line)
 		return (perror("malloc"), -1);
 	if (pipe(here_tube) == -1)
 		return (perror("pipe"), free(res), -1);
-	printf("fd open\n");
+
 	flag = 0;
 	while (1)
 	{
@@ -407,29 +477,6 @@ int	hd_c(char *limiter, t_line *line)
 		{
 			g_sig = 0;
 			flag = 1;
-
-			/* int	i; */
-			/* int	j; */
-			/**/
-			/* i = line->exprs->pipe_count; */
-			/* while (i >= 0) */
-			/* { */
-			/* 	j = 0; */
-			/* 	while (j < line->exprs->pipeline[i].redir_count) */
-			/* 	{ */
-			/* 		if (ft_strncmp(line->exprs->pipeline[i].redirect[j].redir, "<<", 2) == 0) */
-			/* 		{ */
-			/* 			if (line->exprs->pipeline[i].redirect[j].hd_fd != -1) */
-			/* 			{ */
-			/* 				close(line->exprs->pipeline[i].redirect[j].hd_fd); */
-			/* 				line->exprs->pipeline[i].redirect[j].hd_fd = -1; */
-			/* 			} */
-			/* 		} */
-			/* 		j++; */
-			/* 	} */
-			/* 	i--; */
-			/* } */
-
 			free(content);
 			break ;
 		}
@@ -492,50 +539,53 @@ int	hd_c(char *limiter, t_line *line)
 	return (here_tube[0]);
 }
 
-/* t_cmd	get_cmd(t_pipeline pipeline, char **path) */
-/* { */
-/* 	int		i; */
-/* 	t_cmd	cmd; */
-/* 	char	*path_cmd; */
-/**/
-/* 	ft_bzero(&cmd, sizeof(t_cmd)); */
-/* 	cmd.id = -2; */
-/* 	cmd.redirect = pipeline.redirect; */
-/* 	cmd.cmd = pipeline.args; */
-/* 	i = 0; */
-/* 	if (!cmd.cmd) */
-/* 		return (cmd); */
-/* 	while (path && path[i]) */
-/* 	{ */
-/* 		path_cmd = ft_strjoin(path[i], cmd.cmd[0]); */
-/* 		if (!path_cmd) */
-/* 			return (cmd); // errro malloc */
-/* 		if (access(path_cmd, F_OK) != -1) */
-/* 		{ */
-/* 			if (access(path_cmd, X_OK) != -1) */
-/* 			{ */
-/* 				cmd.full_path = path_cmd; */
-/* 				break ; */
-/* 			} */
-/* 		} */
-/* 		free(path_cmd); */
-/* 		i++; */
-/* 	} */
-/* 	if (!cmd.full_path) */
-/* 	{ */
-/* 		if (cmd.cmd[0] && (ft_strncmp(cmd.cmd[0], "./", 2) == 0 || ft_strncmp(cmd.cmd[0], "/", 1) == 0)) */
-/* 		{ */
-/* 			cmd.full_path = ft_strdup(cmd.cmd[0]); */
-/* 			if (!cmd.full_path) */
-/* 				return (cmd); // error malloc */
-/* 		} */
-/* 		else */
-/* 		{ */
-/* 			cmd.full_path = ft_strdup(""); */
-/* 			if (!cmd.full_path) */
-/* 				return (cmd); // error malloc */
-/* 		} */
-/**/
-/* 	} */
-/* 	return (cmd); */
-/* } */
+t_cmd	get_cmd(t_pipeline pipeline, char **path)
+{
+	int		i;
+	t_cmd	cmd;
+	char	*path_cmd;
+
+	ft_bzero(&cmd, sizeof(t_cmd));
+	cmd.id = -2;
+	cmd.redirect = pipeline.redirect;
+	cmd.cmd = pipeline.args;
+	i = 0;
+	if (!cmd.cmd)
+	{
+		return (cmd);
+	}
+	/* printf("cmd.cmd[0] = %s\n", cmd.cmd[0]); */
+	while (path && path[i])
+	{
+		path_cmd = ft_strjoin(path[i], cmd.cmd[0]);
+		if (!path_cmd)
+			return (cmd); // errro malloc
+		if (access(path_cmd, F_OK) != -1)
+		{
+			if (access(path_cmd, X_OK) != -1)
+			{
+				cmd.full_path = path_cmd;
+				break ;
+			}
+		}
+		free(path_cmd);
+		i++;
+	}
+	if (!cmd.full_path)
+	{
+		if (cmd.cmd[0] && (ft_strncmp(cmd.cmd[0], "./", 2) == 0 || ft_strncmp(cmd.cmd[0], "/", 1) == 0))
+		{
+			cmd.full_path = ft_strdup(cmd.cmd[0]);
+			if (!cmd.full_path)
+				return (cmd); // error malloc
+		}
+		else
+		{
+			cmd.full_path = ft_strdup("");
+			if (!cmd.full_path)
+				return (cmd); // error malloc
+		}
+
+	}
+	return (cmd);
+}

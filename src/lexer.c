@@ -29,7 +29,7 @@ int	err_open_heredoc(t_line *line)
 				(void)fd;
 			else
 			{
-				if (begin->next->type == WORD)
+				if (begin->next->type == WORD && line->heredoc_flag == 0)
 				{
 					fd = hd_c(begin->next->s, line);
 					close(fd);
