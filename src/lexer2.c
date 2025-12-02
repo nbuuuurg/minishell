@@ -39,28 +39,27 @@ char	*lexer_simple_char(t_line *line, char *s, char *start, char *end)
 	return (s);
 }
 
+char	*lexer_skip_quoted(t_line *line, char *s, int *quote)
+{
+	*quote = is_quote(*s);
+	s++;
+	while (*s && *s != *quote)
+		s++;
+	if (*s == 0)
+		line->lexer_err = -1;
+	return (s);
+}
+
 char	*lexer_quoted_char(t_line *line, char *s, char *start, char *end)
 {
 	int	quote;
 
-	quote = is_quote(*s);
-	s++;
-	while (*s && *s != quote)
-		s++;
-	if (*s == 0)
-		line->lexer_err = -1;
+	s = lexer_skip_quoted(line, s, &quote);
 	while (*s && !is_whitespace(*s) && !is_special(*s))
 	{
 		s++;
 		if (*s && is_quote(*s))
-		{
-			quote = is_quote(*s);
-			s++;
-			while (*s && *s != quote)
-				s++;
-			if (*s == 0)
-				line->lexer_err = -1;
-		}
+			s = lexer_skip_quoted(line, s, &quote);
 	}
 	end = s - 1;
 	add_back(line, create_quoted_token(line, start, (end - start) + 1, quote));
@@ -69,26 +68,26 @@ char	*lexer_quoted_char(t_line *line, char *s, char *start, char *end)
 	return (s);
 }
 
-char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end)
+char	*lexer_subchell_char(t_line *line, char *s, char *start, char *end)
 {
-        int     open;
-        int     close;
-        int     temp_last_exit;
+	int	open;
+	int	close;
+	int	temp_last_exit;
 
-        open = 1;
-        close = 0;
-        temp_last_exit = 0;
-        while (*s && open != close)
-        {
-                s++;
-                if (*s == '(')
-                        open++;
-                if (*s == ')')
-                        close++;
-        }
-        end = s;
-        add_back(line, create_token(line, start, (end - start) + 1));
-        if (line->last_exit != 0)
-                return (NULL);
-        return (line->lexer_err = temp_last_exit, s);
+	open = 1;
+	close = 0;
+	temp_last_exit = 0;
+	while (*s && open != close)
+	{
+		s++;
+		if (*s == '(')
+			open++;
+		if (*s == ')')
+			close++;
+	}
+	end = s;
+	add_back(line, create_token(line, start, (end - start) + 1));
+	if (line->last_exit != 0)
+		return (NULL);
+	return (line->lexer_err = temp_last_exit, s);
 }

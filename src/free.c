@@ -19,7 +19,7 @@ void	free_line_fork(t_line *line, int i)
 	if (line->tokens)
 		free_tokens(line->tokens);
 	if (line->exprs)
-		free_exprs(line->exprs);
+		free_e(line->exprs);
 	if (line->path)
 		free_split(line->path);
 	if (line->envp)
@@ -45,7 +45,7 @@ void	free_line(t_line *line)
 		free_tokens(line->tokens);
 	}
 	if (line->exprs)
-		free_exprs(line->exprs);
+		free_e(line->exprs);
 	if (line->path)
 		free_split(line->path);
 	free(line->input);
@@ -98,7 +98,7 @@ void	free_tokens(t_token *tokens)
 	}
 }
 
-void	free_exprs(t_expr *exprs)
+void	free_e(t_expr *exprs)
 {
 	t_expr	*temp;
 	int		i;
@@ -109,7 +109,7 @@ void	free_exprs(t_expr *exprs)
 		i = exprs->pipe_count;
 		while (i >= 0)
 		{
-			free_pipeline(&exprs->pipeline[i]);
+			free_p(&exprs->pipeline[i]);
 			i--;
 		}
 		if (exprs->pipeline)
@@ -121,7 +121,7 @@ void	free_exprs(t_expr *exprs)
 	free(exprs);
 }
 
-void	free_pipeline(t_pipeline *pipe)
+void	free_p(t_pipeline *pipe)
 {
 	int	i;
 

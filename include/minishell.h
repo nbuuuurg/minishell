@@ -172,9 +172,58 @@ typedef struct	s_line
 	t_save	*save;
 }		t_line;
 
+typedef struct s_lexer1
+{
+	int		i;
+	t_token	*temp;
+	t_expr	*expr;
+	t_expr	*new;
+	int		flag;
+	int		flag_2;
+}				t_lexer1;
+
+typedef struct	s_expr1
+{
+	int		i;
+	int		len[3];
+	t_expr	*new;
+	t_token	*temp;
+}				t_expr1;
+
+typedef struct	s_parse1
+{
+	char	**split;
+	char	**new_args;
+	char	**tempo;
+	int		i;
+	int		word;
+	int		m;
+	int		l;
+}				t_parse1;
+
+typedef struct	s_parse2
+{
+	int	i;
+	int	*j;
+
+}				t_parse2;
+
+typedef struct	s_sub1
+{
+	size_t	len;
+	char	*subinput;
+	size_t	i;
+	size_t	j;
+	int		subshell;
+	int		subshell2;
+	char	*temp;
+	t_token	*ttemp;
+}				t_sub1;
+
 /* ************************************************************************** */
 /*                               PROTOTYPES                                   */
 /* ************************************************************************** */
+
 
 /* builtin.c */
 
@@ -216,17 +265,21 @@ void	free_line(t_line *line);
 void	free_split(char **s);
 void	free_split2(char **s);
 void    free_tokens(t_token *tokens);
-void    free_exprs(t_expr *exprs);
-void    free_pipeline(t_pipeline *pipe);
+
+/* free2.c */
+
+void    free_e(t_expr *exprs);
+void    free_p(t_pipeline *pipe);
+void	free_redirect(t_pipeline *pipe);
 void    free_cmd_path(t_line *line);
 
 /* init.c */
 
 int    init_minishell(t_line *line, char **envp, int start_flag, t_save *save);
 int    init_clean_input(t_line *line);
+void	init_line2(t_line *line, char **envp);
+void	init_line3(t_line *line, char **envp, t_save *save);
 void    init_line(t_line *line, char **envp, int start_flag, t_save *save);
-void	init_token(t_token *token, int multiple_quote, int quote, int i);
-t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
 
 /* init2.c */
 
@@ -238,18 +291,26 @@ t_pipeline  init_pipeline(t_line *line, int (*len)[3]);
 /* init3.c */
 
 int     init_subshell(t_line *line, t_token *subinput);
+t_line  *dup_line(t_line *line, t_token *subinput);
+
+/* init4.c */
+
+void	init_token(t_token *token, int multiple_quote, int quote, int i);
+t_expr  *init_new_expr(t_line *line, t_token_type op_ctrl);
 
 /* lexer.c */
 
-int		lexer_input(t_line *line);
-int		lexer_token(t_line *line);
-int		l_split_expr(t_line *line, t_token *temp, t_expr *new, t_expr *expr, int i, int exec);
-int		l_single_expr(t_line *line, t_expr *new, t_expr *expr);
+int		err_open_heredoc(t_line *line);
+int		lex_err(t_line *line);
+int		err_mini_parse(t_line *line);
+int		lexer_process_char(t_line *line, char **s, char **start, char **end);
+int		lexer_handle_last_char(t_line *line, char **s, char **start, char **end);
 
 /* lexer2.c */
 
 char    *lexer_input_something(t_line *line, char *s, char *start, char *end);
 char    *lexer_simple_char(t_line *line, char *s, char *start, char *end);
+char	*lexer_skip_quoted(t_line *line, char *s, int *quote);
 char    *lexer_quoted_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_subchell_char(t_line *line, char *s, char *start, char *end);
 
@@ -261,20 +322,38 @@ t_token *token_type(t_token *token);
 t_token *has_expand(t_token *token);
 
 /* lexer4.c */
+
+int		add_special_token(t_line *line, char **end);
+char	*lexer_special_char4(t_line *line, char **s, char **start, char **end);
 char    *lexer_special_char(t_line *line, char *s, char *start, char *end);
 char    *lexer_special_char2(t_line *line, char **s, char **start, char **end);
 char    *lexer_special_char3(t_line *line, char **s, char **start, char **end);
+
+/* lexer5.c */
+
+int		lexer_finish(t_line *line);
+int		lexer_input(t_line *line);
+int		l_split_expr(t_line *line, t_lexer1 *lexer);
+int		l_single_expr(t_line *line, t_expr *new, t_expr *expr);
+
+/* lexer6.c */
+
+int	l_handle_token(t_line *line, t_lexer1 *lexer);
+int	l_handle_subshell(t_line *line, t_lexer1 *lexer);
+void	handle_new_subshell_expr(t_lexer1 *lexer, t_line *line);
+void	l_init_lexer1(t_lexer1 *lexer, t_line *line);
+int		lexer_token(t_line *line);
 
 
 /* main.c */
 
 /* parser.c */
 
-t_expr  *parse_new_expr(t_line *line, t_token_type op_ctrl);
-t_token *p_pipe(t_line *line, t_token *temp, t_expr *new, int (*len)[3], int *i);
-int    parse_word(t_line *line, t_expr *new, t_token *temp, int i, int *j);
-int    parse_redir(t_line *line, t_expr *new, t_token *temp, int i, int *j);
-int    parse_assignment(t_line *line, t_expr *new, t_token *temp, int i, int *j);
+t_token	*p_pipe(t_line *line, t_expr1 *exp);
+int		parse_word(t_line *line, t_expr1 *exp, t_token *temp);
+int		parse_redir(t_line *line, t_expr1 *exp, t_token *temp);
+int		parse_assignment(t_line *line, t_expr1 *exp, t_token *temp);
+
 /* parser2.c */
 
 void    count_token(t_token *temp, int (*len)[3], t_token_type op_ctrl);
@@ -285,8 +364,58 @@ char	*parse_expand(t_line *line, t_token *token);
 
 /* parser3.c */
 
-char	*n_exp_c(t_line *line, size_t j, char *s, char *ex_var, size_t old_len);
+char	*replace_var(char *s, int *len, t_line *line);
+char	*ft_strjoin_char(char *s, char c);
 char	*expanded_content(char *s, t_line *line);
+
+/* parser4.c */
+
+t_expr	*parse_new_expr(t_line *line, t_token_type op_ctrl);
+size_t	sft_count_words(const char *s, char c);
+void	init_parse1(t_parse1 *p);
+void	normalize_spaces(char *s);
+int	alloc_new_args(t_expr1 *exp, t_token *temp, t_parse1 *p);
+
+/* parser5.c */
+
+void	free_new_args_failure(t_parse1 *p);
+int	dup_split_into_new_args(t_parse1 *p);
+int	dup_arg_into_new_args(t_expr1 *exp, t_parse1 *p);
+char	**d_w_t(t_line *line, t_expr1 *exp, t_token *temp);
+int	fill_new_args(t_expr1 *exp, t_parse1 *p);
+
+/* parser6.c */
+
+int	handle_word(t_line *line, t_expr1 *exp, t_token *temp);
+void	handle_subshell(t_line *line, t_expr1 *exp, t_token *temp);
+void	handle_redir_or_assign(t_line *line, t_expr1 *exp, t_token *temp);
+int	process_token(t_line *line, t_expr1 *exp, t_token *temp);
+int	prev_is_redir(t_token *temp);
+
+/* parser7.c */
+
+int	handle_expand_and_quote(t_line *line, t_token *temp);
+int	add_word_to_args(t_expr1 *exp, int i, int *j, t_token *temp);
+void	set_from_fd(t_expr1 *exp, int i, int j, t_token *temp);
+int	handle_heredoc(t_line *line, t_expr1 *exp,
+						t_token *temp, t_parse2 *p);
+int	set_redir_and_hd(t_line *line, t_expr1 *exp,
+							t_token *temp, t_parse2 *p);
+
+/* parser8.c */
+
+int	expand_and_quote_filename(t_line *line, t_token *temp);
+int	set_redirect_file(t_line *line, t_expr1 *exp,
+							t_token *temp, t_parse2 *p);
+int	need_split_expand(t_token *temp);
+
+/* print_err.c */
+
+int    print_err_1(t_token *begin);
+int    print_err_2(t_token *begin);
+int    print_err_3(t_token *begin);
+int    print_err_4(t_token *begin);
+int    print_err_5(t_token *begin, t_line *line);
 
 /* print.c */
 
@@ -299,16 +428,21 @@ void    print_error(char *s, t_exit code);
 void sigint_handler(int sig);
 void setup_signals(void);
 void setup_signals_child(void);
-void sigint_handler_child(int sig);
-void sigint_handler_hd(int sig);
-void sigquit_handler_child(int sig);
-void sigquit_handler_hd(int sig);
 
+/* signals2.c */
+
+void sigint_handler_hd(int sig);
+void sigquit_handler_hd(int sig);
+void sigint_handler_child(int sig);
+void sigquit_handler_child(int sig);
 
 /* subshell.c */
 
 char    *new_subinput(t_line *line, t_token *token);
-t_line  *dup_line(t_line *line, t_token *subinput);
+int	init_sub1(t_sub1 *d, t_token *token);
+void	fill_subinput(t_sub1 *d, t_token *token);
+void	add_previous_pipes(t_sub1 *d, t_token *token);
+void	add_next_pipes(t_sub1 *d, t_token *token);
 
 /* tokenizer.c */
 
@@ -340,6 +474,9 @@ t_quoted	def_quote(int	multiple_quote, int quote);
 int     is_something(char c);
 int		need_expand(char *s);
 int		has_wildcards(char *s);
+
+/* utils4.c */
+
 char	**ft_strdup2(char **env);
 char	*find_env_var(t_line *line, char *var);
 int		ft_isdigit_str(char *s);
@@ -348,11 +485,22 @@ void	recup_save(t_line *line, t_save *save);
 
 /* wildcards.c */
 
+int	ft_fnmatch(char *pattern, char *str);
+t_token     *parse_wildcards(t_line *line, t_token *token);
+
+/* wildcards2.c */
+
+void	match_tab_advance(char **p, char c, int *ok);
+int	match_tab_class(char **pattern, char c, int *neg_out);
+int	match_tab(char **pattern, char c);
+
+/* wildcards3.c */
+
+t_token	*lst_join_single(t_token *at, t_token *nw, t_line *line);
+t_token	*lst_join_between(t_token *left, t_token *nw, t_token *right);
 t_token	*lst_join(t_token *at, t_token *nw, t_line *line);
 t_token	*last_elem_w(t_token *token);
 t_token *add_back_w(t_token *old, t_token *new);
-int	match_tab(const char **pattern, char c);
-int	ft_fnmatch(const char *pattern, const char *str);
-t_token     *parse_wildcards(t_line *line, t_token *token);
+
 
 #endif

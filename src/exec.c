@@ -393,14 +393,6 @@ int	hd_c(char *limiter, t_line *line)
 	sigaction(SIGINT, &sa_int, &old_int);
 	sigaction(SIGQUIT, &sa_quit, &old_quit);
 
-	// empêche l’affichage ^\ avec CTRL '\'
-	// struct termios 	t;
-	// struct termios	old;
-	// tcgetattr(STDIN_FILENO, &old);
-	// t = old;
-	// t.c_lflag &= ~ECHOCTL; // n'affiche plus ^/, ^C, etc.
-	// tcsetattr(STDIN_FILENO, TCSANOW, &t);
-
 	res = ft_strdup("");
 	if (!res)
 		return (perror("malloc"), -1);
@@ -449,15 +441,12 @@ int	hd_c(char *limiter, t_line *line)
 			ft_putstr_fd("')\n", STDERR_FILENO);
 			break ;
 		}
-		/* arrêt sur le limiteur (readline ne renvoie pas le '\n') */
 		if (ft_strncmp(content, limiter, ft_strlen(limiter)) == 0
 			&& content[ft_strlen(limiter)] == '\0')
 		{
 			free(content);
 			break ;
 		}
-
-		/* expansions éventuelles */
 		if (content && need_expand(content) != 0)
 		{
 			temp = expanded_content(content, line);
@@ -466,15 +455,11 @@ int	hd_c(char *limiter, t_line *line)
 			free(content);
 			content = temp;
 		}
-
-		/* ajouter le '\n' que readline n’inclut pas, pour mimer gnl */
 		tmp = ft_strjoin(content, "\n");
 		if (!tmp)
 			return (free(res), free(content), perror("malloc"), -1);
 		free(content);
 		content = tmp;
-
-		/* concaténer au buffer résultat */
 		tmp = res;
 		if (!tmp)
 			return (free(content), free(res), perror("malloc"), -1);
@@ -493,7 +478,6 @@ int	hd_c(char *limiter, t_line *line)
 		free(res);
 		sigaction(SIGINT, &old_int, NULL);
 		sigaction(SIGQUIT, &old_quit, NULL);
-		// tcsetattr(STDIN_FILENO, TCSANOW, &old);
 		line->heredoc_flag = 1;
 		line->prev_exit = 130;
 		return (here_tube[0]);
@@ -505,7 +489,6 @@ int	hd_c(char *limiter, t_line *line)
 	close(here_tube[1]);
 	sigaction(SIGINT, &old_int, NULL);
 	sigaction(SIGQUIT, &old_quit, NULL);
-	// tcsetattr(STDIN_FILENO, TCSANOW, &old);
 	return (here_tube[0]);
 }
 

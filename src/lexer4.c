@@ -12,6 +12,21 @@
 
 #include "../include/minishell.h"
 
+int	add_special_token(t_line *line, char **end)
+{
+	int	len;
+
+	len = 1;
+	if (*(*end + 1) && *(*end + 1) == **end)
+		len = 2;
+	add_back(line, create_token(line, *end, len));
+	if (len == 2)
+		(*end)++;
+	if (line->last_exit != 0)
+		return (0);
+	return (1);
+}
+
 char	*lexer_special_char4(t_line *line, char **s, char **start, char **end)
 {
 	*start = *s;
@@ -20,14 +35,7 @@ char	*lexer_special_char4(t_line *line, char **s, char **start, char **end)
 	{
 		if (**end == '>' || **end == '<')
 		{
-			if (*(*end + 1) && *(*end + 1) == **end)
-			{
-				add_back(line, create_token(line, *end, 2));
-				(*end)++;
-			}
-			else
-				add_back(line, create_token(line, *end, 1));
-			if (line->last_exit != 0)
+			if (!add_special_token(line, end))
 				return (NULL);
 			if (*(*end + 1) == 0)
 				return (*s = *end + 1);
@@ -36,14 +44,7 @@ char	*lexer_special_char4(t_line *line, char **s, char **start, char **end)
 		}
 		if (**end == '|')
 		{
-			if (*(*end + 1) && *(*end + 1) == **end)
-			{
-				add_back(line, create_token(line, *end, 2));
-				(*end)++;
-			}
-			else
-				add_back(line, create_token(line, *end, 1));
-			if (line->last_exit != 0)
+			if (!add_special_token(line, end))
 				return (NULL);
 			return (*s = *end + 1);
 		}

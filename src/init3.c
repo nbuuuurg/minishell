@@ -37,3 +37,31 @@ int	init_subshell(t_line *line, t_token *subinput)
 	free(subline);
 	return (0);
 }
+
+t_line	*dup_line(t_line *line, t_token *subinput)
+{
+	t_line	*subline;
+
+	subline = ft_calloc(1, sizeof(t_line));
+	if (!subline)
+		return (line->last_exit = EX_GEN, NULL);
+	subline->input = new_subinput(line, subinput);
+	if (!subline->input)
+		return (line->last_exit = EX_GEN, NULL);
+	subline->clean = subline->input;
+	subline->envp = ft_strdup2(line->envp);
+	if (!subline->envp)
+		return (line->last_exit = EX_GEN, NULL);
+	subline->tokens = NULL;
+	subline->exprs = NULL;
+	subline->cmd = NULL;
+	subline->prev_exit = line->prev_exit;
+	subline->subline = line;
+	subline->last_exit = 0;
+	subline->len = line->len - 2;
+	subline->lexer_err = 0;
+	subline->num_expr = 0;
+	subline->heredoc_flag = line->heredoc_flag;
+	subline->path = get_path(subline->envp);
+	return (subline);
+}

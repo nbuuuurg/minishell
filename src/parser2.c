@@ -60,7 +60,6 @@ char	*expanded_var(t_line *line, char *var)
 	char	*expanded_var;
 	char	*the_env;
 
-	/* printf("var to find: %s\n", var); */
 	if (!var)
 		return (NULL);
 	if (ft_strncmp(var, "$$", 3) == 0 && ft_strlen(var) == 2)
@@ -90,7 +89,6 @@ char	*expanded_var(t_line *line, char *var)
 		if (!the_env)
 		{
 			expanded_var = ft_strdup("");
-			/* expanded_var = NULL; */
 			free(var);
 			if (!expanded_var)
 				return (NULL);
@@ -105,6 +103,17 @@ char	*expanded_var(t_line *line, char *var)
 	}
 	return (expanded_var);
 }
+
+typedef struct	s_parse3
+{
+	char	*s;
+	size_t	len_var;
+	size_t	len_old_var;
+	size_t	len_s;
+	size_t	i;
+	size_t	j;
+	size_t	k;
+}				t_parse3;
 
 int	expand_t(t_line *line, t_token *token, char *var, size_t start, size_t end)
 {
@@ -152,6 +161,16 @@ int	expand_t(t_line *line, t_token *token, char *var, size_t start, size_t end)
 	free(s);
 	return (start + len_var - 1);
 }
+
+typedef struct	s_parse4
+{
+	char	*s;
+	int		d_quote;
+	int		s_quote;
+	int		i;
+	int		j;
+	int		len;
+}				t_parse4;
 
 char	*parse_quoted_token(t_line *line, t_token *token)
 {
@@ -232,6 +251,17 @@ char	*parse_quoted_token(t_line *line, t_token *token)
 	return (s);
 }
 
+typedef struct	s_parse5
+{
+	int		i;
+	int		start;
+	int		end;
+	int		len;
+	int		s_quote;
+	int		d_quote;
+	char	*var;
+}				t_parse5;
+
 char	*parse_expand(t_line *line, t_token *token)
 {
 	int		i;
@@ -247,8 +277,6 @@ char	*parse_expand(t_line *line, t_token *token)
 	end = 0;
 	s_quote = 0;
 	d_quote = 0;
-	// si c'est quote, on laisse dans un seul token, sinon on split entre les whitespace
-	// la ca marche que pour les expand dans quote mais ne zap pas les whitespace
 	while (token->s[i])
 	{
 		start = i;
