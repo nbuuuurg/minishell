@@ -214,10 +214,14 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 {
     pid_t	id;
 	int		exit_code;
+	int		flag_ex_tma = 1;
 	struct stat	sb;
 
 	if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 3 && line->subline == NULL && cmd->pipe_count == 0)
+	{
 		exit_code = exec_builtin(*cmd, line, 1);
+		flag_ex_tma = 0;
+	}
     if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2)
         exit_code = exec_builtin(*cmd, line, 0);
     id = fork();
@@ -241,7 +245,8 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 			}
 			else if (cmd->cmd && is_builtin(cmd->cmd[0]) == 3)
 			{
-				exit_code = exec_builtin(*cmd, line, 0);
+				if (flag_ex_tma)
+					exit_code = exec_builtin(*cmd, line, 0);
 				free_exec_cmd(line);
 				_exit(exit_code);
 			}

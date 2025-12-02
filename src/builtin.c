@@ -434,7 +434,9 @@ int	ft_exit(t_cmd cmd, t_line *line, int flag)
 	{
 		if (flag)
 			write(STDOUT_FILENO, "exit\n", 5);
-		ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
+		ft_putstr_fd("exit: ", STDERR_FILENO);
+		ft_putstr_fd(cmd.cmd[1], STDERR_FILENO);
+		ft_putstr_fd(": numeric argument required\n", STDERR_FILENO);
 		free_exec_cmd(line);
 		clear_history();
 		exit(2);
