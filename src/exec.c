@@ -108,6 +108,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 				{
 					if (pipe(fd_next) == -1)
 						return (perror("pipe"));
+					printf("pipe created\n");
 				}
 				if (exprs->pipeline[i].position == 1)
 					cmd[i].id = exec_cmd(&cmd[i], NULL, fd_next, line);
@@ -298,7 +299,27 @@ void	free_exec_cmd(t_line *line)
 /* 		else */
 /* 		{ */
 /* 			free_exec_cmd(line); */
-/* 			if (!g_sig) */
+/* 			if (!g_sig) */			/* int	i; */
+			/* int	j; */
+			/**/
+			/* i = line->exprs->pipe_count; */
+			/* while (i >= 0) */
+			/* { */
+			/* 	j = 0; */
+			/* 	while (j < line->exprs->pipeline[i].redir_count) */
+			/* 	{ */
+			/* 		if (ft_strncmp(line->exprs->pipeline[i].redirect[j].redir, "<<", 2) == 0) */
+			/* 		{ */
+			/* 			if (line->exprs->pipeline[i].redirect[j].hd_fd != -1) */
+			/* 			{ */
+			/* 				close(line->exprs->pipeline[i].redirect[j].hd_fd); */
+			/* 				line->exprs->pipeline[i].redirect[j].hd_fd = -1; */
+			/* 			} */
+			/* 		} */
+			/* 		j++; */
+			/* 	} */
+			/* 	i--; */
+			/* } */
 /* 				_exit(1); */
 /* 		} */
 /*     } */
@@ -356,6 +377,7 @@ int	hd_c(char *limiter, t_line *line)
 	char	*tmp;
 	char	*temp = NULL;
 	int		flag;
+	int		save_stdin = dup(STDIN_FILENO);
 
 	struct sigaction old_int;
 	struct sigaction old_quit;
@@ -384,7 +406,7 @@ int	hd_c(char *limiter, t_line *line)
 		return (perror("malloc"), -1);
 	if (pipe(here_tube) == -1)
 		return (perror("pipe"), free(res), -1);
-
+	printf("fd open\n");
 	flag = 0;
 	while (1)
 	{
@@ -465,6 +487,8 @@ int	hd_c(char *limiter, t_line *line)
 
 	if (flag == 1)
 	{
+		dup2(save_stdin, STDIN_FILENO);
+		close(save_stdin);
 		close(here_tube[1]);
 		free(res);
 		sigaction(SIGINT, &old_int, NULL);
@@ -474,7 +498,8 @@ int	hd_c(char *limiter, t_line *line)
 		line->prev_exit = 130;
 		return (here_tube[0]);
 	}
-
+	dup2(save_stdin, STDIN_FILENO);
+	close(save_stdin);
 	write(here_tube[1], res, ft_strlen(res));
 	free(res);
 	close(here_tube[1]);

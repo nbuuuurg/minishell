@@ -42,8 +42,6 @@ void	free_line(t_line *line)
 		return ;
 	if (line->tokens)
 	{
-		// while (line->tokens->previous)
-		// 	line->tokens = line->tokens->previous;
 		free_tokens(line->tokens);
 	}
 	if (line->exprs)

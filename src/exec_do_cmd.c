@@ -92,6 +92,7 @@ pid_t	exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 		exit_code = exec_builtin(*cmd, line, 1);
 	if (cmd->cmd && cmd->cmd[0] && is_builtin(cmd->cmd[0]) == 2)
 		exit_code = exec_builtin(*cmd, line, 0);
+	printf("lala on fork\n");
 	id = fork();
 	if (id == -1)
 		return (perror("fork"), id);

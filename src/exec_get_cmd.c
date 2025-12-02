@@ -18,6 +18,8 @@ void	get_cmd_path(char **path, t_cmd *cmd)
 	char	*path_cmd;
 
 	i = 0;
+	if (!cmd->cmd[0])
+		return ;
 	while (path && path[i])
 	{
 		path_cmd = ft_strjoin(path[i], cmd->cmd[0]);
