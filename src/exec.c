@@ -97,11 +97,9 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 {
 
 	int		i;
-	/* int		j; */
 	t_cmd	*cmd;
 	int		fd[2];
 	int		fd_next[2];
-	/* int		fd_hd_temp; */
 
 	struct sigaction old_int;
 	struct sigaction old_quit;
@@ -124,7 +122,6 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 		{
 			cmd[i] = get_cmd(exprs->pipeline[i], path);
 			cmd[i].pipe_count = exprs->pipe_count;
-			
 		}
 		i++;
 	}
@@ -267,10 +264,8 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 						_exit(126);
 					}
 				}
-
 				int	i;
 				int	j;
-
 				i = line->exprs->pipe_count;
 				while (i >= 0)
 				{
@@ -452,6 +447,7 @@ int	hd_c(char *limiter, t_line *line)
 	char	*tmp;
 	char	*temp = NULL;
 	int		flag;
+	int		save_stdin = dup(STDIN_FILENO);
 
 	struct sigaction old_int;
 	struct sigaction old_quit;
@@ -523,6 +519,8 @@ int	hd_c(char *limiter, t_line *line)
 
 	if (flag == 1)
 	{
+		dup2(save_stdin, STDIN_FILENO);
+		close(save_stdin);
 		close(here_tube[1]);
 		free(res);
 		sigaction(SIGINT, &old_int, NULL);
@@ -531,7 +529,8 @@ int	hd_c(char *limiter, t_line *line)
 		line->prev_exit = 130;
 		return (here_tube[0]);
 	}
-
+	dup2(save_stdin, STDIN_FILENO);
+	close(save_stdin);
 	write(here_tube[1], res, ft_strlen(res));
 	free(res);
 	close(here_tube[1]);
@@ -553,7 +552,6 @@ t_cmd	get_cmd(t_pipeline pipeline, char **path)
 	i = 0;
 	if (!cmd.cmd)
 	{
-		/* printf("cmd.cmd NULL\n"); */
 		return (cmd);
 	}
 	/* printf("cmd.cmd[0] = %s\n", cmd.cmd[0]); */

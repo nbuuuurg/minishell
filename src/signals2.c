@@ -16,8 +16,9 @@ void	sigint_handler_hd(int sig)
 {
 	(void)sig;
 	g_sig = 1;
-	write(STDERR_FILENO, "^C\nminishell> ", 14);
 	rl_done = 1;
+	write(STDERR_FILENO, "^C", 2);
+	close(STDIN_FILENO);
 }
 
 void	sigquit_handler_hd(int sig)
