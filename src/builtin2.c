@@ -12,166 +12,6 @@
 
 #include "../include/minishell.h"
 
-int	ft_pwd(void)
-{
-	char	*cwd;
-
-	cwd = getcwd(NULL, 0);
-	if (!cwd)
-	{
-		ft_putstr_fd("pwd: error retrieving current directory", STDERR_FILENO);
-		ft_putstr_fd(": getcwd: cannot access parent", STDERR_FILENO);
-		ft_putstr_fd(" directories: No such file or directory\n", STDERR_FILENO);
-		return (1);
-	}
-	ft_putstr_fd(cwd, STDOUT_FILENO);
-	write(STDOUT_FILENO, "\n", 1);
-	free(cwd);
-	return (0);
-}
-
-int	var_exists(t_line *line, char *name)
-{
-	int		i;
-	int		j;
-
-	i = 0;
-	while (name[i] && name[i] != '=')
-		i++;
-	j = 0;
-	while (line->envp && line->envp[j])
-	{
-		if (ft_strncmp(line->envp[j], name, i) == 0)
-			if (line->envp[j][i] == '=')
-				return (j);
-		j++;
-	}
-	return (-1);
-}
-
-int    ft_export(t_cmd cmd, t_line *line)
-{
-    char    **new_env;
-    int        old_size;
-    int        new_size;
-    int        exist_pos;
-    int        src;
-    int        dest;
-    int        i;
-
-    i = 1;
-    while (cmd.cmd[i])
-    {
-        if (has_equal(cmd.cmd[i]) == 0)
-            return (0);
-        if (is_assignment(cmd.cmd[i]) == 0)
-        {
-            ft_putstr_fd("export: `", STDERR_FILENO);
-            ft_putstr_fd(cmd.cmd[i], STDERR_FILENO);
-            ft_putstr_fd("\': not a valid identifier\n", STDERR_FILENO);
-            return (1);
-        }
-        exist_pos = var_exists(line, cmd.cmd[i]);
-        old_size = 0;
-        while (line->envp && line->envp[old_size])
-            old_size++;
-        if (exist_pos >= 0)
-            new_size = old_size;
-        else
-            new_size = old_size + 1;
-        new_env = malloc(sizeof(char *) * (new_size + 1));
-        if (!new_env)
-            return (perror("malloc"), 1);
-        src = 0;
-        dest = 0;
-        while (src < old_size)
-        {
-            if (src == exist_pos)
-            {
-                new_env[dest] = ft_strdup(cmd.cmd[i]);
-                if (!new_env[dest])
-                    return (perror("malloc"), free_split(new_env), 1);
-            }
-            else
-            {
-                new_env[dest] = ft_strdup(line->envp[src]);
-                if (!new_env[dest])
-                    return (perror("malloc"), free_split(new_env), 1);
-            }
-            src++;
-            dest++;
-        }
-        if (exist_pos < 0)
-        {
-            new_env[dest] = ft_strdup(cmd.cmd[i]);
-            if (!new_env[dest])
-                return (perror("malloc"), free_split(new_env), 1);
-            dest++;
-        }
-        new_env[dest] = NULL;
-		 if (line->envp)
-            free_split(line->envp);
-        line->envp = ft_strdup2(new_env);
-        if (!line->envp)
-            return (perror("malloc"), free_split(new_env), 1);
-        free_split(new_env);
-        i++;
-    }
-    return (0);
-}
-
-int    ft_unset(t_cmd cmd, t_line *line)
-{
-    char    **new_env;
-    int        exist_pos;
-    int        old_size;
-    int        new_size;
-    int        src;
-    int        dest;
-    int        i;
-
-    i = 1;
-    while (cmd.cmd[i])
-    {
-        if (!cmd.cmd[i])
-            return (0);
-        old_size = 0;
-        while (line->envp && line->envp[old_size])
-            old_size++;
-        exist_pos = var_exists(line, cmd.cmd[i]);
-        if (exist_pos < 0)
-            return (0);
-        new_size = old_size - 1;
-        new_env = malloc(sizeof(char *) * (new_size + 1));
-        if (!new_env)
-            return (perror("malloc"), 1);
-        src = 0;
-        dest = 0;
-        while (src < old_size)
-        {
-            if (src == exist_pos)
-                src++;
-            else
-            {
-                new_env[dest] = ft_strdup(line->envp[src]);
-                if (!new_env[dest])
-                    return (perror("malloc"), free_split(new_env), 1);
-                src++;
-                dest++;
-            }
-        }
-        new_env[dest] = NULL;
-        if (line->envp)
-            free_split(line->envp);
-        line->envp = ft_strdup2(new_env);
-        if (!line->envp)
-            return (perror("malloc"), free_split(new_env), 1);
-        free_split(new_env);
-        i++;
-    }
-    return (0);
-}
-
 void	update_env_cd(t_line *line, char *oldpwd, char *newpwd)
 {
 	int		i;
@@ -210,8 +50,6 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	char	*new_env_pwd;
 	char	*temp;
 
-	// a fix le cas de merde qd on suprime le dossier dans lequel on est 
-
 	if (cd_too_many_args(cmd) > 2)
 		return (ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO), 1);
 	if (!cmd.cmd[1])
@@ -221,7 +59,7 @@ int	ft_cd(t_cmd cmd, t_line *line)
 			return (ft_putstr_fd("cd: HOME not set\n", STDERR_FILENO), 1);
 	}
 	else
-		path = cmd.cmd[1];
+	path = cmd.cmd[1];
 	temp = getcwd(NULL, 0);
 	if (!temp)
 	{
@@ -249,7 +87,7 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
-		// perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
+	// perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
 	free(temp);
 	if (chdir(path) == -1)
 	{
@@ -274,83 +112,3 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	return (0);
 }
 
-long	ft_atol(char *s)
-{
-	long long	result;
-	int			sign;
-	int			i;
-
-	result = 0;
-	sign = 1;
-	i = 0;
-	if (s[i] == '-' || s[i] == '+')
-	{
-		if (s[i] == '-')
-			sign = -1;
-		i++;
-	}
-	while (s[i])
-	{
-		if (s[i] >= '0' && s[i] <= '9')
-		{
-			result = result * 10 + (s[i] - '0');
-			i++;
-		}
-		else
-			return (555);
-	}
-	if (result > 9223372036854775807 || (result * sign) < -9223372036854775807)
-		return (555);
-	// attention long long min
-	return ((result * sign) % 256);
-}
-
-int	ft_exit(t_cmd cmd, t_line *line, int flag)
-{
-	long	exit_code;
-	int		last_exit;
-
-	if (!cmd.cmd[1])
-	{
-		last_exit = line->prev_exit;
-		if (flag)
-			write(STDOUT_FILENO, "exit\n", 5);
-		free_exec_cmd(line);
-		clear_history();
-		exit(last_exit);
-	}
-	else if (ft_isdigit_str(cmd.cmd[1]) == 0)
-	{
-		if (flag)
-			write(STDOUT_FILENO, "exit\n", 5);
-		ft_putstr_fd("exit: ", STDERR_FILENO);
-		ft_putstr_fd(cmd.cmd[1], STDERR_FILENO);
-		ft_putstr_fd(": numeric argument required\n", STDERR_FILENO);
-		free_exec_cmd(line);
-		clear_history();
-		exit(2);
-	}
-	else if (cmd.cmd[1] && cmd.cmd[2])
-	{
-		if (flag)
-			write(STDOUT_FILENO, "exit\n", 5);
-		ft_putstr_fd("exit: too many arguments\n", STDERR_FILENO);
-		return (1);
-	}
-	else if (cmd.cmd[1])
-	{
-		exit_code = ft_atol(cmd.cmd[1]);
-		if (flag)
-			write(STDOUT_FILENO, "exit\n", 5);
-		free_exec_cmd(line);
-		clear_history();
-		if (exit_code == 555)
-		{
-			ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
-			exit(2);
-		}
-		else
-			exit(exit_code);
-	}
-	return (0);
-}

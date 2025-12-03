@@ -284,14 +284,31 @@ int			ft_env(t_line *line, t_cmd cmd);
 
 /* builtin2.c */
 
-int			ft_exit(t_cmd cmd, t_line *line, int flag);
-long		ft_atol(char *s);
 int			ft_cd(t_cmd cmd, t_line *line);
 void		update_env_cd(t_line *line, char *oldpwd, char *newpwd);
-int			ft_unset(t_cmd cmd, t_line *line);
-int			ft_pwd(void);
+
+/* builtin3.c */
+
 int			ft_export(t_cmd cmd, t_line *line);
+char		**export_build_new_env(t_line *line, int new_size,
+				int exist_pos, char *new_var);
+int			get_new_env_size(t_line *line, int exist_pos, int flag);
+int			replace_env(t_line *line, char **new_env);
+int			copy_env_var(char **new_env, char *new_var, int dest);
+
+/* builtin4.c */
+
 int			var_exists(t_line *line, char *name);
+void		not_valid_identifier(char *s);
+int			ft_unset(t_cmd cmd, t_line *line);
+char		**unset_build_new_env(t_line *line, int exist_pos,
+				char **new_env);
+int			ft_pwd(void);
+
+/* builtin5.c */
+
+int			ft_exit(t_cmd cmd, t_line *line, int flag);
+long		ft_atol(char *s);
 
 /* env.c */
 
