@@ -12,6 +12,25 @@
 
 #include "../include/minishell.h"
 
+char	*find_all_path(char **env)
+{
+	char	*all_path;
+	int		i;
+
+	if (!env)
+		return (NULL);
+	all_path = NULL;
+	i = -1;
+	while (env[++i])
+	{
+		if (ft_strncmp("PATH=", env[i], 5) == 0)
+			all_path = env[i] + 5 ;
+	}
+	if (!all_path)
+		return (NULL);
+	return (all_path);
+}
+
 char	**get_path(char **env)
 {
 	char	**path;
@@ -20,15 +39,7 @@ char	**get_path(char **env)
 	int		i;
 	int		k;
 
-	all_path = NULL;
-	if (!env)
-		return (NULL);
-	i = -1;
-	while (env[++i])
-	{
-		if (ft_strncmp("PATH=", env[i], 5) == 0)
-			all_path = env[i] + 5 ;
-	}
+	all_path = find_all_path(env);
 	if (!all_path)
 		return (NULL);
 	tmp = ft_split(all_path, ':');
