@@ -31,20 +31,12 @@ char	*find_all_path(char **env)
 	return (all_path);
 }
 
-char	**get_path(char **env)
+char	**add_slash(char **tmp)
 {
 	char	**path;
-	char	*all_path;
-	char	**tmp;
 	int		i;
 	int		k;
 
-	all_path = find_all_path(env);
-	if (!all_path)
-		return (NULL);
-	tmp = ft_split(all_path, ':');
-	if (!tmp)
-		return (perror("ft_split"), NULL);
 	i = 0;
 	while (tmp[i])
 		i++;
@@ -61,10 +53,27 @@ char	**get_path(char **env)
 			while (k < i)
 				free(path[k++]);
 			free(path);
-			free_split(tmp);
 			return (NULL);
 		}
 	}
 	path[i] = NULL;
+	return (path);
+}
+
+char	**get_path(char **env)
+{
+	char	**path;
+	char	*all_path;
+	char	**tmp;
+
+	all_path = find_all_path(env);
+	if (!all_path)
+		return (NULL);
+	tmp = ft_split(all_path, ':');
+	if (!tmp)
+		return (perror("ft_split"), NULL);
+	path = add_slash(tmp);
+	if (!path)
+		return (free_split(tmp), NULL);
 	return (free_split(tmp), path);
 }

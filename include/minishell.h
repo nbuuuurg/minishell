@@ -293,6 +293,8 @@ int			is_builtin(char *cmd);
 /* env.c */
 
 char		**get_path(char **env);
+char		**add_slash(char **tmp);
+char		*find_all_path(char **env);
 
 /* exec.c */
 
