@@ -87,7 +87,6 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
-	// perror("malloc"); // on vire le return pour qd meme arriver au chdir pour le cas de merde
 	free(temp);
 	if (chdir(path) == -1)
 	{

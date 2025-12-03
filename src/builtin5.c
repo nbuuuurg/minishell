@@ -40,31 +40,54 @@ long	ft_atol(char *s)
 	return ((result * sign) % 256);
 }
 
-int	ft_exit(t_cmd cmd, t_line *line, int flag)
+void	exit_no_arg(t_line *line, int flag)
+{
+	int	last_exit;
+
+	last_exit = line->prev_exit;
+	if (flag)
+		write(STDOUT_FILENO, "exit\n", 5);
+	free_exec_cmd(line);
+	clear_history();
+	exit(last_exit);
+}
+
+void	exit_numric_arg_required(t_cmd cmd, int flag, t_line *line)
+{
+	if (flag)
+		write(STDOUT_FILENO, "exit\n", 5);
+	ft_putstr_fd("exit: ", STDERR_FILENO);
+	ft_putstr_fd(cmd.cmd[1], STDERR_FILENO);
+	ft_putstr_fd(": numeric argument required\n", STDERR_FILENO);
+	free_exec_cmd(line);
+	clear_history();
+	exit(2);
+}
+
+void	exit_with_choosen_code(t_cmd cmd, t_line *line, int flag)
 {
 	long	exit_code;
-	int		last_exit;
 
-	if (!cmd.cmd[1])
+	exit_code = ft_atol(cmd.cmd[1]);
+	if (flag)
+		write(STDOUT_FILENO, "exit\n", 5);
+	free_exec_cmd(line);
+	clear_history();
+	if (exit_code == 555)
 	{
-		last_exit = line->prev_exit;
-		if (flag)
-			write(STDOUT_FILENO, "exit\n", 5);
-		free_exec_cmd(line);
-		clear_history();
-		exit(last_exit);
-	}
-	else if (ft_isdigit_str(cmd.cmd[1]) == 0)
-	{
-		if (flag)
-			write(STDOUT_FILENO, "exit\n", 5);
-		ft_putstr_fd("exit: ", STDERR_FILENO);
-		ft_putstr_fd(cmd.cmd[1], STDERR_FILENO);
-		ft_putstr_fd(": numeric argument required\n", STDERR_FILENO);
-		free_exec_cmd(line);
-		clear_history();
+		ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
 		exit(2);
 	}
+	else
+		exit(exit_code);
+}
+
+int	ft_exit(t_cmd cmd, t_line *line, int flag)
+{
+	if (!cmd.cmd[1])
+		exit_no_arg(line, flag);
+	else if (ft_isdigit_str(cmd.cmd[1]) == 0)
+		exit_numric_arg_required(cmd, flag, line);
 	else if (cmd.cmd[1] && cmd.cmd[2])
 	{
 		if (flag)
@@ -73,19 +96,6 @@ int	ft_exit(t_cmd cmd, t_line *line, int flag)
 		return (1);
 	}
 	else if (cmd.cmd[1])
-	{
-		exit_code = ft_atol(cmd.cmd[1]);
-		if (flag)
-			write(STDOUT_FILENO, "exit\n", 5);
-		free_exec_cmd(line);
-		clear_history();
-		if (exit_code == 555)
-		{
-			ft_putstr_fd("exit: numeric argument required\n", STDERR_FILENO);
-			exit(2);
-		}
-		else
-			exit(exit_code);
-	}
+		exit_with_choosen_code(cmd, line, flag);
 	return (0);
 }

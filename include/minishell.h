@@ -309,6 +309,9 @@ int			ft_pwd(void);
 
 int			ft_exit(t_cmd cmd, t_line *line, int flag);
 long		ft_atol(char *s);
+void		exit_no_arg(t_line *line, int flag);
+void		exit_numric_arg_required(t_cmd cmd, int flag, t_line *line);
+void		exit_with_choosen_code(t_cmd cmd, t_line *line, int flag);
 
 /* env.c */
 
