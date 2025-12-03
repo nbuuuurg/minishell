@@ -26,7 +26,6 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 	sigemptyset(&new.sa_mask);
 	new.sa_handler = SIG_IGN;
 	new.sa_flags = 0;
-
 	if (exprs->has_subshell != 0 || line->heredoc_flag == 1)
 		return ;
 	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL // voir si pas mieux t_cmd **cmd
@@ -95,7 +94,6 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 			waitpid(cmd[i].id, &cmd[i].status, 0);
 		i++;
 	}
-	//ici
 	i = 0;
 	while (i <= exprs->pipe_count)
 	{
@@ -314,8 +312,6 @@ int	ft_redir(t_redir *redirect, char *cmd)
 {
 	int	i;
 	int	fd;
-
-	// Il faut sortir avec la bonne erreur si redirect[i].file == NULL mais ca ne segault plus
 
 	(void)cmd;
 	i = 0;
