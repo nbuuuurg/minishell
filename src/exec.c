@@ -12,87 +12,6 @@
 
 #include "../include/minishell.h"
 
-// int		last_parse_err(t_line *line)
-// {
-// 	t_token	*temp;
-// 	t_token *temp2;
-
-// 	temp = line->tokens;
-// 	temp2 = line->tokens;
-// 	while (temp && temp->next)
-// 		temp = temp->next;
-// 	while (temp2 && temp2->previous)
-// 		temp2 = temp2->previous;
-// 	if (temp && temp->type == PIPE)
-// 	{
-// 		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
-// 		return (line->lexer_err = -1, line->prev_exit = 2, 1);
-// 	}
-// 	if (temp2 && temp2->type == PIPE)
-// 	{
-// 		ft_putstr_fd("mini: syntax error near unexpected token `|'\n", STDERR_FILENO);
-// 		return (line->lexer_err = -2, line->prev_exit = 2, 1);
-// 	}
-// 	if (line->lexer_err == -3)
-// 		return (1);
-// 	if (line->lexer_err == -4)
-// 	{
-// 		ft_putstr_fd("mini: syntax error near unexpected token `", STDERR_FILENO);
-// 		ft_putstr_fd(last_elem(line)->s, STDERR_FILENO);
-// 		ft_putstr_fd("\'\n", STDERR_FILENO);
-// 		return (line->prev_exit = 2, 1);
-// 	}
-// 	if (line->lexer_err == -5)
-// 	{
-// 		ft_putstr_fd("mini: syntax error near unexpected token `newline'\n", STDERR_FILENO);
-// 		return (line->prev_exit = 2, 1);
-// 	}
-// 	return (0);
-// }
-
-void	exec_minishell(t_line *line)
-{
-	/*ici*/
-	/* print_expr(line); */
-	// print_token(line);
-	t_expr	*temp;
-	temp = line->exprs;
-	while(line->tokens->previous)
-		line->tokens = line->tokens->previous;
-	// printf("err : %d\n", line->lexer_err);
-	while (temp != NULL)
-	{
-		if (temp)
-			exec_exprs(temp, line->path, line);
-		// printf("exit : %d\n", line->prev_exit);
-		if (temp)
-		{
-			if (line->prev_exit == 2) // error redirection
-				return ;
-			if (line->prev_exit == 0 && temp->op_after == AND) // true &&
-				temp = temp->next;
-			else if (line->prev_exit != 0 && temp->op_after == AND) // false &&
-			{
-				while (temp && temp->op_after != OR)
-					temp = temp->next;
-				if (temp)
-					temp = temp->next;
-			}
-			else if (line->prev_exit != 0 && temp->op_after == OR) // false ||
-				temp = temp->next;
-			else if (line->prev_exit == 0 && temp->op_after == OR) // true ||
-			{
-				while (temp && temp->op_after != AND)
-					temp = temp->next;
-				if (temp)
-					temp = temp->next;
-			}
-			else
-				temp = temp->next;
-		}
-	}
-}
-
 void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 {
 
@@ -108,7 +27,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 	new.sa_handler = SIG_IGN;
 	new.sa_flags = 0;
 
-	if (exprs->has_subshell != 0)
+	if (exprs->has_subshell != 0 || line->heredoc_flag == 1)
 		return ;
 	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL // voir si pas mieux t_cmd **cmd
 	if (!cmd)

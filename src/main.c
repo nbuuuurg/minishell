@@ -14,6 +14,15 @@
 
 volatile sig_atomic_t	g_sig = 0;
 
+void	check_signals(t_save *save)
+{
+	if (g_sig == 1)
+	{
+		save->exit = 130;
+		g_sig = 0;
+	}
+}
+
 int	main(int ac, char **av, char **envp)
 {
 	t_line	line;
@@ -36,11 +45,7 @@ int	main(int ac, char **av, char **envp)
 	while (1)
 	{
 		line.input = readline("minishell> ");
-		if (g_sig == 1)
-		{
-			g_sig = 0;
-			save.exit = 130;
-		}
+		check_signals(&save);
 		if (!line.input)
 		{
 			write(STDOUT_FILENO, "exit\n", 5);

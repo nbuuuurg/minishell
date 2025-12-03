@@ -53,7 +53,7 @@ int	init_clean_input(t_line *line)
 	return (0);
 }
 
-void	init_line2(t_line *line, char **envp)
+void	first_init_line(t_line *line, char **envp)
 {
 	line->tokens = NULL;
 	line->exprs = NULL;
@@ -77,7 +77,7 @@ void	init_line2(t_line *line, char **envp)
 		return ;
 }
 
-void	init_line3(t_line *line, char **envp, t_save *save)
+void	other_init_line(t_line *line, char **envp, t_save *save)
 {
 	line->tokens = NULL;
 	line->exprs = NULL;
@@ -108,7 +108,7 @@ void	init_line3(t_line *line, char **envp, t_save *save)
 void	init_line(t_line *line, char **envp, int start_flag, t_save *save)
 {
 	if (start_flag == 0)
-		init_line2(line, envp);
+		first_init_line(line, envp);
 	else
-		init_line3(line, envp, save);
+		other_init_line(line, envp, save);
 }

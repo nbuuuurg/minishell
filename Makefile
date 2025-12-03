@@ -10,7 +10,6 @@ SRC_OBJ = obj/
 SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)env.c \
 	  $(SRC_DIR)exec.c \
-	  $(SRC_DIR)exit.c \
       $(SRC_DIR)free.c \
 	  $(SRC_DIR)free2.c \
 	  $(SRC_DIR)init.c \
@@ -32,7 +31,10 @@ SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)parser6.c \
 	  $(SRC_DIR)parser7.c \
 	  $(SRC_DIR)parser8.c \
-	  $(SRC_DIR)print.c \
+	  $(SRC_DIR)parser9.c \
+	  $(SRC_DIR)parser10.c \
+	  $(SRC_DIR)parser11.c \
+	  $(SRC_DIR)parser12.c \
 	  $(SRC_DIR)print_err.c \
 	  $(SRC_DIR)signals.c \
 	  $(SRC_DIR)signals2.c \
