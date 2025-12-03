@@ -97,7 +97,7 @@ void	define_quotes(t_parse5 *p, t_token *token)
 		else if (p->d_quote == 1)
 			p->d_quote = 0;
 	}
-	else if (token->s[p->i] == 34)
+	else if (token->s[p->i] == 39)
 	{
 		if (p->s_quote == 0 && p->d_quote == 0)
 			p->s_quote = 1;

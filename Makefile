@@ -38,6 +38,7 @@ SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)print_err.c \
 	  $(SRC_DIR)signals.c \
 	  $(SRC_DIR)signals2.c \
+	  $(SRC_DIR)signals3.c \
 	  $(SRC_DIR)subshell.c \
 	  $(SRC_DIR)tokenizer.c \
 	  $(SRC_DIR)utils.c \

@@ -19,13 +19,9 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 	t_cmd	*cmd;
 	int		fd[2];
 	int		fd_next[2];
+	t_signals	sig;
 
-	struct sigaction old_int;
-	struct sigaction old_quit;
-	struct sigaction new;
-	sigemptyset(&new.sa_mask);
-	new.sa_handler = SIG_IGN;
-	new.sa_flags = 0;
+	handle_signals_child(&sig);
 	if (exprs->has_subshell != 0 || line->heredoc_flag == 1)
 		return ;
 	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL // voir si pas mieux t_cmd **cmd
@@ -44,16 +40,6 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 		i++;
 	}
 	i = 0;
-	sigaction(SIGINT, &new, &old_int);
-	sigaction(SIGQUIT, &new, &old_quit);
-	signal(SIGINT, sigint_handler_child);
-	signal(SIGQUIT, sigquit_handler_child);
-	struct termios 	t;
-	struct termios	old;
-	tcgetattr(STDIN_FILENO, &old);
-	t = old;
-	t.c_lflag &= ~ECHOCTL; // désactive le bit ECHOCTL -> n'affiche plus ^/, ^C, etc
-	tcsetattr(STDIN_FILENO, TCSANOW, &t);
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->has_subshell == 0)
@@ -105,9 +91,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 		line->prev_exit = WEXITSTATUS(cmd[i - 1].status);
 	else if (WIFSIGNALED(cmd[i - 1].status))
     	line->prev_exit = 128 + WTERMSIG(cmd[i - 1].status);
-	sigaction(SIGINT, &old_int, NULL);
-	sigaction(SIGQUIT, &old_quit, NULL);
-	tcsetattr(STDIN_FILENO, TCSANOW, &old);
+	restore_signals_child(&sig);
 	free(cmd);
 }
 
@@ -368,26 +352,14 @@ int	hd_c(char *limiter, t_line *line)
 	char	*temp = NULL;
 	int		flag;
 	int		save_stdin = dup(STDIN_FILENO);
+	t_signals	sig;
 
-	struct sigaction old_int;
-	struct sigaction old_quit;
-	struct sigaction sa_int;
-	struct sigaction sa_quit;
-
-	sigemptyset(&sa_int.sa_mask);
-	sigemptyset(&sa_quit.sa_mask);
-	sa_int.sa_flags = 0;
-	sa_quit.sa_flags = 0;
-	sa_int.sa_handler = sigint_handler_hd;
-	sa_quit.sa_handler = SIG_IGN;
-	sigaction(SIGINT, &sa_int, &old_int);
-	sigaction(SIGQUIT, &sa_quit, &old_quit);
-
+	handle_signals_hd(&sig);
 	res = ft_strdup("");
 	if (!res)
-		return (perror("malloc"), -1);
+		return (perror("malloc"), restore_signals_hd(&sig), -1);
 	if (pipe(here_tube) == -1)
-		return (perror("pipe"), free(res), -1);
+		return (perror("pipe"), restore_signals_hd(&sig), free(res), -1);
 
 	flag = 0;
 	while (1)
@@ -418,21 +390,21 @@ int	hd_c(char *limiter, t_line *line)
 		{
 			temp = expanded_content(content, line);
 			if (!temp)
-				return (free(res), free(content), perror("malloc"), -1);
+				return (free(res), free(content), restore_signals_hd(&sig), perror("malloc"), -1);
 			free(content);
 			content = temp;
 		}
 		tmp = ft_strjoin(content, "\n");
 		if (!tmp)
-			return (free(res), free(content), perror("malloc"), -1);
+			return (free(res), free(content), restore_signals_hd(&sig), perror("malloc"), -1);
 		free(content);
 		content = tmp;
 		tmp = res;
 		if (!tmp)
-			return (free(content), free(res), perror("malloc"), -1);
+			return (free(content), free(res), restore_signals_hd(&sig), perror("malloc"), -1);
 		res = ft_strjoin(tmp, content);
 		if (!res)
-			return (free(content), free(tmp), perror("malloc"), -1);
+			return (free(content), free(tmp), restore_signals_hd(&sig), perror("malloc"), -1);
 		free(content);
 		free(tmp);
 	}
@@ -443,8 +415,7 @@ int	hd_c(char *limiter, t_line *line)
 		close(save_stdin);
 		close(here_tube[1]);
 		free(res);
-		sigaction(SIGINT, &old_int, NULL);
-		sigaction(SIGQUIT, &old_quit, NULL);
+		restore_signals_hd(&sig);
 		line->heredoc_flag = 1;
 		line->prev_exit = 130;
 		return (here_tube[0]);
@@ -454,8 +425,7 @@ int	hd_c(char *limiter, t_line *line)
 	write(here_tube[1], res, ft_strlen(res));
 	free(res);
 	close(here_tube[1]);
-	sigaction(SIGINT, &old_int, NULL);
-	sigaction(SIGQUIT, &old_quit, NULL);
+	restore_signals_hd(&sig);
 	return (here_tube[0]);
 }
 

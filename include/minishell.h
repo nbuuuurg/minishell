@@ -259,6 +259,17 @@ typedef struct s_parse6
 	char	*tmp;
 }				t_parse6;
 
+typedef struct s_signals
+{
+	struct sigaction old_int;
+	struct sigaction old_quit;
+	struct sigaction sa_int;
+	struct sigaction sa_quit;
+	struct sigaction new;
+	struct termios 	t;
+	struct termios	old;
+}				t_signals;
+
 /* ************************************************************************** */
 /*                               PROTOTYPES                                   */
 /* ************************************************************************** */
@@ -502,6 +513,13 @@ void		sigint_handler_hd(int sig);
 void		sigquit_handler_hd(int sig);
 void		sigint_handler_child(int sig);
 void		sigquit_handler_child(int sig);
+
+/* signals3.c */
+
+void	handle_signals_child(t_signals *sig);
+void	restore_signals_child(t_signals *sig);
+void	handle_signals_hd(t_signals *sig);
+void	restore_signals_hd(t_signals *sig);
 
 /* subshell.c */
 
