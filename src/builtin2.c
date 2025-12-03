@@ -43,6 +43,18 @@ int	cd_too_many_args(t_cmd cmd)
 	return (i);
 }
 
+void	cd_error_handling(char *path)
+{
+	ft_putstr_fd("cd: ", STDERR_FILENO);
+	ft_putstr_fd(path, STDERR_FILENO);
+	if (errno == ENOTDIR)
+		ft_putstr_fd(": Not a directory\n", STDERR_FILENO);
+	else if (errno == EACCES)
+		ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
+	else
+		ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
+}
+
 int	ft_cd(t_cmd cmd, t_line *line)
 {
 	char	*path;
@@ -59,22 +71,12 @@ int	ft_cd(t_cmd cmd, t_line *line)
 			return (ft_putstr_fd("cd: HOME not set\n", STDERR_FILENO), 1);
 	}
 	else
-	path = cmd.cmd[1];
+		path = cmd.cmd[1];
 	temp = getcwd(NULL, 0);
 	if (!temp)
 	{
 		if (chdir(path) == -1)
-		{
-			ft_putstr_fd("cd: ", STDERR_FILENO);
-			ft_putstr_fd(path, STDERR_FILENO);
-			if (errno == ENOTDIR)
-				ft_putstr_fd(": Not a directory\n", STDERR_FILENO);
-			else if (errno == EACCES)
-				ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
-			else
-				ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
-			return (1);
-		}
+			return (cd_error_handling(path), 1);
 		oldpwd = ft_strdup("OLDPWD= do not exist anymore");
 		if (!oldpwd)
 			return (perror("malloc"), 1);
@@ -82,24 +84,17 @@ int	ft_cd(t_cmd cmd, t_line *line)
 		if (!new_env_pwd)
 			return (perror("malloc"), free(oldpwd), 1);
 		update_env_cd(line, oldpwd, new_env_pwd);
-		return (perror("chdir: error retrieving current directory: getcwd: cannot access parent directories"), 1);
+		ft_putstr_fd("chdir: error retrieving current ", STDERR_FILENO);
+		ft_putstr_fd("directory: getcwd: cannot access parent ", STDERR_FILENO);
+		ft_putstr_fd("directories: No such file or directory\n", STDERR_FILENO);
+		return (1);
 	}
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
 	free(temp);
 	if (chdir(path) == -1)
-	{
-		ft_putstr_fd("cd: ", STDERR_FILENO);
-		ft_putstr_fd(path, STDERR_FILENO);
-		if (errno == ENOTDIR)
-			ft_putstr_fd(": Not a directory\n", STDERR_FILENO);
-		else if (errno == EACCES)
-			ft_putstr_fd(": Permission denied\n", STDERR_FILENO);
-		else
-			ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
-		return (free(oldpwd), 1);
-	}
+		return (cd_error_handling(path), free(oldpwd), 1);
 	temp = getcwd(NULL, 0);
 	if (!temp)
 		return (perror("getcwd"), free(oldpwd), 1);
@@ -110,4 +105,3 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	update_env_cd(line, oldpwd, new_env_pwd);
 	return (0);
 }
-
