@@ -20,7 +20,7 @@ int	copy_env_var(char **new_env, char *new_var, int dest)
 	return (0);
 }
 
-char	**export_build_new_env(t_line *line, int new_size,
+char	**export_new_env(t_line *line, int new_size,
 					int exist_pos, char *new_var)
 {
 	char	**new_env;
@@ -79,7 +79,7 @@ int	replace_env(t_line *line, char **new_env)
 		free_split(line->envp);
 	line->envp = ft_strdup2(new_env);
 	if (!line->envp)
-		return (perror("malloc"), free_split(new_env), 1);
+		return (free_split(new_env), 1);
 	free_split(new_env);
 	return (0);
 }
@@ -90,22 +90,24 @@ int	ft_export(t_cmd cmd, t_line *line)
 	int		new_size;
 	int		exist_pos;
 	int		i;
+	int		ex_code;
 
-	i = 1;
-	while (cmd.cmd[i])
+	(1 && (i = 0), (ex_code = 0));
+	while (cmd.cmd[++i])
 	{
-		if (has_equal(cmd.cmd[i]) == 0)
-			return (0);
-		if (is_assignment(cmd.cmd[i]) == 0)
-			return (not_valid_identifier(cmd.cmd[i]), 1);
-		exist_pos = var_exists(line, cmd.cmd[i]);
-		new_size = get_new_env_size(line, exist_pos, 1);
-		new_env = export_build_new_env(line, new_size, exist_pos, cmd.cmd[i]);
-		if (!new_env)
-			return (perror("malloc"), 1);
-		if (replace_env(line, new_env) != 0)
-			return (1);
-		i++;
+		if (has_equal(cmd.cmd[i]) != 0)
+		{
+			if (is_assignment(cmd.cmd[i]) == 0)
+				not_valid_identifier(cmd.cmd[i], &ex_code);
+			else
+			{
+				exist_pos = var_exists(line, cmd.cmd[i]);
+				new_size = get_new_env_size(line, exist_pos, 1);
+				new_env = export_new_env(line, new_size, exist_pos, cmd.cmd[i]);
+				if (!new_env || replace_env(line, new_env) != 0)
+					return (perror("malloc"), 1);
+			}
+		}
 	}
-	return (0);
+	return (ex_code);
 }
