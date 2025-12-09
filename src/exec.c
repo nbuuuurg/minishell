@@ -24,7 +24,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 	handle_signals_child(&sig);
 	if (exprs->has_subshell != 0 || line->heredoc_flag == 1)
 		return ;
-	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1)); // gerer les erreurs si un truc est NULL // voir si pas mieux t_cmd **cmd
+	cmd = malloc(sizeof(t_cmd) * (exprs->pipe_count + 1));
 	if (!cmd)
 		return ; // error malloc;
 	i = 0;
@@ -93,22 +93,6 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
     	line->prev_exit = 128 + WTERMSIG(cmd[i - 1].status);
 	restore_signals_child(&sig);
 	free(cmd);
-}
-
-void	free_exec_cmd(t_line *line)
-{
-	free_cmd_path(line);
-	free(line->cmd);
-	if (line->subline)
-	{
-		free_line_fork(line, 0);
-	}
-	else
-	{
-		if (line->envp)
-			free_split(line->envp);
-		free_line(line);
-	}
 }
 
 pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
@@ -280,30 +264,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
 		}
 	}
     return (id);
-}
-
-int		get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
-{
-	if (fd_in)
-	{
-		dup2(fd_in[0], STDIN_FILENO);
-		close(fd_in[0]);
-		close(fd_in[1]);
-	}
-	if (fd_out && cmd != NULL)
-	{
-		dup2(fd_out[1], STDOUT_FILENO);
-		close(fd_out[0]);
-		close(fd_out[1]);
-	}
-	else if (fd_out && cmd == NULL)
-	{
-		close(fd_out[0]);
-		close(fd_out[1]);
-	}
-	if (redirect)
-		return (ft_redir(redirect, cmd));
-	return (0);
 }
 
 int	ft_redir(t_redir *redirect, char *cmd)
