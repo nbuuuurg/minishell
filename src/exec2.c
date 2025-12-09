@@ -81,27 +81,3 @@ void	free_exec_cmd(t_line *line)
 		free_line(line);
 	}
 }
-
-int	get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd)
-{
-	if (fd_in)
-	{
-		dup2(fd_in[0], STDIN_FILENO);
-		close(fd_in[0]);
-		close(fd_in[1]);
-	}
-	if (fd_out && cmd != NULL)
-	{
-		dup2(fd_out[1], STDOUT_FILENO);
-		close(fd_out[0]);
-		close(fd_out[1]);
-	}
-	else if (fd_out && cmd == NULL)
-	{
-		close(fd_out[0]);
-		close(fd_out[1]);
-	}
-	if (redirect)
-		return (ft_redir(redirect, cmd));
-	return (0);
-}

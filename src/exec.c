@@ -266,57 +266,6 @@ pid_t exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line)
     return (id);
 }
 
-int	ft_redir(t_redir *redirect, char *cmd)
-{
-	int	i;
-	int	fd;
-
-	(void)cmd;
-	i = 0;
-	if (redirect[i].file == NULL)
-		return(1);
-	while (redirect[i].file)
-	{
-		if (ft_strncmp(redirect[i].redir, ">", ft_strlen(redirect[i].redir)) == 0)
-		{
-			fd = open(redirect[i].file, O_WRONLY | O_TRUNC | O_CREAT, 0644); 
-			if (fd == -1)
-				return (perror(redirect[i].file), 1);
-			if (cmd != NULL)
-				dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
-		else if (ft_strncmp(redirect[i].redir, ">>", ft_strlen(redirect[i].redir)) == 0)
-		{
-			fd = open(redirect[i].file, O_WRONLY | O_APPEND | O_CREAT, 0644); 
-			if (fd == -1)
-				return (perror(redirect[i].file), 1);
-			if (cmd != NULL)
-				dup2(fd, STDOUT_FILENO);
-			close(fd);
-		}
-		else if (ft_strncmp(redirect[i].redir, "<", ft_strlen(redirect[i].redir)) == 0)
-		{
-			fd = open(redirect[i].file, O_RDONLY, 0644);
-			if (fd == -1)
-				return (perror(redirect[i].file), 1);
-			dup2(fd, STDIN_FILENO);
-			close(fd);
-		}
-		else if (ft_strncmp(redirect[i].redir, "<<", ft_strlen(redirect[i].redir)) == 0)
-		{
-			fd = redirect[i].hd_fd;
-			if (fd == -1)
-				return (1); // errror hd_c
-			dup2(fd, STDIN_FILENO);
-			close(fd);
-			redirect[i].hd_fd = -1;
-		}
-		i++;
-	}
-	return (0);
-}
-
 int	hd_c(char *limiter, t_line *line)
 {
 	int		here_tube[2];

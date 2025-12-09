@@ -326,7 +326,6 @@ char		*find_all_path(char **env);
 
 void		exec_exprs(t_expr *exprs, char **path, t_line *line);
 pid_t		exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
-int			ft_redir(t_redir *redirect, char *cmd);
 int			hd_c(char *limiter, t_line *line);
 
 /* exec2.c */
@@ -334,7 +333,13 @@ int			hd_c(char *limiter, t_line *line);
 t_cmd		get_cmd(t_pipeline pipeline, char **path);
 int			get_cmd_full_path(t_cmd *cmd, char **path);
 void		free_exec_cmd(t_line *line);
+
+/* exec3.c */
+
 int			get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd);
+int			ft_redir(t_redir *redirect, char *cmd);
+int			redir_out(t_redir redirect, char *cmd);
+int			redir_in(t_redir redirect);
 
 /* free.c */
 
