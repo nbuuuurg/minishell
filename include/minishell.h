@@ -286,6 +286,9 @@ int			ft_env(t_line *line, t_cmd cmd);
 
 int			ft_cd(t_cmd cmd, t_line *line);
 void		update_env_cd(t_line *line, char *oldpwd, char *newpwd);
+void		chdir_error_handling(char *path);
+int			no_pwd(char *path, char *oldpwd, char *new_env_pwd, t_line *line);
+int			ft_cd2(char *path, t_line *line);
 
 /* builtin3.c */
 

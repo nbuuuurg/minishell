@@ -33,17 +33,7 @@ void	update_env_cd(t_line *line, char *oldpwd, char *newpwd)
 	}
 }
 
-int	cd_too_many_args(t_cmd cmd)
-{
-	int	i;
-
-	i = 0;
-	while (cmd.cmd[i] != NULL)
-		i++;
-	return (i);
-}
-
-void	cd_error_handling(char *path)
+void	chdir_error_handling(char *path)
 {
 	ft_putstr_fd("cd: ", STDERR_FILENO);
 	ft_putstr_fd(path, STDERR_FILENO);
@@ -55,14 +45,32 @@ void	cd_error_handling(char *path)
 		ft_putstr_fd(": No such file or directory\n", STDERR_FILENO);
 }
 
+int	no_pwd(char *path, char *oldpwd, char *new_env_pwd, t_line *line)
+{
+	if (chdir(path) == -1)
+		return (chdir_error_handling(path), 1);
+	oldpwd = ft_strdup("OLDPWD= do not exist anymore");
+	if (!oldpwd)
+		return (perror("malloc"), 1);
+	new_env_pwd = ft_strdup("PWD=..");
+	if (!new_env_pwd)
+		return (perror("malloc"), free(oldpwd), 1);
+	update_env_cd(line, oldpwd, new_env_pwd);
+	ft_putstr_fd("chdir: error retrieving current ", STDERR_FILENO);
+	ft_putstr_fd("directory: getcwd: cannot access parent ", STDERR_FILENO);
+	ft_putstr_fd("directories: No such file or directory\n", STDERR_FILENO);
+	return (1);
+}
+
 int	ft_cd(t_cmd cmd, t_line *line)
 {
 	char	*path;
-	char	*oldpwd;
-	char	*new_env_pwd;
-	char	*temp;
+	int		i;
 
-	if (cd_too_many_args(cmd) > 2)
+	i = 0;
+	while (cmd.cmd[i] != NULL)
+		i++;
+	if (i > 2)
 		return (ft_putstr_fd("cd: too many arguments\n", STDERR_FILENO), 1);
 	if (!cmd.cmd[1])
 	{
@@ -72,29 +80,27 @@ int	ft_cd(t_cmd cmd, t_line *line)
 	}
 	else
 		path = cmd.cmd[1];
+	if (ft_cd2(path, line) != 0)
+		return (1);
+	return (0);
+}
+
+int	ft_cd2(char *path, t_line *line)
+{
+	char	*temp;
+	char	*oldpwd;
+	char	*new_env_pwd;
+
+	(1 && (oldpwd = NULL), (new_env_pwd = NULL));
 	temp = getcwd(NULL, 0);
 	if (!temp)
-	{
-		if (chdir(path) == -1)
-			return (cd_error_handling(path), 1);
-		oldpwd = ft_strdup("OLDPWD= do not exist anymore");
-		if (!oldpwd)
-			return (perror("malloc"), 1);
-		new_env_pwd = ft_strdup("PWD=..");
-		if (!new_env_pwd)
-			return (perror("malloc"), free(oldpwd), 1);
-		update_env_cd(line, oldpwd, new_env_pwd);
-		ft_putstr_fd("chdir: error retrieving current ", STDERR_FILENO);
-		ft_putstr_fd("directory: getcwd: cannot access parent ", STDERR_FILENO);
-		ft_putstr_fd("directories: No such file or directory\n", STDERR_FILENO);
-		return (1);
-	}
+		return (no_pwd(path, oldpwd, new_env_pwd, line));
 	oldpwd = ft_strjoin("OLDPWD=", temp);
 	if (!oldpwd)
 		return (perror("malloc"), 1);
 	free(temp);
 	if (chdir(path) == -1)
-		return (cd_error_handling(path), free(oldpwd), 1);
+		return (chdir_error_handling(path), free(oldpwd), 1);
 	temp = getcwd(NULL, 0);
 	if (!temp)
 		return (perror("getcwd"), free(oldpwd), 1);
