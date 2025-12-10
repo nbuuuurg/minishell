@@ -326,7 +326,6 @@ char		*find_all_path(char **env);
 
 void		exec_exprs(t_expr *exprs, char **path, t_line *line);
 pid_t		exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
-int			hd_c(char *limiter, t_line *line);
 
 /* exec2.c */
 
@@ -340,6 +339,13 @@ int			get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd);
 int			ft_redir(t_redir *redirect, char *cmd);
 int			redir_out(t_redir redirect, char *cmd);
 int			redir_in(t_redir redirect);
+
+/* exec4.c */
+
+int			hd_c(char *limiter, t_line *line);
+int			fill_hd_content(char **res, char *li, t_line *line, int *flag);
+void		stop_hd_eof(char *limiter);
+int			fill_res(char **res, char **content, t_line *line);
 
 /* free.c */
 
