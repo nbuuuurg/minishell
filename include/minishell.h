@@ -325,7 +325,10 @@ char		*find_all_path(char **env);
 /* exec.c */
 
 void		exec_exprs(t_expr *exprs, char **path, t_line *line);
-pid_t		exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
+t_cmd		*init_cmd(t_expr *exprs, t_line *line, char **path);
+void		handle_pipes(t_expr *exprs, t_cmd *cmd, t_line *line);
+void		wait_childs(t_cmd *cmd, t_expr *exprs);
+void		prepare_fds_piped(int *fd, int *fd_next, t_expr *exprs, int i);
 
 /* exec2.c */
 
@@ -346,6 +349,10 @@ int			hd_c(char *limiter, t_line *line);
 int			fill_hd_content(char **res, char *li, t_line *line, int *flag);
 void		stop_hd_eof(char *limiter);
 int			fill_res(char **res, char **content, t_line *line);
+
+/* exec5.c */
+
+pid_t		exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
 
 /* free.c */
 
