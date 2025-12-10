@@ -67,6 +67,8 @@ int	is_option_n(char *s)
 			return (0);
 		i++;
 	}
+	if (i == 1)
+		return (0);
 	return (1);
 }
 
