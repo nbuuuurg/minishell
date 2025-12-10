@@ -35,7 +35,7 @@ t_cmd	*init_cmd(t_expr *exprs, t_line *line, char **path)
 	return (cmd);
 }
 
-void prepare_fds_piped(int *fd, int *fd_next, t_expr *exprs, int i)
+void	prepare_fds_piped(int *fd, int *fd_next, t_expr *exprs, int i)
 {
 	if (i > 0)
 	{
@@ -49,13 +49,11 @@ void prepare_fds_piped(int *fd, int *fd_next, t_expr *exprs, int i)
 	}
 }
 
-void	handle_pipes(t_expr *exprs, t_cmd *cmd, t_line *line)
+void	handle_pipes(t_expr *exprs, t_cmd *cmd, t_line *line, int i)
 {
-	int			i;
 	int			fd[2];
 	int			fd_next[2];
 
-	i = 0;
 	while (i <= exprs->pipe_count)
 	{
 		if (exprs->has_subshell == 0)
@@ -105,7 +103,7 @@ void	exec_exprs(t_expr *exprs, char **path, t_line *line)
 	cmd = init_cmd(exprs, line, path);
 	if (!cmd)
 		return ;
-	handle_pipes(exprs, cmd, line);
+	handle_pipes(exprs, cmd, line, 0);
 	wait_childs(cmd, exprs);
 	i = 0;
 	while (i <= exprs->pipe_count)

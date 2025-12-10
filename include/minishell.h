@@ -326,7 +326,7 @@ char		*find_all_path(char **env);
 
 void		exec_exprs(t_expr *exprs, char **path, t_line *line);
 t_cmd		*init_cmd(t_expr *exprs, t_line *line, char **path);
-void		handle_pipes(t_expr *exprs, t_cmd *cmd, t_line *line);
+void		handle_pipes(t_expr *exprs, t_cmd *cmd, t_line *line, int i);
 void		wait_childs(t_cmd *cmd, t_expr *exprs);
 void		prepare_fds_piped(int *fd, int *fd_next, t_expr *exprs, int i);
 
