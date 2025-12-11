@@ -18,6 +18,7 @@ SRC = $(SRC_DIR)builtin.c \
 	  $(SRC_DIR)exec3.c \
 	  $(SRC_DIR)exec4.c \
 	  $(SRC_DIR)exec5.c \
+	  $(SRC_DIR)exec6.c \
       $(SRC_DIR)free.c \
 	  $(SRC_DIR)free2.c \
 	  $(SRC_DIR)init.c \

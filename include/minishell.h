@@ -352,7 +352,21 @@ int			fill_res(char **res, char **content, t_line *line);
 
 /* exec5.c */
 
+void		child_process(t_cmd *cmd, t_line *line, int exit_code,
+				int flag_ex_tma);
 pid_t		exec_cmd(t_cmd *cmd, int *fd_in, int *fd_out, t_line *line);
+void		close_hd_fds_parent(t_cmd *cmd);
+void		close_hd_fds_in_child(t_line *line);
+void		default_exit_path(t_line *line);
+
+/* exec6.c */
+
+void		child_process_builtin(t_cmd *cmd, t_line *line, int exit_code,
+				int flag_ex_tma);
+void		check_stat(t_cmd *cmd, t_line *line);
+void		case_execve(t_cmd *cmd, t_line *line);
+void		err_enoent(t_cmd *cmd, t_line *line);
+void		err_eacces(t_cmd *cmd, t_line *line);
 
 /* free.c */
 
