@@ -62,7 +62,7 @@ void	first_init_line(t_line *line, char **envp)
 	line->num_expr = 0;
 	line->lexer_err = 0;
 	line->heredoc_flag = 0;
-	line->prev_exit = 0;
+	/* line->prev_exit = 0; */
 	line->len = ft_strlen(line->input);
 	if (envp)
 		line->envp = envp;
