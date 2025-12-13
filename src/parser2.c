@@ -32,7 +32,7 @@ char	*expanded_var(t_line *line, char *var)
 			expanded_var = ft_strdup("");
 		else
 			expanded_var = ft_strdup(the_env);
-	}		
+	}
 	free(var);
 	if (!expanded_var)
 		return (NULL);

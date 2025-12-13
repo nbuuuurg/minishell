@@ -103,7 +103,8 @@ int	ft_pwd(void)
 	{
 		ft_putstr_fd("pwd: error retrieving current directory", STDERR_FILENO);
 		ft_putstr_fd(": getcwd: cannot access parent", STDERR_FILENO);
-		ft_putstr_fd(" directories: No such file or directory\n", STDERR_FILENO);
+		ft_putstr_fd(" directories: No such file or directory\n",
+			STDERR_FILENO);
 		return (1);
 	}
 	ft_putstr_fd(cwd, STDOUT_FILENO);
