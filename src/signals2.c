@@ -34,6 +34,7 @@ void	sigint_handler_child(int sig)
 	write(STDERR_FILENO, "^C\n", 3);
 	rl_replace_line("", 0);
 	rl_on_new_line();
+	rl_redisplay();
 }
 
 void	sigquit_handler_child(int sig)
