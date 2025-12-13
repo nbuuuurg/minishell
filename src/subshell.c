@@ -20,7 +20,7 @@ char	*new_subinput(t_line *line, t_token *token)
 	if (!init_sub1(&d, token))
 		return (NULL);
 	fill_subinput(&d, token);
-	add_previous_pipes(&d, token);
+	line->last_exit = add_previous_pipes(&d, token);
 	if (line->last_exit != 0)
 		return (NULL);
 	add_next_pipes(&d, token);
@@ -64,15 +64,15 @@ void	fill_subinput(t_sub1 *d, t_token *token)
 	}
 }
 
-void	add_previous_pipes(t_sub1 *d, t_token *token)
+int	add_previous_pipes(t_sub1 *d, t_token *token)
 {
 	char	*old_s;
 
 	d->ttemp = token;
 	if (!d->ttemp->previous)
-		return ;
+		return (0);
 	if (d->ttemp->previous->type != PIPE)
-		return ;
+		return (0);
 	while (d->ttemp->previous
 		&& d->ttemp->previous->type != AND
 		&& d->ttemp->previous->type != OR)
@@ -80,16 +80,17 @@ void	add_previous_pipes(t_sub1 *d, t_token *token)
 		old_s = d->ttemp->previous->s;
 		d->temp = ft_strjoin(d->ttemp->previous->s, " ");
 		if (!d->temp)
-			return ;
+			return (1);
 		free(old_s);
 		d->ttemp->previous->s = d->temp;
 		d->temp = ft_strjoin(d->ttemp->previous->s, d->subinput);
 		if (!d->temp)
-			return ;
+			return (1);
 		free(d->subinput);
 		d->subinput = d->temp;
 		d->ttemp = d->ttemp->previous;
 	}
+	return (0);
 }
 
 void	add_next_pipes(t_sub1 *d, t_token *token)
