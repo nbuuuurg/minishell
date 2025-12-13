@@ -18,8 +18,13 @@ void	check_signals(t_save *save, t_line *line)
 {
 	if (g_sig == 1)
 	{
-		save->exit = 130;
-		line->prev_exit = 130;
+		if (line->prev_exit != 131)
+		{
+			save->exit = 130;
+			line->prev_exit = 130;
+		}
+		else
+			save->exit = 131;
 		g_sig = 0;
 	}
 }
