@@ -590,7 +590,7 @@ void		restore_signals_hd(t_signals *sig);
 char		*new_subinput(t_line *line, t_token *token);
 int			init_sub1(t_sub1 *d, t_token *token);
 void		fill_subinput(t_sub1 *d, t_token *token);
-void		add_previous_pipes(t_line *line, t_sub1 *d, t_token *token);
+void		add_previous_pipes(t_sub1 *d, t_token *token);
 void		add_next_pipes(t_sub1 *d, t_token *token);
 
 /* tokenizer.c */
