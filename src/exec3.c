@@ -45,33 +45,33 @@ int	ft_redir(t_redir *redirect, char *cmd)
 		return (1);
 	while (redirect[i].file)
 	{
-		if (redir_out(redirect[i], cmd) != 0)
+		if (redir_out(&redirect[i], cmd) != 0)
 			return (1);
-		if (redir_in(redirect[i]) != 0)
+		if (redir_in(&redirect[i]) != 0)
 			return (1);
 		i++;
 	}
 	return (0);
 }
 
-int	redir_out(t_redir redirect, char *cmd)
+int	redir_out(t_redir *redirect, char *cmd)
 {
 	int	fd;
 
-	if (ft_strncmp(redirect.redir, ">", ft_strlen(redirect.redir)) == 0)
+	if (ft_strncmp(redirect->redir, ">", ft_strlen(redirect->redir)) == 0)
 	{
-		fd = open(redirect.file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
+		fd = open(redirect->file, O_WRONLY | O_TRUNC | O_CREAT, 0644);
 		if (fd == -1)
-			return (perror(redirect.file), 1);
+			return (perror(redirect->file), 1);
 		if (cmd != NULL)
 			dup2(fd, STDOUT_FILENO);
 		close(fd);
 	}
-	else if (ft_strncmp(redirect.redir, ">>", ft_strlen(redirect.redir)) == 0)
+	else if (ft_strncmp(redirect->redir, ">>", ft_strlen(redirect->redir)) == 0)
 	{
-		fd = open(redirect.file, O_WRONLY | O_APPEND | O_CREAT, 0644);
+		fd = open(redirect->file, O_WRONLY | O_APPEND | O_CREAT, 0644);
 		if (fd == -1)
-			return (perror(redirect.file), 1);
+			return (perror(redirect->file), 1);
 		if (cmd != NULL)
 			dup2(fd, STDOUT_FILENO);
 		close(fd);
@@ -79,26 +79,26 @@ int	redir_out(t_redir redirect, char *cmd)
 	return (0);
 }
 
-int	redir_in(t_redir redirect)
+int	redir_in(t_redir *redirect)
 {
 	int	fd;
 
-	if (ft_strncmp(redirect.redir, "<", ft_strlen(redirect.redir)) == 0)
+	if (ft_strncmp(redirect->redir, "<", ft_strlen(redirect->redir)) == 0)
 	{
-		fd = open(redirect.file, O_RDONLY, 0644);
+		fd = open(redirect->file, O_RDONLY, 0644);
 		if (fd == -1)
-			return (perror(redirect.file), 1);
+			return (perror(redirect->file), 1);
 		dup2(fd, STDIN_FILENO);
 		close(fd);
 	}
-	else if (ft_strncmp(redirect.redir, "<<", ft_strlen(redirect.redir)) == 0)
+	else if (ft_strncmp(redirect->redir, "<<", ft_strlen(redirect->redir)) == 0)
 	{
-		fd = redirect.hd_fd;
+		fd = redirect->hd_fd;
 		if (fd == -1)
 			return (1);
 		dup2(fd, STDIN_FILENO);
 		close(fd);
-		redirect.hd_fd = -1;
+		redirect->hd_fd = -1;
 	}
 	return (0);
 }

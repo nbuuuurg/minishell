@@ -41,14 +41,72 @@ char	*find_expanded_var(int i, char *s, t_line *line)
 	return (var);
 }
 
+/* char	*replace_var(char *s, int *len, t_line *line) */
+/* { */
+/* 	char	*var; */
+/* 	int		i; */
+/**/
+/* 	var = first_check_var(s, len, line); */
+/* 	if (line->last_exit == 10) */
+/* 		return (perror("malloc"), NULL); */
+/* 	i = 1; */
+/* 	while (s[i] && (ft_isalnum(s[i]) || s[i] == '_')) */
+/* 		i++; */
+/* 	if (i == 1) */
+/* 	{ */
+/* 		*len = 1; */
+/* 		var = ft_strdup("$"); */
+/* 		if (!var) */
+/* 			return (perror("malloc"), NULL); */
+/* 		return (var); */
+/* 	} */
+/* 	else */
+/* 	{ */
+/* 		var = find_expanded_var(i, s, line); */
+/* 		if (!var) */
+/* 			return (NULL); */
+/* 	} */
+/* 	*len = i; */
+/* 	return (var); */
+/* } */
+
+
 char	*replace_var(char *s, int *len, t_line *line)
 {
 	char	*var;
 	int		i;
+	int		j;
 
-	var = first_check_var(s, len, line);
-	if (line->last_exit == 10)
-		return (perror("malloc"), NULL);
+	if (s[1] == '\0')
+	{
+		*len = 1;
+		var = ft_strdup("$");
+		if (!var)
+			return (perror("malloc"), NULL);
+		return (var);
+	}
+	if (s[1] == '?')
+	{
+		*len = 2;
+		var = ft_strdup("$?");
+		if (!var)
+			return (perror("malloc"), NULL);
+		var = expanded_var(line, var);
+		if (!var)
+			return (perror("malloc"), NULL);
+		return (var);
+	}
+	if (s[1] == '$')
+	{
+		*len = 2;
+		var = ft_strdup("$$");
+		if (!var)
+			return (perror("malloc"), NULL);
+		var = expanded_var(line, var);
+		if (!var)
+			return (perror("malloc"), NULL);
+		return (var);
+	}
 	i = 1;
 	while (s[i] && (ft_isalnum(s[i]) || s[i] == '_'))
 		i++;
@@ -60,15 +118,27 @@ char	*replace_var(char *s, int *len, t_line *line)
 			return (perror("malloc"), NULL);
 		return (var);
 	}
-	else
+	var = malloc(sizeof(char) * i);
+	if (!var)
+		return (perror("malloc"), NULL);
+	/* printf("s: %s, i: %d\n", s, i); */
+	j = 0;
+	while (j < i - 1)
 	{
-		var = find_expanded_var(i, s, line);
-		if (!var)
-			return (NULL);
+		var[j] = s[j + 1];
+		j++;
 	}
+	var[j] = '\0';
+	/* printf("var before expand: %s\n", var); */
+	var = expanded_var(line, var);
+	if (!var)
+		return (perror("malloc"), NULL);
+	/* printf("var after expand: %s\n", var); */
 	*len = i;
 	return (var);
 }
+
+
 
 char	*ft_strjoin_char(char *s, char c)
 {

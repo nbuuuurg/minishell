@@ -340,8 +340,8 @@ void		free_exec_cmd(t_line *line);
 
 int			get_fd(int *fd_in, int *fd_out, t_redir *redirect, char *cmd);
 int			ft_redir(t_redir *redirect, char *cmd);
-int			redir_out(t_redir redirect, char *cmd);
-int			redir_in(t_redir redirect);
+int			redir_out(t_redir *redirect, char *cmd);
+int			redir_in(t_redir *redirect);
 
 /* exec4.c */
 
