@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.c                                          :+:      :+:    :+:   */
+/*   signals2.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nburgevi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 04:38:41 by nburgevi          #+#    #+#             */
-/*   Updated: 2025/11/05 08:59:59 by nburgevi         ###   ########.fr       */
+/*   Updated: 2025/12/14 13:20:49 by adeflers         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	sigint_handler_child(int sig)
 	write(STDERR_FILENO, "^C\n", 3);
 	rl_replace_line("", 0);
 	rl_on_new_line();
-	/* rl_redisplay(); */
+	// rl_redisplay();
 }
 
 void	sigquit_handler_child(int sig)

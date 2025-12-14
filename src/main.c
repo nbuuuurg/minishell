@@ -6,7 +6,7 @@
 /*   By: adeflers <adeflers@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 15:07:17 by nburgevi          #+#    #+#             */
-/*   Updated: 2025/12/03 16:13:13 by adeflers         ###   ########.fr       */
+/*   Updated: 2025/12/14 13:21:25 by adeflers         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ int	run_minishell(t_line *line, char **envp, t_save *save, int start_flag)
 {
 	while (1)
 	{
+		setup_signals();
 		line->input = readline("minishell> ");
 		check_signals(save, line);
 		if (!line->input)
