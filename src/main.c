@@ -55,8 +55,7 @@ int	run_minishell(t_line *line, char **envp, t_save *save, int start_flag)
 		free_line(line);
 		start_flag = 1;
 	}
-	free_split(envp);
-	return (0);
+	return (free_split(envp), 0);
 }
 
 int	main(int ac, char **av, char **envp)

@@ -557,6 +557,14 @@ char		*replace_var(char *s, int *len, t_line *line);
 char		*ft_strjoin_char(char *s, char c);
 char		*take_tmp_value(char *new_s, char *tmp);
 
+/* parser13.c */
+
+char		*replace_var_1(int *len, char *var);
+char		*replace_var_2(int *len, char *var, t_line *line);
+char		*replace_var_3(int *len, char *var, t_line *line);
+char		*replace_var_4(int *len, char *var);
+char		*replace_var_5(char *s, int *len, char *var, t_line *line);
+
 /* print_err.c */
 
 int			print_err_1(t_token *begin);

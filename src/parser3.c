@@ -67,59 +67,17 @@ char	*expanded_content_helper(char *s, char *new_s, t_line *line)
 	return (new_s);
 }
 
-/* char	*expanded_content(char *s, t_line *line) */
-/* { */
-/* 	char	*new_s; */
-/**/
-/* 	if (!s) */
-/* 		return (NULL); */
-/* 	new_s = ft_strdup(""); */
-/* 	if (!new_s) */
-/* 		return (NULL); */
-/* 	new_s = expanded_content_helper(s, new_s, line); */
-/* 	if (!new_s) */
-/* 		return (NULL); */
-/* 	return (new_s); */
-/* } */
-
 char	*expanded_content(char *s, t_line *line)
 {
 	char	*new_s;
-	int		i;
-	int		len;
-	char	*temp;
-	char	*tmp;
 
 	if (!s)
 		return (NULL);
 	new_s = ft_strdup("");
 	if (!new_s)
 		return (NULL);
-	i = 0;
-	while (s[i])
-	{
-		len = 0;
-		if (s[i] == '$')
-		{
-			temp = replace_var(&s[i], &len, line);
-			if (!temp)
-				return (free(new_s), NULL);
-			i += len;
-			tmp = ft_strjoin(new_s, temp);
-			free(temp);
-			if (!tmp)
-				return (free(new_s), NULL);
-		}
-		else
-		{
-			tmp = ft_strjoin_char(new_s, s[i]);
-			if (!tmp)
-				return (free(new_s), NULL);
-			i++;
-		}
-		free(new_s);
-		new_s = tmp;
-	}
-
+	new_s = expanded_content_helper(s, new_s, line);
+	if (!new_s)
+		return (NULL);
 	return (new_s);
 }
